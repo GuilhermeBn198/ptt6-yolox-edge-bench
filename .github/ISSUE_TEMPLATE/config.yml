@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Proposta do projeto (PTT6)
+    url: https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench/blob/main/docs/proposta/PTT6_Filipe_Guilherme_assinado.pdf
+    about: Documento-fonte original com escopo, protocolo e entregáveis.
+  - name: Base de conhecimento (skill)
+    url: https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench/blob/main/.opencode/skills/ptt6-yolox-edge-bench/SKILL.md
+    about: Frameworks, protocolo, riscos/Plano B e cheatsheet de decisão.
