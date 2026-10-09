@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: "PTT6 — Benchmarking de Inferência do YOLO Quantizado em MCU e SBC: desempenho e eficiência energética em cenários de Edge AI"
+message: "Se utilizar este software ou os dados, por favor cite como abaixo."
+type: software
+authors:
+  - family-names: Matias
+    given-names: Filipe
+  - family-names: Lucas
+    given-names: Guilherme
+  - family-names: Rocha
+    given-names: Herbert Oliveira
+keywords:
+  - Edge AI
+  - YOLOX-Nano
+  - quantização int8
+  - ESP32-S3
+  - Raspberry Pi Zero 2 W
+  - benchmarking
+  - eficiência energética
+license: MIT
+version: 0.1.0
+date-released: "2026-10-08"
+repository-code: "https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench"
