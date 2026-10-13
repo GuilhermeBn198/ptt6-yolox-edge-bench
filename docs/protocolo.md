@@ -1,14 +1,33 @@
 # Protocolo Experimental — PTT6 (YOLOX-Nano int8: ESP32-S3 vs Raspberry Pi Zero 2 W)
 
-> **Status: RASCUNHO v0.3 — falta apenas confirmar o warm-up (ponto 10).** Decisões tomadas estão em
-> **DECISÃO**; recomendações técnicas ainda sem OK estão em **RECOMENDADO**.
+> **Status: CONGELADO v1.0** (sujeito a revisão do orientador/colega). Decisões finais em **DECISÃO**.
 >
 > Fundamentação e fontes: [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Proposta original:
 > [`proposta/PTT6_Filipe_Guilherme_assinado.pdf`](proposta/PTT6_Filipe_Guilherme_assinado.pdf).
 
-- **Versão:** 0.3
+- **Versão:** 1.0 (congelada)
 - **Autores:** Filipe Matias, Guilherme Lucas — **Orientador:** Herbert Oliveira Rocha
 - **Última atualização:** 2026-10-08
+
+---
+
+## Resumo do plano
+
+1. Medir, de forma reprodutível, a inferência do YOLOX-Nano int8 em duas plataformas de borda — ESP32-S3 (MCU) e Raspberry Pi Zero 2 W (SBC) — para detecção de EPIs.
+2. Tarefa é detecção (bounding boxes), não classificação; acurácia entra como mAP@50 e mAP@50-95.
+3. Modelo apenas quantizado, sem re-treino; mesmo runtime TFLite int8 nas duas plataformas, para isolar o efeito do hardware.
+4. Artefato único: YOLOX-ti-lite convertido para TFLite int8, calibrado com 750 imagens, com hash registrado.
+5. Começamos com um único EPI, o colete; conjuntos candidatos CHV e Ultralytics Construction-PPE (o SH17 tem pouquíssimas amostras de colete).
+6. Medimos latência de ponta a ponta (pré + inferência + pós), throughput e energia por inferência (total da janela, incluindo o consumo parado).
+7. Eficiência comparada por inferências/joule e por EDP (energia × latência), com H1 e H0 formalizadas.
+8. Energia medida com INA219 na taxa máxima (~1,9 kHz), janela delimitada por GPIO e integração de potência; o erro do INA219 fica declarado como limitação.
+9. Um piloto define o número de repetições (piso 30, referência até ~240) e o warm-up pelo próprio dado; duas bordas de GPIO separam as três fases.
+10. Estatística: mediana + IQR, teste de Mann-Whitney U com tamanho de efeito e IC por bootstrap; não removemos outliers (opção A), só checamos sensibilidade.
+11. Configuração travada: ESP32-S3 a 240 MHz sem power management e Raspberry Pi com governor performance a 1 GHz, com ambiente e temperatura registrados.
+12. Testes com câmera ao vivo; resolução, formato e número de buffers iguais nas duas pontas, e a diferença de pipeline de câmera declarada como ameaça à validade.
+13. Entregáveis: repositório com licença, README de reprodutibilidade, CSV bruto das execuções, vídeo de 3–5 min e relatório técnico conclusivo.
+14. Prazo de 15 semanas; depois, publicar o dataset no Zenodo (DOI) e submeter a um evento regional.
+15. Título permanece provisório.
 
 ---
 
@@ -83,7 +102,7 @@
   separar as 3 fases.
 - **Repetições (DECISÃO):** rodar **piloto**, estimar o **CV** e calcular N para IC de 95%; **piso
   de 30** e referência de teto **~240** (CV alto/outliers). N pode diferir por plataforma.
-- **Warm-up (A CONFIRMAR):** definido **pelo dado** no piloto — descartar até a variação relativa
+- **Warm-up (DECISÃO):** definido **pelo dado** no piloto — descartar até a variação relativa
   entre janelas consecutivas cair abaixo de um limiar (ex.: < 2%), com piso de segurança (ex.: 5).
   Não usar "descartar 5" fixo (sem lastro na literatura).
 
@@ -158,12 +177,11 @@
 | D19 | Repetições | Piloto → CV → N; piso 30, teto de referência ~240 | 2026-10-08 |
 | D20 | Teste estatístico | Mann-Whitney U + tamanho de efeito + IC bootstrap | 2026-10-08 |
 | D21 | Clock/governor | ESP32-S3 240 MHz sem PM; RPi `performance` 1 GHz | 2026-10-08 |
+| D22 | Warm-up | Definido por dado no piloto (variação < 2%, piso 5) | 2026-10-08 |
 
 ### 12.2 Em aberto
 
-| # | Item | Situação |
-|---|---|---|
-| P1 | Warm-up definido por dado (vs descarte fixo) | aguardando confirmação (ponto 10) |
+Nenhuma pendência: o protocolo está **congelado (v1.0)**. Alterações futuras exigem nova versão documentada.
 
 ---
 
