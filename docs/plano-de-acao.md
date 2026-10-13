@@ -1,6 +1,7 @@
 # Plano de Ação — PTT6 (registro das issues)
 
 > Gerado a partir do GitHub. Repositório: https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench
+> Board (Projects v2): https://github.com/users/GuilhermeBn198/projects/7
 > Gerado em: 2026-10-13T17:18:35Z
 
 ## Milestones
