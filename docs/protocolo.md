@@ -1,13 +1,12 @@
 # Protocolo Experimental — PTT6 (YOLOX-Nano int8: ESP32-S3 vs Raspberry Pi Zero 2 W)
 
-> **Status: RASCUNHO v0.2 — ainda NÃO CONGELADO.** Decisões já tomadas pela dupla estão em
-> **DECISÃO**; recomendações técnicas que aguardam OK estão em **RECOMENDADO**; discussões em
-> aberto estão em **EM ABERTO**.
+> **Status: RASCUNHO v0.3 — falta apenas confirmar o warm-up (ponto 10).** Decisões tomadas estão em
+> **DECISÃO**; recomendações técnicas ainda sem OK estão em **RECOMENDADO**.
 >
 > Fundamentação e fontes: [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Proposta original:
 > [`proposta/PTT6_Filipe_Guilherme_assinado.pdf`](proposta/PTT6_Filipe_Guilherme_assinado.pdf).
 
-- **Versão:** 0.2
+- **Versão:** 0.3
 - **Autores:** Filipe Matias, Guilherme Lucas — **Orientador:** Herbert Oliveira Rocha
 - **Última atualização:** 2026-10-08
 
@@ -16,94 +15,77 @@
 ## 1. Objetivo, pergunta e hipótese
 
 - **Tarefa:** **detecção** de EPIs (saída com bounding boxes), não classificação de imagem.
-  O alvo é identificar os EPIs e o trabalhador; a obtenção de uma métrica de acurácia passa a
-  incluir mAP, e não só acurácia de classe. **(DECISÃO)**
+  A acurácia é medida por **mAP**. **(DECISÃO)**
 - **Objetivo geral:** comparar desempenho e eficiência energética da inferência de um modelo
   YOLOX-Nano int8 em uma MCU (ESP32-S3) e um SBC (Raspberry Pi Zero 2 W).
 - **Pergunta:** como se comparam latência, throughput e energia por inferência entre as duas
   plataformas ao executar o mesmo YOLOX-Nano int8, detectando EPIs, em câmera ao vivo?
 - **H1:** o SBC tem throughput maior, mas energia por inferência igual ou superior.
-- **H0:** não há diferença nas métricas entre as plataformas. **(DECISÃO: adotar H0.)**
-- **Métrica de eficiência:** inferências/joule **e** EDP (Energy-Delay Product). **(DECISÃO.)**
-- **Prazo:** cronograma de **15 semanas** (a capa da proposta diz 11; prevalece o cronograma).
+- **H0:** não há diferença nas métricas entre as plataformas. **(DECISÃO.)**
+- **Eficiência:** inferências/joule **e** EDP. **(DECISÃO.)**
+- **Prazo:** cronograma de **15 semanas**.
 
 ## 2. Plataformas e entrada
 
 | | MCU | SBC |
 |---|---|---|
 | Modelo | ESP32-S3 (LX7 dual-core, até 240 MHz, PSRAM) | Raspberry Pi Zero 2 W (Cortex-A53 quad-core @1 GHz, 512 MB) |
-| Entrada | **câmera ao vivo** (esp32-camera) | **câmera ao vivo** (CSI) |
+| Entrada | câmera ao vivo (esp32-camera) | câmera ao vivo (CSI) |
 | Medição | INA219 inline + fonte regulada | INA219 inline + fonte regulada |
 
-- **Entrada (DECISÃO):** os testes usam **câmera ao vivo**; o dataset estático serve para treino,
-  calibração e validação. Como as pipelines de câmera são diferentes nas duas plataformas
-  (esp32-camera vs V4L2/libcamera), isso é registrado como **ameaça à validade**.
-- **Relógio (RECOMENDADO):** ESP32-S3 travado em **240 MHz** com DFS/light-sleep desabilitados;
+- **Entrada (DECISÃO):** testes com **câmera ao vivo**; dataset estático para treino/calibração/validação.
+  As pipelines de câmera diferem (esp32-camera vs V4L2/libcamera) → **ameaça à validade**: fixar
+  resolução, formato e número de buffers iguais.
+- **Relógio (DECISÃO):** ESP32-S3 travado em **240 MHz** com DFS/light-sleep desabilitados;
   RPi com governor **`performance`** a **1 GHz**. Registrar `sdkconfig` e `config.txt`.
-- **Térmica:** registrar temperatura; heatsink e pausas de resfriamento.
 
 ## 3. Modelo e runtime
 
-- **Modelo:** YOLOX-Nano quantizado int8 (0,91 M params, 1,08 GFLOPs, 416×416). **(DECISÃO: só
-  quantização, sem re-treino.)**
-- **Runtime (DECISÃO):** **o mesmo nas duas plataformas — TensorFlow Lite (int8)** — para
-  comparação direta. (Alternativa descartada: NCNN no SBC, que trocaria hardware+runtime ao mesmo
-  tempo e enfraqueceria H1.)
-- **Artefato (RECOMENDADO):** um único `.tflite` int8 obtido por **YOLOX-ti-lite → TFLite**
-  (`onnx2tf`), usado nas duas pontas; registrar **hash** do arquivo no repositório.
-- **Calibração int8 (RECOMENDADO):** **~500 imagens** representativas do conjunto de treino
-  (faixa da literatura: 100–500; alguns trabalhos usam 1.000), estratificadas por classe, sem
-  vazar o conjunto de validação.
+- **Modelo:** YOLOX-Nano int8 (0,91 M params, 1,08 GFLOPs, 416×416). **(DECISÃO: só quantização.)**
+- **Runtime (DECISÃO):** **mesmo nas duas plataformas — TFLite int8** — para comparação direta.
+- **Artefato (DECISÃO):** um único `.tflite` int8 por **YOLOX-ti-lite → TFLite** (`onnx2tf`), usado
+  nas duas pontas; registrar **hash**.
+- **Calibração int8 (DECISÃO):** **750 imagens** representativas do conjunto de treino,
+  estratificadas por classe, sem vazar validação.
 
 ## 4. Dataset de EPIs
 
-- **Base (DECISÃO):** começar por **um único EPI — o colete (`safety-vest`)** — e expandir depois.
-  A expansão de classes será acompanhada por issues no GitHub (fora do escopo mínimo).
-- **Datasets a considerar (EM ABERTO — verificar padrão de indústria):**
-  - **CHV** — 1.330 imgs, 6 classes, uso público. **Boa opção para começar com colete.**
-  - **SH17** — 8.099 imgs, 17 classes, licença research+comercial. **Atenção:** a classe
-    `safety-vest` tem muito poucas amostras (~45 imagens) — ruim para um estudo só de colete.
-  - **Ultralytics Construction-PPE** — 1.416 imgs, 11 classes, inclui classes de "EPI ausente"
-    (`no_helmet` etc.); licença **AGPL-3.0**. Relevante por ser ferramenta de referência da área.
-  - **SFCHD** — 12.373 imgs, 7 classes, imagens de câmeras de vigilância em ambiente real.
-  - Complementos: SHEL5K, SHEL/SHWD, Pictor-PPE, GDUT-HWD.
-- **Pré-processamento (DECISÃO):** idêntico nas duas plataformas (resize, normalização, ordem de
-  canais), documentado em `docs/dataset.md`.
+- **Base (DECISÃO):** começar por **um EPI — o colete (`safety-vest`)**; expandir depois (issue #20).
+- **Conjuntos registrados para uso:** **CHV** (1.330 imgs, 6 classes, uso público) e
+  **Ultralytics Construction-PPE** (1.416 imgs, 11 classes, inclui classes de "EPI ausente";
+  AGPL-3.0) como candidatos diretos para o colete. Complementos avaliados: **SH17** (8.099 imgs,
+  17 classes — **atenção: só ~45 imgs de `safety-vest`**), **SFCHD** (12.373 imgs, cenário real),
+  SHEL5K, SHEL/SHWD, Pictor-PPE, GDUT-HWD.
+- **Pré-processamento (DECISÃO):** idêntico nas duas plataformas; documentado em `docs/dataset.md`.
 
 ## 5. Métricas e definições
 
 | Métrica | Definição | Janela |
 |---|---|---|
-| Latência | tempo de uma inferência de ponta a ponta | **pré + inferência + pós (DECISÃO: medir tudo)** |
+| Latência | tempo de uma inferência de ponta a ponta | **pré + inferência + pós (DECISÃO)** |
 | Throughput | inferências por segundo | idem |
-| Energia por inferência | `E = ∫ P(t)·dt` na janela | **total da janela, incluindo idle (DECISÃO)** |
+| Energia por inferência | `E = ∫ P(t)·dt` na janela | **total, incluindo idle (DECISÃO)** |
 | Eficiência | inferências/joule | derivada |
-| EDP | energia × latência | derivada (DECISÃO: incluir) |
-| Acurácia | mAP@50 / mAP@50-95 (tarefa de detecção) | validação |
+| EDP | energia × latência | derivada |
+| Acurácia | mAP@50 / mAP@50-95 | validação |
 
-- **DECISÃO:** medir a latência **de ponta a ponta (tudo)** e a energia **total da janela**,
-  incluindo o consumo parado. Mesmo assim, **reportar as 3 fases separadas** (pré-inferência,
-  inferência, pós-inferência) para permitir reanálise — o número principal é o total.
+- Mesmo medindo o total, **reportar as 3 fases separadas** (pré/inferência/pós) para permitir reanálise.
 
 ## 6. Protocolo de medição
 
-- **Warm-up (RECOMENDADO):** definido **pelo dado**, não fixo. Rodar um piloto e descartar até a
-  variação relativa entre janelas consecutivas cair abaixo de um limiar (ex.: < 2%), com piso de
-  segurança (ex.: 5 execuções). Justificar com o piloto. (O "descartar 5" fixo não tem lastro na
-  literatura.)
-- **Repetições (RECOMENDADO):** rodar um **piloto** em cada plataforma, estimar o **CV** e calcular
-  o N necessário para um IC de 95% com margem alvo; **piso de 30**. N pode diferir por plataforma
-  (o SBC tende a ter mais variabilidade).
-- **Instrumentação de energia (DECISÃO: manter INA219):**
-  - Operar o INA219 na **taxa máxima** (12 bits, 1 amostra ≈ 532 µs ≈ 1,9 kHz), não a 10 Hz.
-  - Delimitar a janela por **GPIO** e integrar a potência no tempo da janela.
-  - Calibrar contra uma carga conhecida.
-  - **Limitação conhecida:** o INA219 mede tensão e corrente em **instantes diferentes** (até ~68 ms
-    no modo 128 médias) e a 10 Hz não resolve inferências curtas. Se o erro for relevante, será
-    **declarado como limitação** no relatório (Plano B já previsto). Se necessário no futuro,
-    considerar PPK2/Joulescope (2 MSPS).
-- **Cronometragem (RECOMENDADO):** **duas bordas de GPIO** (disparo duplo) para delimitar a janela
-  e, se possível, separar as 3 fases.
+- **Energia (DECISÃO + RECOMENDADO):** manter o **INA219**. Operar na **taxa máxima** (12 bits,
+  1 amostra ≈ 532 µs ≈ **1,9 kHz**, não 10 Hz); delimitar a janela por **GPIO** e **integrar a
+  potência** no tempo (`E = ∫ P(t)·dt`); **calibrar** contra carga conhecida. **Limitação a
+  documentar:** o INA219 mede tensão e corrente em instantes diferentes (até ~68 ms no modo 128
+  médias) e não resolve inferências curtas — o erro será declarado no relatório. Se o erro
+  comprometer a comparação, avaliar upgrade para **Nordic PPK2** (~100 US$, 100 ksps) ou Joulescope.
+- **Cronometragem (DECISÃO):** **duas bordas de GPIO** (disparo duplo) para delimitar a janela e
+  separar as 3 fases.
+- **Repetições (DECISÃO):** rodar **piloto**, estimar o **CV** e calcular N para IC de 95%; **piso
+  de 30** e referência de teto **~240** (CV alto/outliers). N pode diferir por plataforma.
+- **Warm-up (A CONFIRMAR):** definido **pelo dado** no piloto — descartar até a variação relativa
+  entre janelas consecutivas cair abaixo de um limiar (ex.: < 2%), com piso de segurança (ex.: 5).
+  Não usar "descartar 5" fixo (sem lastro na literatura).
 
 ## 7. Variáveis
 
@@ -111,20 +93,18 @@
 - **Dependentes:** latência (ms), throughput (inf/s), energia/inferência (mJ).
 - **Controladas (registrar):** clock/governor, PM/light-sleep, versões (firmware, SDK, runtime,
   compilador), hash do modelo, tensão de alimentação, temperatura, formato/nº de frame buffers da
-  câmera, imagens/ambiente de entrada.
+  câmera, imagens/ambiente.
 
 ## 8. Análise estatística
 
-- **Reportar (DECISÃO):** mediana + IQR **e** média ± dp; IC 95%.
-- **Teste (RECOMENDADO):** com exatamente **duas** plataformas, usar **Mann-Whitney U** (robusto a
-  não normalidade/outliers) como principal, com **tamanho de efeito** (Cliff's delta / rank-biserial)
-  e **IC por bootstrap** da diferença. ANOVA/Tukey só se houvesse >2 grupos (não é o caso).
-  Welch t-test como verificação de robustez se a normalidade for plausível.
-- **Teste de H1:** verificar simultaneamente throughput(SBC) > throughput(MCU) **e**
-  energia(SBC) ≥ energia(MCU).
-- **Outliers (EM ABERTO):** discutir política (ver seção 12). Recomendação inicial: reportar os
-  dados brutos; análise principal com todas as execuções válidas (pós-warm-up); verificação de
-  sensibilidade removendo >1,5×IQR (Tukey), com justificativa e reportando N original e removido.
+- **Reportar:** mediana + IQR **e** média ± dp; IC 95%.
+- **Teste (DECISÃO):** **Mann-Whitney U** (robusto a não normalidade/outliers) + **tamanho de efeito**
+  (Cliff's delta / rank-biserial) + **IC por bootstrap** da diferença. (ANOVA/Tukey não se aplica a
+  dois grupos.) Welch t como verificação de robustez se a normalidade for plausível.
+- **Teste de H1:** throughput(SBC) > throughput(MCU) **e** energia(SBC) ≥ energia(MCU).
+- **Outliers (DECISÃO):** **opção A — não remover**. Análise principal com todas as execuções válidas
+  usando estatística robusta (mediana, Mann-Whitney). A remoção por Tukey (>1,5×IQR) fica apenas como
+  **verificação de sensibilidade**, reportando N original e removido.
 
 ## 9. Ameaças à validade e mitigação
 
@@ -132,18 +112,17 @@
 |---|---|
 | Throttling térmico no Zero 2 W (80/85 °C) | governor `performance`, heatsink, pausas, registrar temp. |
 | DFS/light-sleep no ESP32-S3 | desabilitar PM ou travar `ESP_PM_CPU_FREQ_MAX`; registrar `sdkconfig` |
-| **Pipelines de câmera diferentes** (esp32-camera vs V4L2) | declarar; fixar resolução/formato/nº de buffers |
+| Pipelines de câmera diferentes | declarar; fixar resolução/formato/nº de buffers |
 | PSRAM lenta / cache | fixar layout do modelo; registrar uso de PSRAM vs SRAM |
 | Erro sistemático do INA219 (V/I não simultâneos) | calibrar; quantificar; declarar como limitação |
 | Deriva de frequência/autocorrelação | múltiplas execuções; travar frequência; análise temporal |
-| Sem baseline publicado de YOLOX-Nano nas duas plataformas | reportar como medição primeira; reforçar reprodutibilidade |
+| Sem baseline publicado de YOLOX-Nano nas duas plataformas | ver §12 (D16) |
 
 ## 10. Plano B (contingência)
 
 - **Medidor indisponível/defeituoso:** estimar energia = potência do datasheet × tempo medido,
   declarando a limitação.
-- **Modelo não performa em algum device:** usar outras versões quantizadas do YOLO, mantendo o
-  protocolo.
+- **Modelo não performa em algum device:** usar outras versões quantizadas do YOLO, mantendo o protocolo.
 
 ## 11. Riscos
 
@@ -160,40 +139,31 @@
 |---|---|---|---|
 | D1 | Tarefa | Detecção de EPIs (bounding boxes) | 2026-10-08 |
 | D2 | Prazo | 15 semanas | 2026-10-08 |
-| D3 | Entrada | Câmera ao vivo (dataset estático só p/ treino/calibração) | 2026-10-08 |
+| D3 | Entrada | Câmera ao vivo | 2026-10-08 |
 | D4 | Câmera | Entra no escopo | 2026-10-08 |
 | D5 | Janela de latência | Tudo (pré + inferência + pós) | 2026-10-08 |
 | D6 | Energia | Total da janela (inclui idle) | 2026-10-08 |
-| D7 | Instrumento | Manter INA219; erro → limitação | 2026-10-08 |
+| D7 | Instrumento | Manter INA219 (taxa máx, GPIO, calibrar; erro → limitação) | 2026-10-08 |
 | D8 | Runtime | Mesmo nas duas plataformas (TFLite int8) | 2026-10-08 |
-| D9 | Modelo | Somente quantização (sem re-treino) | 2026-10-08 |
-| D10 | Classes | Começar por colete (1 classe); expandir via issues | 2026-10-08 |
+| D9 | Modelo | Somente quantização | 2026-10-08 |
+| D10 | Classes | Começar por colete (1 classe); expandir via issue #20 | 2026-10-08 |
 | D11 | Pré-processamento | Idêntico nas duas plataformas | 2026-10-08 |
-| D12 | Métrica de eficiência | inf/J + EDP | 2026-10-08 |
+| D12 | Eficiência | inf/J + EDP | 2026-10-08 |
 | D13 | H0 | Adotada | 2026-10-08 |
 | D14 | Título | Manter provisório | 2026-10-08 |
 | D15 | Ambiente | Registrar (temp, tensão, shunt, buffers) | 2026-10-08 |
+| D16 | Ausência de baseline | Rigor de reprodutibilidade + citar modelos análogos como contexto + dataset publicado como contribuição principal | 2026-10-08 |
+| D17 | Calibração int8 | 750 imagens estratificadas | 2026-10-08 |
+| D18 | Outliers | Opção A (não remover; robusto) com Tukey como sensibilidade | 2026-10-08 |
+| D19 | Repetições | Piloto → CV → N; piso 30, teto de referência ~240 | 2026-10-08 |
+| D20 | Teste estatístico | Mann-Whitney U + tamanho de efeito + IC bootstrap | 2026-10-08 |
+| D21 | Clock/governor | ESP32-S3 240 MHz sem PM; RPi `performance` 1 GHz | 2026-10-08 |
 
-### 12.2 Recomendações técnicas (aguardando OK)
-
-| # | Item | Recomendação |
-|---|---|---|
-| R1 | Warm-up | Definido por dado + piso (não fixo em 5) |
-| R2 | N repetições | Piloto → CV → N; piso 30 |
-| R3 | Cronometragem | Duas bordas de GPIO (separar fases) |
-| R4 | Artefato int8 | YOLOX-ti-lite → TFLite, mesmo arquivo nas duas; hash |
-| R5 | Calibração | ~500 imagens estratificadas |
-| R6 | Teste estatístico | Mann-Whitney U + tamanho de efeito + IC bootstrap |
-| R7 | Clock/governor | ESP32-S3 240 MHz sem PM; RPi `performance` 1 GHz |
-
-### 12.3 Em aberto
+### 12.2 Em aberto
 
 | # | Item | Situação |
 |---|---|---|
-| P1 | Melhor abordagem para medir/estimar energia (proxy) | precisa de mais definição |
-| P2 | Política de outliers | discutir |
-| P3 | Como reportar a ausência de baseline publicado | definir redação |
-| P4 | Dataset de EPI padrão de indústria | verificar alternativas (ver §4) |
+| P1 | Warm-up definido por dado (vs descarte fixo) | aguardando confirmação (ponto 10) |
 
 ---
 
