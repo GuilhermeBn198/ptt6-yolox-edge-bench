@@ -1,30 +1,40 @@
-# Protocolo Experimental — PTT6 (YOLOX-Nano int8: ESP32-S3 vs Raspberry Pi Zero 2 W)
+# Protocolo Experimental — PTT6 (YOLOX-Nano int8: ESP32 (LX6) vs Raspberry Pi Zero 2 W)
 
-> **Status: CONGELADO v1.0** (sujeito a revisão do orientador/colega). Decisões finais em **DECISÃO**.
+> **Status: v1.2** — emendas sobre o protocolo **v1.0 congelado**: **v1.1** (plataforma MCU, §13) e
+> **v1.2** (energia estimada por software + execução em fases, §14–§15). A base metodológica
+> (métricas, estatística) permanece congelada. Decisões finais em **DECISÃO**.
 >
 > Fundamentação e fontes: [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Proposta original:
 > [`proposta/PTT6_Filipe_Guilherme_assinado.pdf`](proposta/PTT6_Filipe_Guilherme_assinado.pdf).
 
-- **Versão:** 1.0 (congelada)
+- **Versão:** 1.2 (emendas aprovadas com o orientador)
 - **Autores:** Filipe Matias, Guilherme Lucas — **Orientador:** Herbert Oliveira Rocha
-- **Última atualização:** 2026-10-08
+- **Última atualização:** 2026-10-13
+
+### Histórico de versões
+
+| Versão | Data | Mudança |
+|---|---|---|
+| 1.0 | 2026-10-08 | Protocolo congelado (22 decisões, D1–D22). |
+| 1.1 | 2026-10-13 | **D23:** plataforma MCU passa de ESP32-**S3** para **ESP32 (LX6)**, o hardware efetivamente disponível; aprovado pelo orientador (não é impeditivo). Impactos em §2, §3, §9 e §13. |
+| 1.2 | 2026-10-13 | **D24:** energia por inferência passa a ser **estimada por software** (modelo de potência × tempo medido), **descartando a medição física com INA219** — inviável no prazo, decidido com o orientador. **D25:** execução **em fases** — validar o pipeline com **imagens estáticas** antes de integrar a **câmera ao vivo**. Impactos em §2, §5, §6, §9–§11 e §14–§15. |
 
 ---
 
 ## Resumo do plano
 
-1. Medir, de forma reprodutível, a inferência do YOLOX-Nano int8 em duas plataformas de borda — ESP32-S3 (MCU) e Raspberry Pi Zero 2 W (SBC) — para detecção de EPIs.
+1. Medir, de forma reprodutível, a inferência do YOLOX-Nano int8 em duas plataformas de borda — ESP32 (LX6) (MCU) e Raspberry Pi Zero 2 W (SBC) — para detecção de EPIs.
 2. Tarefa é detecção (bounding boxes), não classificação; acurácia entra como mAP@50 e mAP@50-95.
 3. Modelo apenas quantizado, sem re-treino; mesmo runtime TFLite int8 nas duas plataformas, para isolar o efeito do hardware.
 4. Artefato único: YOLOX-ti-lite convertido para TFLite int8, calibrado com 750 imagens, com hash registrado.
 5. Começamos com um único EPI, o colete; conjuntos candidatos CHV e Ultralytics Construction-PPE (o SH17 tem pouquíssimas amostras de colete).
-6. Medimos latência de ponta a ponta (pré + inferência + pós), throughput e energia por inferência (total da janela, incluindo o consumo parado).
+6. Medimos latência de ponta a ponta (pré + inferência + pós), throughput e energia por inferência **estimada por software** (total da janela, incluindo o consumo parado).
 7. Eficiência comparada por inferências/joule e por EDP (energia × latência), com H1 e H0 formalizadas.
-8. Energia medida com INA219 na taxa máxima (~1,9 kHz), janela delimitada por GPIO e integração de potência; o erro do INA219 fica declarado como limitação.
-9. Um piloto define o número de repetições (piso 30, referência até ~240) e o warm-up pelo próprio dado; duas bordas de GPIO separam as três fases.
+8. Energia **estimada por software** (modelo de potência por modo × tempo medido por fase); **sem medidor físico inline** — a limitação é declarada no relatório.
+9. Desenvolvimento **em fases**: validar o pipeline com **imagens estáticas** (sem câmera) e só depois integrar a **câmera ao vivo**. Um piloto define o número de repetições (piso 30, referência até ~240) e o warm-up pelo próprio dado; duas bordas de GPIO separam as três fases.
 10. Estatística: mediana + IQR, teste de Mann-Whitney U com tamanho de efeito e IC por bootstrap; não removemos outliers (opção A), só checamos sensibilidade.
-11. Configuração travada: ESP32-S3 a 240 MHz sem power management e Raspberry Pi com governor performance a 1 GHz, com ambiente e temperatura registrados.
-12. Testes com câmera ao vivo; resolução, formato e número de buffers iguais nas duas pontas, e a diferença de pipeline de câmera declarada como ameaça à validade.
+11. Configuração travada: ESP32 (LX6) a 240 MHz sem power management e Raspberry Pi com governor performance a 1 GHz, com ambiente e temperatura registrados.
+12. Testes em fases: validação com imagens estáticas do próprio dataset e, em seguida, câmera ao vivo; resolução, formato e número de buffers iguais nas duas pontas, e a diferença de pipeline de câmera declarada como ameaça à validade.
 13. Entregáveis: repositório com licença, README de reprodutibilidade, CSV bruto das execuções, vídeo de 3–5 min e relatório técnico conclusivo.
 14. Prazo de 15 semanas; depois, publicar o dataset no Zenodo (DOI) e submeter a um evento regional.
 15. Título permanece provisório.
@@ -36,9 +46,10 @@
 - **Tarefa:** **detecção** de EPIs (saída com bounding boxes), não classificação de imagem.
   A acurácia é medida por **mAP**. **(DECISÃO)**
 - **Objetivo geral:** comparar desempenho e eficiência energética da inferência de um modelo
-  YOLOX-Nano int8 em uma MCU (ESP32-S3) e um SBC (Raspberry Pi Zero 2 W).
+  YOLOX-Nano int8 em uma MCU (ESP32 (LX6)) e um SBC (Raspberry Pi Zero 2 W).
 - **Pergunta:** como se comparam latência, throughput e energia por inferência entre as duas
-  plataformas ao executar o mesmo YOLOX-Nano int8, detectando EPIs, em câmera ao vivo?
+  plataformas ao executar o mesmo YOLOX-Nano int8, detectando EPIs (validação com imagens estáticas
+  e, depois, câmera ao vivo)?
 - **H1:** o SBC tem throughput maior, mas energia por inferência igual ou superior.
 - **H0:** não há diferença nas métricas entre as plataformas. **(DECISÃO.)**
 - **Eficiência:** inferências/joule **e** EDP. **(DECISÃO.)**
@@ -48,14 +59,24 @@
 
 | | MCU | SBC |
 |---|---|---|
-| Modelo | ESP32-S3 (LX7 dual-core, até 240 MHz, PSRAM) | Raspberry Pi Zero 2 W (Cortex-A53 quad-core @1 GHz, 512 MB) |
-| Entrada | câmera ao vivo (esp32-camera) | câmera ao vivo (CSI) |
-| Medição | INA219 inline + fonte regulada | INA219 inline + fonte regulada |
+| Modelo | **ESP32 (LX6)** — dual-core Xtensa LX6, até 240 MHz | Raspberry Pi Zero 2 W (Cortex-A53 quad-core @1 GHz, 512 MB) |
+| Entrada | imagens estáticas → câmera ao vivo (fase 2) | imagens estáticas → câmera ao vivo (fase 2) |
+| Medição | energia **estimada por software** + cronometragem por GPIO | energia **estimada por software** + cronometragem por GPIO |
 
-- **Entrada (DECISÃO):** testes com **câmera ao vivo**; dataset estático para treino/calibração/validação.
-  As pipelines de câmera diferem (esp32-camera vs V4L2/libcamera) → **ameaça à validade**: fixar
-  resolução, formato e número de buffers iguais.
-- **Relógio (DECISÃO):** ESP32-S3 travado em **240 MHz** com DFS/light-sleep desabilitados;
+> **Emenda v1.1 (D23):** a plataforma MCU é o **ESP32 (LX6)**, hardware efetivamente disponível à
+> dupla, e não o **ESP32-S3** citado na proposta. O orientador avaliou que a substituição **não é
+> impeditiva**. Consequências registradas como ameaça à validade em §9: o LX6 **não possui** as
+> extensões vetoriais/AI (SIMD) do S3, o que tende a **aumentar a latência** e alterar o perfil de
+> consumo da MCU. O S3 permanece apenas como **referência documental**, não como plataforma medida.
+
+- **Entrada e fases (DECISÃO, v1.2 / D25):** o desenvolvimento é **em fases**. **Fase 1:** conversão
+  e validação do modelo com **imagens estáticas** (o dataset), **sem câmera** — garante que a
+  detecção funciona antes de qualquer tempo real. **Fase 2:** integração da **câmera ao vivo**. A
+  medição final só ocorre com o pipeline validado na fase anterior.
+- **Câmera (DECISÃO, v1.2):** entra no escopo, porém na **fase 2**. As pipelines diferem
+  (esp32-camera vs V4L2/libcamera) → **ameaça à validade**: fixar resolução, formato e número de
+  buffers iguais nas duas pontas.
+- **Relógio (DECISÃO):** ESP32 (LX6) travado em **240 MHz** com DFS/light-sleep desabilitados;
   RPi com governor **`performance`** a **1 GHz**. Registrar `sdkconfig` e `config.txt`.
 
 ## 3. Modelo e runtime
@@ -66,6 +87,11 @@
   nas duas pontas; registrar **hash**.
 - **Calibração int8 (DECISÃO):** **750 imagens** representativas do conjunto de treino,
   estratificadas por classe, sem vazar validação.
+- **Viabilidade na plataforma adotada (nota v1.1):** o YOLOX-Nano a 416×416 (~1,08 GFLOPs) é pesado
+  para o **ESP32 (LX6)**, que não tem extensões vetoriais/AI. Antes dos experimentos, o **piloto**
+  deve confirmar que a inferência roda e medir a latência esperada; se inviável, mantém-se o mesmo
+  runtime/pipeline e ajusta-se a resolução de entrada de forma **idêntica nas duas plataformas**
+  (registrando a mudança e seu efeito na comparabilidade).
 
 ## 4. Dataset de EPIs
 
@@ -83,23 +109,29 @@
 |---|---|---|
 | Latência | tempo de uma inferência de ponta a ponta | **pré + inferência + pós (DECISÃO)** |
 | Throughput | inferências por segundo | idem |
-| Energia por inferência | `E = ∫ P(t)·dt` na janela | **total, incluindo idle (DECISÃO)** |
+| Energia por inferência | `E = Σ P_modo · t_fase` — potência do **modelo por modo** × tempo **medido** por fase | **total, incluindo idle (DECISÃO); estimada por software (D24)** |
 | Eficiência | inferências/joule | derivada |
 | EDP | energia × latência | derivada |
 | Acurácia | mAP@50 / mAP@50-95 | validação |
 
-- Mesmo medindo o total, **reportar as 3 fases separadas** (pré/inferência/pós) para permitir reanálise.
+- Mesmo estimando o total, **reportar as 3 fases separadas** (pré/inferência/pós) para permitir reanálise.
+- A energia é **derivada de software** (não medida fisicamente): o tempo vem da instrumentação; a
+  potência vem de um **modelo parametrizado** (§6). Registrar tensão e valores assumidos.
 
 ## 6. Protocolo de medição
 
-- **Energia (DECISÃO + RECOMENDADO):** manter o **INA219**. Operar na **taxa máxima** (12 bits,
-  1 amostra ≈ 532 µs ≈ **1,9 kHz**, não 10 Hz); delimitar a janela por **GPIO** e **integrar a
-  potência** no tempo (`E = ∫ P(t)·dt`); **calibrar** contra carga conhecida. **Limitação a
-  documentar:** o INA219 mede tensão e corrente em instantes diferentes (até ~68 ms no modo 128
-  médias) e não resolve inferências curtas — o erro será declarado no relatório. Se o erro
-  comprometer a comparação, avaliar upgrade para **Nordic PPK2** (~100 US$, 100 ksps) ou Joulescope.
-- **Cronometragem (DECISÃO):** **duas bordas de GPIO** (disparo duplo) para delimitar a janela e
-  separar as 3 fases.
+- **Energia (DECISÃO v1.2 / D24 — por software):** a medição física inline com **INA219** foi
+  **descartada** por ser **inviável no prazo** (decisão conjunta com o orientador). A energia por
+  inferência é **estimada por software** a partir de um **modelo de potência por modo de operação**
+  (`P_idle`, `P_ativo`) com valores **típicos de datasheet**, multiplicados pelos **tempos medidos por
+  fase**: `E = Σ (P_modo × t_fase)` na janela `[t0, t3]`. Registrar tensão de alimentação e os valores
+  assumidos. **Limitação a documentar:** não é medição física — o modelo **não captura transientes** e
+  a exatidão fica limitada aos valores de datasheet; a comparação é **relativa** entre plataformas sob
+  o **mesmo modelo**. Se um medidor físico (INA219/PPK2) ficar disponível, usá-lo apenas como
+  **verificação cruzada** (não como método principal).
+- **Cronometragem (DECISÃO):** manter **duas bordas de GPIO** (disparo duplo) para delimitar a janela e
+  separar as 3 fases. Alternativa por **timestamps de alta resolução em software** é aceita caso o GPIO
+  não esteja instrumentado, declarando a troca como limitação.
 - **Repetições (DECISÃO):** rodar **piloto**, estimar o **CV** e calcular N para IC de 95%; **piso
   de 30** e referência de teto **~240** (CV alto/outliers). N pode diferir por plataforma.
 - **Warm-up (DECISÃO):** definido **pelo dado** no piloto — descartar até a variação relativa
@@ -130,25 +162,28 @@
 | Ameaça | Mitigação |
 |---|---|
 | Throttling térmico no Zero 2 W (80/85 °C) | governor `performance`, heatsink, pausas, registrar temp. |
-| DFS/light-sleep no ESP32-S3 | desabilitar PM ou travar `ESP_PM_CPU_FREQ_MAX`; registrar `sdkconfig` |
-| Pipelines de câmera diferentes | declarar; fixar resolução/formato/nº de buffers |
+| DFS/light-sleep no ESP32 (LX6) | desabilitar PM ou travar `ESP_PM_CPU_FREQ_MAX`; registrar `sdkconfig` |
+| **Plataforma MCU difere da proposta** (ESP32 LX6 em vez de ESP32-S3) | desvio **aprovado pelo orientador**; declarar no relatório; **não** extrapolar resultados para o S3; registrar impactos esperados (sem SIMD, latência/consumo) |
+| **Energia estimada por software** (modelo de potência, não medição física) | usar o mesmo modelo nas duas plataformas; registrar tensão e valores assumidos; verificação cruzada se houver medidor; declarar a limitação |
+| Modelo de potência não captura transientes/picos | documentar como limitação; reportar energia relativa, não absoluta; sensibilidade a `P_mode` |
+| Pipelines de câmera diferentes (fase 2) | declarar; fixar resolução/formato/nº de buffers |
 | PSRAM lenta / cache | fixar layout do modelo; registrar uso de PSRAM vs SRAM |
-| Erro sistemático do INA219 (V/I não simultâneos) | calibrar; quantificar; declarar como limitação |
 | Deriva de frequência/autocorrelação | múltiplas execuções; travar frequência; análise temporal |
 | Sem baseline publicado de YOLOX-Nano nas duas plataformas | ver §12 (D16) |
 
 ## 10. Plano B (contingência)
 
-- **Medidor indisponível/defeituoso:** estimar energia = potência do datasheet × tempo medido,
-  declarando a limitação.
+- **Energia:** método principal é **software** (modelo de potência × tempo medido, D24). Se surgir um
+  medidor físico (INA219/PPK2), usá-lo como **verificação cruzada** — não como método principal.
 - **Modelo não performa em algum device:** usar outras versões quantizadas do YOLO, mantendo o protocolo.
 
 ## 11. Riscos
 
-| Risco | Prob. | Impacto | Plano B |
+| Risco | Prob. | Impacto | Resposta |
 |---|---|---|---|
-| Medidor de potência físico indisponível | média | alto | estimativa por datasheet × tempo |
+| Energia estimada por software não refletir o consumo real | média | alto | mesmo modelo nas duas plataformas; registrar premissas; verificação cruzada se possível; declarar limitação |
 | Modelo não performa em um dispositivo | média | alto | outras versões quantizadas do YOLO |
+| Câmera não integrar na fase 2 | baixa | médio | manter a validação estática como evidência; declarar a fase não concluída |
 
 ## 12. Registro de decisões e pendências
 
@@ -158,11 +193,11 @@
 |---|---|---|---|
 | D1 | Tarefa | Detecção de EPIs (bounding boxes) | 2026-10-08 |
 | D2 | Prazo | 15 semanas | 2026-10-08 |
-| D3 | Entrada | Câmera ao vivo | 2026-10-08 |
-| D4 | Câmera | Entra no escopo | 2026-10-08 |
+| D3 | Entrada | Imagens estáticas na validação; câmera ao vivo na fase 2 (revisada por D25) | 2026-10-08 |
+| D4 | Câmera | Entra no escopo, na **fase 2** (revisada por D25) | 2026-10-08 |
 | D5 | Janela de latência | Tudo (pré + inferência + pós) | 2026-10-08 |
 | D6 | Energia | Total da janela (inclui idle) | 2026-10-08 |
-| D7 | Instrumento | Manter INA219 (taxa máx, GPIO, calibrar; erro → limitação) | 2026-10-08 |
+| D7 | Instrumento | ~~Medir energia com INA219~~ — **revogada por D24** (energia estimada por software) | 2026-10-08 |
 | D8 | Runtime | Mesmo nas duas plataformas (TFLite int8) | 2026-10-08 |
 | D9 | Modelo | Somente quantização | 2026-10-08 |
 | D10 | Classes | Começar por colete (1 classe); expandir via issue #20 | 2026-10-08 |
@@ -170,18 +205,80 @@
 | D12 | Eficiência | inf/J + EDP | 2026-10-08 |
 | D13 | H0 | Adotada | 2026-10-08 |
 | D14 | Título | Manter provisório | 2026-10-08 |
-| D15 | Ambiente | Registrar (temp, tensão, shunt, buffers) | 2026-10-08 |
+| D15 | Ambiente | Registrar (temperatura, tensão de alimentação, buffers) | 2026-10-08 |
 | D16 | Ausência de baseline | Rigor de reprodutibilidade + citar modelos análogos como contexto + dataset publicado como contribuição principal | 2026-10-08 |
 | D17 | Calibração int8 | 750 imagens estratificadas | 2026-10-08 |
 | D18 | Outliers | Opção A (não remover; robusto) com Tukey como sensibilidade | 2026-10-08 |
 | D19 | Repetições | Piloto → CV → N; piso 30, teto de referência ~240 | 2026-10-08 |
 | D20 | Teste estatístico | Mann-Whitney U + tamanho de efeito + IC bootstrap | 2026-10-08 |
-| D21 | Clock/governor | ESP32-S3 240 MHz sem PM; RPi `performance` 1 GHz | 2026-10-08 |
+| D21 | Clock/governor | ESP32 (LX6) 240 MHz sem PM; RPi `performance` 1 GHz | 2026-10-08 |
 | D22 | Warm-up | Definido por dado no piloto (variação < 2%, piso 5) | 2026-10-08 |
+| D23 | **Plataforma MCU** | **ESP32 (LX6)** (hardware disponível) em vez do ESP32-S3 da proposta; aprovado pelo orientador; S3 fica como referência documental | 2026-10-13 |
+| D24 | **Energia (instrumento)** | **Estimar por software** (modelo de potência por modo × tempo medido por fase); **INA219 descartado** por inviabilidade no prazo (com o orientador); limitação declarada; medidor físico só como verificação cruzada | 2026-10-13 |
+| D25 | **Estratégia de execução** | **Em fases**: validar o pipeline com **imagens estáticas** (sem câmera) e só depois integrar a **câmera ao vivo** | 2026-10-13 |
 
 ### 12.2 Em aberto
 
-Nenhuma pendência: o protocolo está **congelado (v1.0)**. Alterações futuras exigem nova versão documentada.
+Uma pendência de parametrização (não metodológica): **preencher e validar os valores do modelo de
+potência** (`P_idle`, `P_ativo`) por plataforma, a partir dos datasheets, antes da coleta final. O
+protocolo está na **v1.2** (v1.0 congelada + emendas D23, D24 e D25). Novas alterações exigem nova
+versão documentada neste histórico.
+
+---
+
+## 13. Emenda v1.1 — Plataforma MCU
+
+- **Contexto:** a dupla dispõe de um **ESP32 (LX6)** — o "ESP32 comum" — e **não** de um ESP32-S3.
+  O orientador avaliou que a substituição **não é impeditiva** para o projeto.
+- **Decisão (D23):** adotar o **ESP32 (LX6)** como plataforma MCU medida. O ESP32-S3 permanece
+  apenas como **referência documental** (proposta original).
+- **O que NÃO muda:** a pergunta de pesquisa, H1/H0, o par MCU×SBC, o artefato único (YOLOX-Nano
+  int8 → TFLite), as métricas, o protocolo de medição (energia por software + cronometragem por GPIO),
+  a estatística e os entregáveis.
+- **O que muda / deve ser declarado:**
+  1. **Ameaça à validade** — o LX6 não tem as extensões vetoriais/AI (SIMD) do S3; resultados **não**
+     se extrapolam para o S3. Registrar como limitação (§9).
+  2. **Viabilidade** — confirmar no piloto que o YOLOX-Nano roda no LX6 no tempo aceitável (§3).
+  3. **Documentação** — atualizar tabelas de plataforma, README, skill e diagramas de arquitetura.
+  4. **Rastreabilidade** — este documento mantém o vínculo com a proposta (que citava o S3).
+
+---
+
+## 14. Emenda v1.2 — Energia estimada por software
+
+- **Contexto:** a avaliação com o orientador concluiu que a **medição física de energia (INA219) é
+  inviável no prazo** do projeto (lead time do componente e custo de bancada).
+- **Decisão (D24):** a energia por inferência passa a ser **estimada por software**, por um **modelo
+  de potência**:
+  ```
+  P(t) ≈ P_modo        (constante por modo: idle / ativo)
+  E    = Σ (P_modo × t_fase)   sobre as fases pré, inferência e pós
+  ```
+  - `t_fase` vem da **instrumentação** (GPIO, §6); `P_modo` vem de **valores típicos de datasheet**,
+    registrados com a tensão de alimentação assumida.
+- **O que NÃO muda:** as **métricas** (latência, throughput, mJ, inf/J, EDP), a janela (pré+inf+pós),
+  a estatística e os entregáveis. A energia continua sendo comparada **entre plataformas**.
+- **O que muda / deve ser declarado:**
+  1. **Não é medição física** — o modelo **não captura transientes** nem picos dinâmicos.
+  2. **Exatidão limitada** aos valores de datasheet; conclusões são **relativas**, não absolutas.
+  3. **Premissas registradas** (tensão, `P_idle`, `P_ativo`) e **mesmo modelo** nas duas plataformas.
+  4. **Verificação cruzada** opcional com medidor físico, se disponível (Plano B invertido).
+
+## 15. Estratégia em fases (imagens estáticas → tempo real)
+
+- **Motivação:** garantir que a **detecção funciona** antes de lidar com a complexidade do tempo real.
+  A câmera **não** é pressuposta desde o início.
+- **Decisão (D25):** executar em fases, cada uma com critério de saída:
+
+| Fase | O quê | Critério de saída |
+|---|---|---|
+| **F1 — Modelo e validação estática** | Dataset preparado, artefato `.tflite` int8 com hash, inferência sobre **imagens estáticas** nas duas plataformas | mAP determinada; mesma predição nas duas plataformas (equivalência) |
+| **F2 — Câmera e tempo real** | Integração da câmera ao vivo, mesmo pipeline, resolução/formato/buffers iguais | Pipeline de tempo real rodando estável nas duas pontas |
+| **F3 — Medição** | Coleta das repetições (piloto→N, warm-up por dado), energia por software | `data/raw/*.csv` completo e reprodutível |
+| **F4 — Análise e entrega** | Estatística, tabelas/gráficos, relatório, dataset, vídeo | Entregáveis-base concluídos |
+
+- **Regra:** nenhuma medição final antes de a fase anterior estar funcional. A **câmera entra só na
+  F2**; as fases F1 e F2 alimentam a comparabilidade (mesmo artefato, mesmo pipeline).
 
 ---
 
@@ -189,5 +286,6 @@ Nenhuma pendência: o protocolo está **congelado (v1.0)**. Alterações futuras
 
 Fontes primárias detalhadas em [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Principais:
 MLPerf Tiny (arXiv:2106.07597), Noronha et al. 2025 (arXiv:2505.15622), Maricq et al. OSDI'18,
-NIST TN 1830, datasheets INA219/ESP32-S3/RPi Zero 2 W, repositórios Espressif/YOLOX/NCNN,
-datasets CHV/SH17/SFCHD/Construction-PPE.
+NIST TN 1830, datasheets **ESP32 (LX6)**/**ESP32-S3** (contexto) e RPi Zero 2 W, repositórios
+Espressif/YOLOX/NCNN, datasets CHV/SH17/SFCHD/Construction-PPE. O datasheet do **INA219** permanece
+citado apenas como **contexto histórico** (método abandonado em D24).

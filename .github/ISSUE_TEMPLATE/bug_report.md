@@ -15,7 +15,7 @@
 <O que aconteceu de fato, com logs/medições.>
 
 ## Ambiente
-- Plataforma: ESP32-S3 / Raspberry Pi Zero 2 W / host
+- Plataforma: ESP32 (LX6) / Raspberry Pi Zero 2 W / host
 - Commit:
 - Instrumentação (INA219 / GPIO):
 

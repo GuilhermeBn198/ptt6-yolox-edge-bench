@@ -1,6 +1,6 @@
 ---
 name: ptt6-yolox-edge-bench
-description: "Base de conhecimento da proposta do projeto PTT6 \"Benchmarking de inferência do Yolo quantizado em MCU e SBC\" (Filipe Matias & Guilherme Lucas, PPCA/UFRR, orient. Herbert Oliveira Rocha). Use ao planejar, executar, medir ou redigir o benchmark de YOLOX-Nano int8 comparando ESP32-S3 (MCU) e Raspberry Pi Zero 2 W (SBC) para classificação de EPIs — pergunta de pesquisa, hipótese, protocolo experimental, medição de energia, riscos/Plano B e entregáveis."
+description: "Base de conhecimento do projeto PTT6 \"Benchmarking de inferência do Yolo quantizado em MCU e SBC\" (Filipe Matias & Guilherme Lucas, PPCA/UFRR, orient. Herbert Oliveira Rocha). Use ao planejar, executar, medir ou redigir o benchmark de YOLOX-Nano int8 comparando ESP32 (LX6) (MCU) e Raspberry Pi Zero 2 W (SBC) para detecção de EPIs — pergunta de pesquisa, hipótese, protocolo experimental (v1.2), energia estimada por software, execução em fases (estático → tempo real), riscos/Plano B e entregáveis."
 ---
 
 <!-- argument-hint: [tópico, framework ou número de seção] -->
@@ -10,11 +10,16 @@ description: "Base de conhecimento da proposta do projeto PTT6 \"Benchmarking de
 
 > Documento-fonte: proposta assinada do Projeto de Pesquisa (PTT6 — Benchmarking e eficiência energética).
 > Escopo: Edge AI embarcado. Este é um **projeto de medição comparativa**, não de treinamento de modelo.
+>
+> **⚠️ Protocolo vigente:** [`docs/protocolo.md`](../../docs/protocolo.md) — **v1.0 congelada + emendas v1.1/v1.2**
+> (**D23**: plataforma MCU = **ESP32 (LX6)**, não ESP32-S3; **D24**: energia **estimada por software**, sem
+> INA219; **D25**: execução **em fases**, estático antes do tempo real). Todas aprovadas com o orientador.
+> Em caso de divergência entre esta skill e o protocolo, **vale o protocolo**.
 
 ## How to Use This Skill
 
 - **Sem argumentos** — carregue os frameworks centrais (pergunta, hipótese, protocolo, restrições, entregáveis)
-- **Com um tópico** — peça `energia`, `INA219`, `int8`, `dataset EPI`; eu localizo e leio a seção relevante
+- **Com um tópico** — peça `energia`, `fases`, `int8`, `dataset EPI`; eu localizo e leio a seção relevante
 - **Com seção** — peça `ch02`; carrego o arquivo específico
 - **Browse** — pergunte "quais capítulos você tem?" para ver o índice completo
 
@@ -25,7 +30,7 @@ Quando o tópico não estiver nos Frameworks Centrais abaixo, leio o arquivo da 
 ## Frameworks Centrais & Modelos Mentais
 
 ### Pergunta de pesquisa (o "norte" de toda decisão)
-**Como se comparam latência, throughput e energia por inferência** entre uma **MCU (ESP32-S3)** e um **SBC (Raspberry Pi Zero 2 W)** ao executar o **mesmo YOLOX-Nano quantizado int8** para **classificação de EPIs**?
+**Como se comparam latência, throughput e energia por inferência** entre uma **MCU (ESP32 LX6)** e um **SBC (Raspberry Pi Zero 2 W)** ao executar o **mesmo YOLOX-Nano quantizado int8** para **detecção de EPIs**?
 - Use isto como filtro: qualquer tarefa que não sirva a essa comparação está fora de escopo.
 
 ### Hipótese H1 (o que você está tentando provar/refutar)
@@ -33,25 +38,29 @@ Quando o tópico não estiver nos Frameworks Centrais abaixo, leio o arquivo da 
 - Preferir comparar **inferências por joule** (eficiência normalizada) e não só velocidade — a MCU pode "ganhar" em eficiência mesmo perdendo em throughput.
 
 ### Escopo mínimo viável (a linha que não se cruza)
-Um único modelo (YOLOX-Nano int8) × exatamente duas plataformas (ESP32-S3 e RPi Zero 2 W), com **protocolo declarado**, **30 repetições por plataforma** e **medição de energia por medidor inline** (ou proxy documentado). Dataset de classificação de EPIs.
+Um único modelo (YOLOX-Nano int8) × exatamente duas plataformas (ESP32 LX6 e RPi Zero 2 W), com **protocolo declarado**, **repetições definidas por piloto/CV (piso 30)** e **energia estimada por software**. Dataset de **detecção** de EPIs.
 
 ### Escopo excluído (diga "não" cedo)
 GPU RTX 3090 · múltiplos modelos/datasets · tuning/otimização da quantização · inferência em nuvem · implantação em campo prolongada.
 
 ### Protocolo experimental (o núcleo do rigor)
-- **Independente**: plataforma (ESP32-S3, RPi Zero 2 W)
+- **Independente**: plataforma (ESP32 LX6, RPi Zero 2 W)
 - **Dependentes**: latência (ms), throughput (inf/s), energia por inferência (mJ)
-- **Repetições**: 30 por plataforma, **descartando as 5 primeiras** (aquecimento)
-- **Dispersão**: desvio-padrão, IQR e coeficiente de variação (CV)
-- **Instrumentos**: medidor de potência inline (ex.: INA219) amostrando a **10 Hz**; cronometragem por **toggle de GPIO**
-- **Ameaça principal**: variação térmica → mitigar com pausas de resfriamento entre baterias e ambiente refrigerado
+- **Repetições**: definidas por **piloto** (CV → N para IC 95%), **piso 30**; **warm-up definido pelo dado**
+- **Dispersão**: mediana + IQR e média ± dp; IC 95%
+- **Instrumentos**: energia **estimada por software** (modelo de potência por modo × tempo medido por fase); cronometragem por **duas bordas de GPIO** (ou timestamps de alta resolução)
+- **Estatística**: **Mann-Whitney U** + tamanho de efeito + IC por bootstrap (não ANOVA)
+- **Ameaça principal**: variação térmica → mitigar com pausas de resfriamento e ambiente registrado
 
 ### Regra da comparabilidade
 Ferramentas e pipeline **funcionalmente idênticos** nas duas plataformas. Se o mesmo artefato (modelo/pipeline) não roda igual nos dois lados, a comparação é inválida — cai no Plano B.
 
 ### Regra do Plano B (nunca bloqueie a entrega)
-- **Medidor físico indisponível/defeituoso** (prob. média, impacto alto): **estimar energia a partir do datasheet** × tempo de execução medido, **declarando a limitação** no relatório.
+- **Energia (método principal = software):** se houver **medidor físico** disponível, usá-lo como **verificação cruzada**; o método principal continua sendo o modelo por software.
 - **Modelo não performa em algum dispositivo** (prob. média, impacto alto): usar **outras versões quantizadas do YOLO**.
+
+### Estratégia em fases (estático → tempo real)
+O desenvolvimento é **em fases**: (F1) converter e **validar o modelo com imagens estáticas**, sem câmera; (F2) integrar a **câmera ao vivo**; (F3) medir; (F4) analisar e entregar. Nenhuma medição final antes de a fase anterior funcionar. A câmera **não** é pressuposta desde o início.
 
 ### Entregáveis-base (obrigatórios)
 Repositório versionado com licença · README de reprodutibilidade · **dados brutos em CSV** · **vídeo de demonstração (3–5 min)** nas duas plataformas · **relatório técnico conclusivo** com tabelas e gráficos.
@@ -77,11 +86,12 @@ Desempenho e **Lei de Amdahl** (comparar tempos entre arquiteturas) · **hierarq
 - **Amdahl / desempenho** → ch02
 - **Dataset de EPIs** → ch01, ch03
 - **Energia por inferência (mJ)** → ch02, ch03
+- **Energia por software (modelo × tempo)** → ch02, ch03
 - **Entregáveis / vídeo / relatório** → ch04
-- **ESP32-S3 (MCU)** → ch01, ch02, ch03
+- **ESP32 (LX6) (MCU)** → ch01, ch02, ch03
 - **Escopo excluído** → ch02
+- **Fases (estático → tempo real)** → ch02, ch03
 - **H1 / hipótese** → ch01
-- **INA219 / medidor inline** → ch03
 - **int8 / quantização** → ch01, ch02
 - **Latência / throughput** → ch01, ch02
 - **Lei de Amdahl** → ch02

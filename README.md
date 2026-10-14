@@ -1,6 +1,6 @@
 # PTT6 — Benchmarking de Inferência do YOLO Quantizado em MCU e SBC
 
-> Desempenho e eficiência energética de **YOLOX-Nano (int8)** para classificação de **EPIs** em cenários de **Edge AI**.
+> Desempenho e eficiência energética de **YOLOX-Nano (int8)** para **detecção de EPIs** em cenários de **Edge AI**.
 
 **Discentes**: Filipe Matias & Guilherme Lucas
 **Orientador**: Herbert Oliveira Rocha
@@ -18,7 +18,7 @@ espectro Edge AI:
 
 | Plataforma | Tipo | Papel no experimento |
 |------------|------|----------------------|
-| **ESP32-S3** | MCU | Extremo de baixo consumo |
+| **ESP32 (LX6)** | MCU | Extremo de baixo consumo (hardware disponível; ver emenda v1.1) |
 | **Raspberry Pi Zero 2 W** | SBC | Extremo de maior throughput/recursos |
 
 **Pergunta de pesquisa**: como se comparam latência, throughput e energia por inferência
@@ -27,26 +27,38 @@ entre a MCU e o SBC ao executar o mesmo pipeline?
 **Hipótese H1**: o SBC apresenta throughput maior, mas energia por inferência igual ou
 superior, dado seu consumo estático mais alto.
 
+> **Nota de plataforma:** a proposta original citava o **ESP32-S3**; adotou-se o **ESP32 (LX6)**
+> disponível, com aval do orientador (emenda **v1.1**, decisão D23). Ver
+> [`docs/protocolo.md`](docs/protocolo.md) §13.
+
 ## Métricas
 
-- **Latência** de inferência (ms)
+- **Latência** de inferência (ms), de ponta a ponta (pré + inferência + pós)
 - **Throughput** (inferências/s)
-- **Energia por inferência** (mJ) e eficiência normalizada (**inferências/joule**)
+- **Energia por inferência** (mJ, **estimada por software**) e eficiência normalizada
+  (**inferências/joule** e **EDP**)
+- **Acurácia**: mAP@50 / mAP@50-95
 
 ## Protocolo experimental (resumo)
 
-- **30 execuções por plataforma**, descartando as **5 primeiras** (aquecimento)
-- Medidor de potência inline **INA219** amostrando a **10 Hz**
-- Cronometragem via **toggle de GPIO**
-- Dispersão: desvio-padrão, IQR e coeficiente de variação
-- Ameaça principal: **variação térmica** — mitigada com pausas de resfriamento entre
-  baterias de execução e ambiente refrigerado
-- **Plano B de energia**: estimar por datasheet × tempo medido, declarando a limitação
+> Detalhes e justificativas em [`docs/protocolo.md`](docs/protocolo.md) (protocolo congelado + emendas v1.1/v1.2).
+
+- Tarefa de **detecção** (bounding boxes), mesmo artefato **YOLOX-Nano int8 → TFLite** (mesmo
+  runtime e mesmo pipeline nas duas plataformas; hash do modelo registrado)
+- **Execução em fases**: validar o pipeline com **imagens estáticas** (sem câmera) e só depois
+  integrar a **câmera ao vivo** (decisão D25)
+- Repetições definidas por **piloto** (CV → N para IC 95%; **piso 30**); **warm-up definido pelo dado**
+- **Energia estimada por software**: modelo de potência por modo (datasheet) × tempo medido por fase
+  (`E = Σ P_modo · t_fase`); **sem medidor físico inline** (decisão D24) — limitação declarada
+- Estatística robusta: mediana + IQR, **Mann-Whitney U** + tamanho de efeito + IC por bootstrap
+- Ameaça principal: **variação térmica** — mitigada com pausas de resfriamento e ambiente registrado
+- **[Arquitetura e diagramas](docs/arquitetura/README.md)**: contexto/C4, fluxo de dados (DFD),
+  casos de uso, sequência de execução, fases, implantação e modelo de dados
 
 ## Estrutura do repositório
 
 ```
-firmware/esp32s3/     # Pipeline de inferência no ESP32-S3 (TFLite Micro)
+firmware/esp32/       # Pipeline de inferência no ESP32 (LX6) (TFLite Micro)
 raspberry/pi_zero_2w/ # Pipeline de inferência no Raspberry Pi Zero 2 W
 hardware/ina219/      # Esquema e código de medição de energia (INA219)
 data/raw/             # Dados brutos das execuções (CSV)
@@ -54,9 +66,13 @@ data/processed/       # Dados agregados/derivados
 analysis/notebooks/   # Análise estatística e gráficos
 report/figures/       # Figuras do relatório
 video/                # Link/roteiro do vídeo de demonstração (3–5 min)
-docs/proposta/        # Proposta assinada do projeto (PTT6)
+docs/                 # Proposta, protocolo, plano de ação, dataset
+docs/arquitetura/     # Diagramas de arquitetura (C4, DFD, casos de uso, sequência)
 .opencode/skills/     # Skill do agente com a base de conhecimento do projeto
 ```
+
+> Observação: a pasta `firmware/esp32s3/` existe no repositório (estrutura inicial); ao implementar,
+> ela passa a conter o pipeline da plataforma **ESP32 (LX6)** adotada na emenda v1.1.
 
 ## Reprodutibilidade
 

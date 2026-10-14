@@ -1,10 +1,10 @@
 # Capítulo 1: Contexto, Problema e Objetivos
 
 ## Ideia Central
-Comparar, de forma sistemática e quantificada, desempenho e eficiência energética de **YOLOX-Nano quantizado em int8** rodando em uma **MCU (ESP32-S3)** e um **SBC (Raspberry Pi Zero 2 W)** para **classificação de EPIs** em cenários de **Edge AI**.
+Comparar, de forma sistemática e quantificada, desempenho e eficiência energética de **YOLOX-Nano quantizado em int8** rodando em uma **MCU (ESP32 LX6)** e um **SBC (Raspberry Pi Zero 2 W)** para **detecção de EPIs** em cenários de **Edge AI**.
 
 ## Frameworks Introduzidos
-- **Pergunta de pesquisa**: "Como se comparam latência, throughput e energia por inferência entre uma MCU (ESP32-S3) e um SBC (Raspberry Pi Zero 2 W) ao executar o mesmo YOLOX-Nano (int8) para classificação de EPIs?"
+- **Pergunta de pesquisa**: "Como se comparam latência, throughput e energia por inferência entre uma MCU (ESP32 LX6) e um SBC (Raspberry Pi Zero 2 W) ao executar o mesmo YOLOX-Nano (int8) para detecção de EPIs?"
   - Quando usar: como filtro de escopo de qualquer decisão do projeto.
   - Como: se a atividade não produz dado que responda latência/throughput/energia nas duas plataformas, está fora de escopo.
 - **Hipótese H1**: o SBC tem throughput maior que a MCU, mas energia por inferência igual ou superior, por causa do maior consumo estático.
@@ -14,15 +14,15 @@ Comparar, de forma sistemática e quantificada, desempenho e eficiência energé
 - **Objetivos específicos** (4 itens):
   1. Implementar um pipeline de inferência **funcionalmente idêntico** nas duas plataformas.
   2. Medir **latência média** e **throughput** de inferência em cada plataforma.
-  3. Medir (ou estimar, conforme Plano B) a **energia por inferência**.
+  3. Estimar a **energia por inferência** (método por software, baseado em modelo de potência × tempo).
   4. Comparar a **eficiência energética normalizada (inferências por joule)**.
 
 ## Conceitos-Chave
 - **Edge AI**: inferência de redes neurais diretamente em dispositivos de borda, de baixo custo e consumo restrito.
 - **Compromisso MCU vs SBC**: escolha entre desempenho, consumo energético e complexidade de desenvolvimento, raramente quantificada de forma sistemática.
-- **YOLOX-Nano**: detector/classificador leve baseado em YOLOX, escolhido por caber em dispositivos embarcados.
+- **YOLOX-Nano**: detector leve baseado em YOLOX, escolhido por caber em dispositivos embarcados.
 - **Quantização int8**: representação de pesos/ativações em inteiro de 8 bits, reduz tamanho e custo de computação.
-- **Classificação de EPIs**: aplicação-alvo (Equipamentos de Proteção Individual) usando um dataset dedicado.
+- **Detecção de EPIs**: aplicação-alvo (Equipamentos de Proteção Individual) usando um dataset dedicado; saída em bounding boxes, avaliada por mAP.
 - **Latência de inferência (ms)**: tempo de uma inferência.
 - **Throughput (inferências/s)**: número de inferências por segundo.
 - **Energia por inferência (mJ)**: energia consumida dividida pelo número de inferências.
@@ -49,5 +49,5 @@ Cenário: você precisa decidir se adiciona suporte a um segundo modelo para "me
 
 ## Conexões
 - **Ch 2**: o protocolo experimental operacionaliza esta pergunta e H1.
-- **Ch 3**: o hardware (ESP32-S3, RPi Zero 2 W, INA219) materializa as duas plataformas.
+- **Ch 3**: o hardware (ESP32 (LX6), RPi Zero 2 W, fonte) materializa as duas plataformas.
 - **Ch 4**: os resultados desta pergunta viram o relatório e o dataset publicados.

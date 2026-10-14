@@ -2,7 +2,7 @@
 
 **Amdahl (Lei de)** — ganho de desempenho limitado pela fração serial; usada para comparar tempos entre arquiteturas (Ch 2).
 
-**AQ (aquecimento / warm-up)** — primeiras execuções descartadas antes da medição válida (5 primeiras, Ch 2).
+**AQ (aquecimento / warm-up)** — execuções iniciais descartadas antes da medição válida; no protocolo v1.1 o descarte é **definido pelo dado** no piloto (não fixo em 5) (Ch 2).
 
 **Bateria de execução** — bloco de repetições; pausas de resfriamento ocorrem entre baterias (Ch 2, Ch 3).
 
@@ -10,7 +10,7 @@
 
 **Cronometragem por GPIO** — toggle de um pino no início/fim da inferência para medir tempo (Ch 2).
 
-**Dataset de EPIs** — conjunto de dados para classificação de Equipamentos de Proteção Individual (Ch 1, Ch 3).
+**Dataset de EPIs** — conjunto de dados para **detecção** de Equipamentos de Proteção Individual (Ch 1, Ch 3).
 
 **Dispersão (medidas de)** — desvio-padrão, IQR e coeficiente de variação (Ch 2).
 
@@ -24,15 +24,19 @@
 
 **Entregável-base** — item obrigatório comum a todas as trilhas de PTT (Ch 4).
 
-**ESP32-S3** — MCU alvo, representante do extremo de baixo consumo (Ch 1, Ch 3).
+**ESP32 (LX6)** — MCU alvo (Xtensa LX6 dual-core, 240 MHz), representante do extremo de baixo consumo; plataforma adotada na emenda v1.1 (Ch 1, Ch 3).
 
-**Escopo mínimo viável** — 1 modelo × 2 plataformas, 30 repetições, energia inline, dataset de EPIs (Ch 2).
+**Escopo mínimo viável** — 1 modelo × 2 plataformas, repetições por piloto (piso 30), energia **estimada por software**, dataset de detecção de EPIs (Ch 2).
+
+**Fases (estático → tempo real)** — validar com imagens estáticas antes de integrar a câmera ao vivo (Ch 2, Ch 3).
 
 **Fonte de alimentação regulada** — garante tensão estável durante a medição (Ch 3).
 
 **H1** — hipótese: SBC tem maior throughput, mas energia por inferência igual ou superior (Ch 1).
 
-**INA219** — medidor de potência inline, amostra a 10 Hz (Ch 2, Ch 3).
+**Energia estimada por software** — `E = Σ (P_modo × t_fase)`, com potência típica de datasheet e tempos medidos; **método principal** (Ch 2, Ch 3).
+
+**INA219** — medidor de potência inline **abandonado** na v1.2 (medição física inviável no prazo); citado apenas como contexto (Ch 2, Ch 3).
 
 **int8** — quantização em inteiro de 8 bits (Ch 1).
 

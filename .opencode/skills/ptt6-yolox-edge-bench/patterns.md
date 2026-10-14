@@ -2,23 +2,28 @@
 
 ## Pipeline funcionalmente idêntico
 **Quando usar**: ao implementar a inferência na MCU e no SBC.
-**Como**: definir a mesma tarefa (YOLOX-Nano int8 → classes de EPI), mesmas entradas e mesma saída lógica; isolar diferenças de runtime (TFLite Micro vs ONNX/TFLite) sem alterar o que é computado.
+**Como**: definir a mesma tarefa (YOLOX-Nano int8 → detecção das classes de EPI), mesmas entradas e mesma saída lógica; isolar diferenças de runtime (TFLite Micro no MCU vs TFLite no SBC — mesma família int8, decisão D8) sem alterar o que é computado.
 **Trade-offs**: garantir equivalência custa tempo de validação cruzada; ignorá-la invalida o benchmark.
 
 ## Protocolo experimental declarado
 **Quando usar**: antes de coletar qualquer dado.
-**Como**: registrar variável independente (plataforma), dependentes (latência ms, throughput inf/s, energia mJ), 30 repetições/plataforma, descarte das 5 primeiras, medidas de dispersão (DP, IQR, CV), instrumentos (INA219 a 10 Hz; toggle GPIO), ameaça (térmica) e mitigação.
+**Como**: registrar variável independente (plataforma), dependentes (latência ms, throughput inf/s, energia mJ), repetições por piloto/CV (piso 30), warm-up por dado, medidas de dispersão (mediana, IQR, IC), instrumentos (energia **estimada por software**; cronometragem por GPIO), ameaça (térmica) e mitigação.
 **Trade-offs**: rigidez protege a validade, mas exige disciplina para não "ajustar" no meio.
 
-## Medição de energia inline (INA219)
-**Quando usar**: para obter energia por inferência confiável.
-**Como**: colocar o INA219 em série com a alimentação; fonte regulada; amostragem a 10 Hz; integrar potência no tempo da inferência.
-**Trade-offs**: requer hardware dedicado; se falhar, aciona o Plano B (estimativa por datasheet).
+## Desenvolvimento em fases (estático → tempo real)
+**Quando usar**: ao planejar a implementação.
+**Como**: validar primeiro o modelo com **imagens estáticas** (sem câmera) — mesma predição nas duas plataformas; só depois integrar a **câmera ao vivo**. Medir apenas depois do pipeline validado.
+**Trade-offs**: atrasa o "tempo real", mas garante que a detecção funciona antes de somar a complexidade da câmera.
 
-## Estimativa de energia por datasheet (Plano B)
-**Quando usar**: medidor físico indisponível ou defeituoso.
-**Como**: energia ≈ potência do datasheet × tempo de execução medido; **declarar a limitação** no relatório.
-**Trade-offs**: perde precisão, mas preserva a entrega e a comparabilidade relativa.
+## Estimativa de energia por software (método principal)
+**Quando usar**: para obter energia por inferência sem medidor físico.
+**Como**: montar um **modelo de potência por modo** (`P_idle`, `P_ativo`, típicos de datasheet) e multiplicar pelos **tempos medidos por fase**: `E = Σ (P_modo × t_fase)` na janela (pré + inferência + pós). Registrar tensão e valores assumidos; usar o **mesmo modelo** nas duas plataformas.
+**Trade-offs**: não captura transientes e a exatidão depende do datasheet — a comparação é **relativa**; declare a limitação.
+
+## Verificação cruzada com medidor físico (opcional)
+**Quando usar**: se um INA219/PPK2 estiver disponível.
+**Como**: medir algumas execuções com o instrumento e comparar com a estimativa por software; reportar o desvio.
+**Trade-offs**: aumenta a confiança, mas **não** é o método principal (medir tudo com hardware é inviável no prazo).
 
 ## Cronometragem por toggle de GPIO
 **Quando usar**: medir latência sem overhead de software.
@@ -32,13 +37,13 @@
 
 ## Análise estatística descritiva
 **Quando usar**: na fase de análise (semanas 10–11).
-**Como**: descartar as 5 primeiras; calcular média, DP, IQR e CV por plataforma e métrica; comparar ESP32-S3 vs RPi Zero 2 W; calcular inferências/joule; testar H1.
+**Como**: aplicar o warm-up por dado; calcular mediana + IQR e média ± dp por plataforma e métrica; comparar ESP32 LX6 vs RPi Zero 2 W (Mann-Whitney U + tamanho de efeito + IC bootstrap); calcular inferências/joule; testar H1.
 **Trade-offs**: estatística simples reduz poder inferencial, mas é adequada ao escopo mínimo.
 
 ## Normalização por joule
 **Quando usar**: ao comparar eficiência entre plataformas.
 **Como**: converter energia por inferência (mJ) em inferências por joule (1 / energia_por_inferência_em_J).
-**Trade-offs**: exige medição de energia confiável; sem ela, use estimativa declarada.
+**Trade-offs**: exige estimativa de energia defensável; sem ela, declare o proxy usado.
 
 ## Fallback de modelo quantizado
 **Quando usar**: quando o YOLOX-Nano não performar em algum dispositivo.

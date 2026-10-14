@@ -11,7 +11,7 @@ O projeto se comprova por **cinco entregáveis-base obrigatórios** e dois produ
   1. Repositório versionado com licença.
   2. README de reprodutibilidade.
   3. Dados brutos (CSV com o resultado das execuções).
-  4. Vídeo de demonstração (3–5 min) das execuções nas duas plataformas (ESP32-S3 e RPi Zero 2 W).
+  4. Vídeo de demonstração (3–5 min) das execuções nas duas plataformas (ESP32 (LX6) e RPi Zero 2 W).
   5. Relatório técnico conclusivo com tabelas e gráficos comparativos.
 - **Consolidação pós-disciplina**:
   - Submissão a evento regional de sistemas computacionais.
@@ -46,7 +46,7 @@ Checklist de entrega final (semana 14–15):
 1. Repositório público com **LICENSE** e **README de reprodutibilidade** (instruções nas duas plataformas).
 2. `data/raw/*.csv` com as execuções (30 por plataforma, todas as colunas: plataforma, execução, latência, throughput, energia).
 3. `analysis/` com scripts que geram tabelas/gráficos a partir do CSV bruto.
-4. Vídeo de 3–5 min mostrando execução no ESP32-S3 **e** no RPi Zero 2 W.
+4. Vídeo de 3–5 min mostrando execução no ESP32 (LX6) **e** no RPi Zero 2 W.
 5. Relatório técnico (PDF/MD) com tabelas comparativas e gráficos.
 6. (Pós-disciplina) depositar o CSV no Zenodo e submeter ao evento regional.
 

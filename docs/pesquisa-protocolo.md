@@ -1,10 +1,29 @@
 # Pesquisa de literatura e fontes primárias — Protocolo experimental de benchmark Edge AI
 
-**Objeto:** inferência de **YOLOX-Nano quantizado em int8** para detecção de EPIs (Equipamentos de Proteção Individual) em **ESP32-S3** (MCU, com PSRAM) vs **Raspberry Pi Zero 2 W** (SBC, Cortex-A53 quad-core @1 GHz).
+> **Status do documento:** *levantamento de fontes* (fase de revisão). As **decisões finais** estão no
+> protocolo congelado [`protocolo.md`](protocolo.md) — **v1.0 + emenda v1.1 (D23)**. Onde este texto
+> descreve um "protocolo preliminar" (ex.: 30/5/10 Hz), **prevalece o protocolo**; aqui o valor está nas
+> **evidências** que fundamentaram cada decisão. As lacunas da seção final foram fechadas na §12 do
+> protocolo.
+>
+> **Emenda v1.1 — plataforma MCU:** a proposta citava **ESP32-S3**; a plataforma efetivamente medida é o
+> **ESP32 (LX6)**, disponível à dupla e aprovado pelo orientador. Os números e particularidades do
+> **S3** abaixo permanecem como **referência/contexto** e **não transferem** automaticamente ao LX6
+> (o LX6 não tem SIMD/bus de 128 bits nem as extensões de IA do S3 e tem PCLK de câmera menor).
+> Re-verificar os dados específicos ao S3 antes de usá-los no LX6.
+>
+> **Emenda v1.2 — energia e fases:** a medição física com **INA219 foi abandonada** (inviável no prazo,
+> decidido com o orientador); a energia por inferência passa a ser **estimada por software** (modelo de
+> potência × tempo). Por isso, **todo o §2 abaixo é contexto histórico** (fundamenta *por que* um medidor
+> físico seria necessário), não o método adotado — ver `protocolo.md` §14 (D24). Além disso, o
+> desenvolvimento é **em fases**: validação com **imagens estáticas** antes da **câmera ao vivo**
+> (`protocolo.md` §15, D25).
 
-**Métricas alvo:** latência (ms), throughput (inferências/s), energia por inferência (mJ) e eficiência (inferências/J).
+**Objeto:** inferência de **YOLOX-Nano quantizado em int8** para detecção de EPIs (Equipamentos de Proteção Individual) em **ESP32 (LX6)** (MCU, plataforma adotada — emenda v1.1) vs **Raspberry Pi Zero 2 W** (SBC, Cortex-A53 quad-core @1 GHz).
 
-**Protocolo preliminar a validar:** 30 execuções por plataforma, descartando as 5 primeiras (aquecimento); INA219 inline amostrando a 10 Hz; cronometragem por toggle de GPIO; dispersão via desvio-padrão, IQR e coeficiente de variação (CV).
+**Métricas alvo:** latência (ms), throughput (inferências/s), energia por inferência (mJ) e eficiência (inferências/J + EDP).
+
+**Protocolo preliminar (histórico — superado pela v1.0/v1.1):** 30 execuções por plataforma, descartando as 5 primeiras (aquecimento); INA219 inline amostrando a 10 Hz; cronometragem por toggle de GPIO; dispersão via desvio-padrão, IQR e coeficiente de variação (CV). **Decisões finais:** [`protocolo.md`](protocolo.md) §6 e §12 (INA219 na taxa máxima ~1,9 kHz; N por piloto/CV com piso 30; warm-up por dado; Mann-Whitney U).
 
 **Regra de evidência:** toda afirmação abaixo termina com a fonte no formato `— autor/fonte, URL`. Onde não há fonte primária encontrada para o caso exato (p.ex. YOLOX-Nano int8 rodando em ESP32-S3), está escrito explicitamente **“não encontrado”**.
 
@@ -43,6 +62,10 @@
 ---
 
 ## 2. Medição de energia / corrente
+
+> **Contexto histórico (v1.2):** esta seção fundamenta **por que** a energia por inferência exige um
+> medidor de banda larga (o argumento da §2.3 permanece válido). Como a medição física foi
+> **abandonada** em D24, o método adotado é a **estimativa por software** (`protocolo.md` §14).
 
 ### 2.1 INA219 (medidor proposto)
 
@@ -86,6 +109,13 @@
 ## 3. Runtimes / toolchains
 
 ### 3.1 ESP32-S3 (Xtensa LX7 dual-core, até 240 MHz)
+
+> **Nota (v1.1):** esta subseção documenta o **S3** (citado na proposta). A plataforma adotada é o
+> **ESP32 (LX6)**: **sem SIMD/bus de 128 bits** e sem as extensões de IA do S3, **520 KB SRAM**
+> (PSRAM externa é mais lenta que a in-package do S3) e **PCLK de câmera de 8 MHz** (vs 40 MHz no S3).
+> Consequência esperada: **latência maior** e maior sensibilidade à hierarquia de memória. Os kernels
+> **ESP-NN/ESP-DL** citados são otimizados para S3 — no LX6 o caminho viável é **TFLite Micro genérico**,
+> o que muda bastante o desempenho. Revalidar números antes de usá-los.
 
 - ESP32-S3: Xtensa dual-core 32-bit LX7 até 240 MHz, **bus de dados de 128 bits e instruções SIMD**, FPU de precisão simples, **512 KB SRAM**, 384 KB ROM, PSRAM in-package de 2/8/16 MB. — Espressif, ESP32-S3 datasheet, https://documentation.espressif.com/esp32_s3_datasheet_en.pdf
 - **ESP-NN** fornece kernels otimizados (usados pelo TFLite Micro). Ganho medido no exemplo Person Detection: ESP32-S3 **2300 ms → 54 ms** (240 MHz) com ESP-NN. — espressif/esp-tflite-micro, https://github.com/espressif/esp-tflite-micro
@@ -172,6 +202,10 @@ Notas:
 
 ### 6.2 ESP32-S3 — clock, DFS, modos de energia, PSRAM
 
+> **Nota (v1.1):** os mecanismos de **PM/light-sleep/DFS** valem igualmente para o **ESP32 (LX6)**;
+> já os itens ligados a **SIMD/128 bits/L1 cache** são específicos do S3. No LX6, aplicar os mesmos
+> controles (travar 240 MHz, desabilitar PM, registrar `sdkconfig`) e reavaliar o piso de corrente.
+
 - ESP32-S3 tem **DFS** e **Light-sleep automático** via `esp_pm_configure()`; a frequência de CPU pode mudar e o APB pode variar várias vezes por tick do RTOS — alterando timers e periféricos. Requer `CONFIG_PM_ENABLE`. — Espressif ESP-IDF, Power Management, https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/power_management.html
 - Frequências selecionáveis: 80/160/240 MHz (CPU) e APB 80 MHz; lock `ESP_PM_CPU_FREQ_MAX` garante a máxima. Sem lock e com light-sleep habilitado, o sistema entra em Light-sleep, **aumentando a latência de interrupção**. — ESP-IDF Power Management, https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/power_management.html
 - Para benchmark determinístico, **desabilitar PM/light-sleep** (ou travar no máximo) e registrar a configuração (`sdkconfig`) é essencial, pois o modo de energia muda o piso de corrente (Deep-sleep 7 µA vs Modem-sleep 33–81 mA a 240 MHz). — ESP32-S3 datasheet, https://documentation.espressif.com/esp32_s3_datasheet_en.pdf
@@ -214,6 +248,10 @@ Notas:
 ---
 
 ## Lacunas / decisões pendentes
+
+> **Status (v1.1):** as lacunas abaixo foram **resolvidas** e registradas como decisões **D1–D23** em
+> [`protocolo.md`](protocolo.md) §12 (a nº 8 → D10/D17 e issue #4; a nº 10 → D17; a nº 12 → D12).
+> Mantidas aqui como **rastro de como cada decisão foi fundamentada**.
 
 1. **Energia estática (idle/leakage) entra ou não na energia por inferência?**
    - Medir energia total da janela (como MLPerf Tiny) vs subtrair o piso idle (energia líquida da inferência). O ESP32-S3 tem piso de leakage quando um núcleo fica ocioso (§2.4), o que muda a conclusão sobre eficiência. **Decidir e documentar a convenção.**

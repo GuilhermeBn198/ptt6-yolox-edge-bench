@@ -3,18 +3,19 @@
 ## Regras de decisão
 - **Nova tarefa?** Só entra se produzir latência/throughput/energia nas duas plataformas, senão → fora de escopo.
 - **Ferramenta só existe numa plataforma?** Encontre equivalente funcional ou cai no Plano B; não compare maçãs com laranjas.
-- **Medidor INA219 falhou?** Não pare: use datasheet × tempo medido e **declare a limitação**.
+- **Energia por software não bate com a realidade?** Não troque o método: registre as premissas (`P_modo`, tensão); se houver medidor, faça **verificação cruzada** e **declare a limitação**.
 - **Modelo não roda em algum device?** Troque por outra versão quantizada do YOLO, mantendo o protocolo.
+- **Vai para o tempo real antes de validar?** Não. A câmera é **fase 2**; valide com **imagens estáticas** primeiro.
 - **Vai mudar o protocolo no meio da coleta?** Não. Congele-o; mudança invalida H1.
 - **Resultado surpreendente?** Verifique primeiro a ameaça térmica e o aquecimento, depois a hipótese.
 
 ## Protocolo em uma linha
-1 modelo (YOLOX-Nano int8) × 2 plataformas (ESP32-S3, RPi Zero 2 W) → 30 execuções/plataforma → descartar 5 → média, DP, IQR, CV → inferências/joule.
+1 modelo (YOLOX-Nano int8) × 2 plataformas (ESP32 LX6, RPi Zero 2 W) → piloto→N (piso 30) → warm-up por dado → mediana, IQR, IC → inferências/joule.
 
 ## Variáveis
 | Tipo | Variável | Unidade |
 |------|----------|---------|
-| Independente | Plataforma (ESP32-S3 / RPi Zero 2 W) | — |
+| Independente | Plataforma (ESP32 (LX6) / RPi Zero 2 W) | — |
 | Dependente | Latência | ms |
 | Dependente | Throughput | inferências/s |
 | Dependente | Energia por inferência | mJ |
@@ -30,22 +31,24 @@ Resultado que **refuta**: throughput(SBC) ≤ throughput(MCU) **ou** energia(SBC
 |---------|------|----------|
 | 1–2 | Revisão + protocolo | implementação |
 | 3–5 | Implementação do pipeline | experimentos |
-| 6–9 | Coleta (30 repetições/plataforma) | análise |
+| 6–9 | Coleta (N por piloto; piso 30) | análise |
 | 10–11 | Análise estatística | redação |
 | 12–13 | Relatório técnico | vídeo/entrega |
 | 14–15 | Vídeo + ajustes finais | entrega |
 
 ## Limiares & padrões
-- Repetições: **30/plataforma**; descarte: **5 primeiras**.
-- Amostragem de potência: **10 Hz**.
+- Repetições: **piloto→N** (IC 95%), **piso 30**; warm-up **definido pelo dado** (piso 5).
+- Energia: **estimada por software** (`E = Σ P_modo · t_fase`); cronometragem por **GPIO** (2 bordas).
+- Fases: **F1 estático → F2 câmera → F3 medição → F4 análise**.
 - Vídeo: **3–5 min** (mostrar as duas plataformas).
 - Medida de energia: **joule**; eficiência: **inferências/joule**.
 
-## Riscos → Plano B
-| Risco | Prob. | Impacto | Plano B |
+## Riscos → resposta
+| Risco | Prob. | Impacto | Resposta |
 |-------|-------|---------|---------|
-| Medidor físico indisponível | média | alto | Estimar via datasheet × tempo medido |
+| Energia por software não refletir o consumo real | média | alto | mesmo modelo nas duas pontas; registrar premissas; verificação cruzada; declarar limitação |
 | Modelo não performa em um device | média | alto | Outras versões quantizadas do YOLO |
+| Câmera não integrar na fase 2 | baixa | médio | manter validação estática como evidência; declarar a fase não concluída |
 
 ## Tells & smells
 - Latência subindo ao longo da sessão → **aquecimento térmico**; insira pausas.

@@ -2,13 +2,13 @@
 
 > Gerado a partir do GitHub. Repositório: https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench
 > Board (Projects v2): https://github.com/users/GuilhermeBn198/projects/7
-> Gerado em: 2026-10-13T17:18:35Z
+> Gerado em: 2026-10-14T01:02:55Z
 
 ## Milestones
 
 | Milestone | Abertas | Fechadas | Total |
 |---|---:|---:|---:|
-| M1 — Revisão e protocolo (semanas 1–2) | 3 | 1 | 4 |
+| M1 — Revisão e protocolo (semanas 1–2) | 2 | 2 | 4 |
 | M2 — Implementação (semanas 3–5) | 5 | 0 | 5 |
 | M3 — Experimentos (semanas 6–9) | 2 | 0 | 2 |
 | M4 — Análise (semanas 10–11) | 2 | 0 | 2 |
@@ -20,7 +20,7 @@
 | # | Título | Estado | Milestone | Labels | Criada | Fechada | Bloqueada por |
 |---:|---|---|---|---|---|---|---|
 | #1 | [Setup] Repositório, licença e estrutura inicial | CLOSED | M1 — Revisão e protocolo (semanas 1–2) | tipo:setup, fase:revisao | 2026-10-09T00:40:48Z | 2026-10-09T02:18:03Z | — |
-| #2 | [Método] Revisão bibliográfica e definição final do protocolo experimental | OPEN | M1 — Revisão e protocolo (semanas 1–2) | tipo:metodo, fase:revisao, prioridade:alta | 2026-10-09T00:40:50Z | — | — |
+| #2 | [Método] Revisão bibliográfica e definição final do protocolo experimental | CLOSED | M1 — Revisão e protocolo (semanas 1–2) | tipo:metodo, fase:revisao, prioridade:alta | 2026-10-09T00:40:50Z | 2026-10-13T17:19:58Z | — |
 | #3 | [Hardware] Adquirir e preparar ESP32-S3, RPi Zero 2 W, INA219 e fonte regulada | OPEN | M1 — Revisão e protocolo (semanas 1–2) | tipo:setup, fase:revisao, hardware | 2026-10-09T00:40:53Z | — | — |
 | #4 | [Dados] Selecionar dataset de EPIs e definir classes de classificação | OPEN | M1 — Revisão e protocolo (semanas 1–2) | tipo:setup, fase:revisao | 2026-10-09T00:40:56Z | — | 2 |
 | #5 | [Pipeline] Implementar inferência YOLOX-Nano int8 no ESP32-S3 (TFLite Micro) | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-09T00:40:58Z | — | 2, 3, 4 |
@@ -43,19 +43,5 @@
 
 ```
 #4 <- 2
-#5 <- 2,3,4
-#6 <- 2,3,4
-#7 <- 5,6
-#8 <- 3
-#9 <- 2
-#10 <- 7,8
-#11 <- 10
-#12 <- 10
-#13 <- 12
-#14 <- 13
-#15 <- 6,10
-#16 <- 10
-#17 <- 10
-#18 <- 14,16
-#20 <- 10
+#5 <- 2, 3, 4
 ```
