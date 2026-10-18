@@ -1,5 +1,9 @@
 # 06 — Modelo de Dados (CSV bruto)
 
+> **Atualização v1.3:** o esquema vigente do CSV bruto e do `meta.json` está em
+> [`../experimentacao.md`](../experimentacao.md) §5 (colunas por fase, sem leituras de INA219).
+
+
 > Estrutura de `data/raw/*.csv` (fonte da verdade) e das entidades derivadas. O CSV é **long-form**:
 > **uma linha por execução**. Amostras de potência de alta taxa (opcional) ficam em arquivo separado.
 

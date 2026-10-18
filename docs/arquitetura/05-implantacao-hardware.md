@@ -1,5 +1,10 @@
 # 05 — Implantação e Hardware
 
+> **Atualização v1.2/v1.3:** o INA219 foi **descartado** (D24) — a energia é estimada por software e a
+> cronometragem é feita por timestamps em software (D28). Este diagrama permanece como registro histórico;
+> o fluxo vigente está em [`../experimentacao.md`](../experimentacao.md).
+
+
 > Como o **INA219** e as **linhas de GPIO** se conectam à plataforma sob teste (DUT) e ao host.
 > O esquema é o mesmo para as duas plataformas (fonte regulada + sensor inline).
 

@@ -1,0 +1,285 @@
+\documentclass[11pt,a4paper]{article}
+% Projeto PTT6 — compilar com: tectonic main.tex  (ou latexmk -pdf main.tex)
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,top=3cm,left=3cm,right=2cm,bottom=2cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,longtable,array,multirow}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{setspace}
+\onehalfspacing
+\setlist{noitemsep,topsep=2pt}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcommand{\pend}[1]{\textcolor{orange!80!black}{[#1]}}
+
+\title{\textbf{Benchmarking de Inferência do YOLO Quantizado em MCU e SBC}\\[2pt]
+\large Desempenho e eficiência energética do YOLOX-Nano int8 para detecção de EPIs em \emph{Edge AI}\\[2pt]
+\normalsize Projeto de Pesquisa --- Trilha PTT6 (protocolo experimental v1.3)}
+\author{Filipe Matias \and Guilherme Lucas\\[2pt]
+\small Orientador: Prof. Herbert Oliveira Rocha\\
+\small Mestrado Profissional em Computação Aplicada (PPCA) --- Universidade Federal de Roraima\\
+\small Disciplina: Arquitetura e Organização de Computadores}
+\date{Outubro de 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent Este projeto compara, de forma reprodutível, a execução de um mesmo modelo de detecção de
+objetos --- YOLOX-Nano quantizado em int8 --- em dois extremos do espectro \emph{Edge AI}: um
+microcontrolador ESP32 (Xtensa LX6) e um computador de placa única Raspberry Pi Zero 2 W. A tarefa é a
+detecção de Equipamentos de Proteção Individual (EPIs) no conjunto Ultralytics Construction-PPE,
+começando pela classe colete e ampliando para as 11 classes. Medem-se latência ponta a ponta (pré,
+inferência e pós-processamento), throughput, energia por inferência --- estimada por software a partir
+de um modelo de potência por modo e dos tempos medidos por fase ---, inferências por joule, EDP e mAP.
+A hipótese H1 afirma que o SBC tem throughput maior, mas energia por inferência igual ou superior. O
+desenho prevê piloto para definir repetições e warm-up, coleta em blocos independentes, estatística
+robusta (Mann-Whitney U, $\delta$ de Cliff e IC por \emph{bootstrap}) e análise de sensibilidade do
+modelo de potência.
+
+\medskip\noindent\textbf{Palavras-chave:} Edge AI; TinyML; quantização int8; YOLOX; benchmarking; eficiência energética.
+\end{abstract}
+
+\section{Introdução}
+
+A inferência de redes neurais na borda (\emph{Edge AI}) desloca o processamento da nuvem para
+dispositivos próximos ao sensor, reduzindo latência, tráfego e exposição de dados. No outro lado,
+impõe restrições severas de memória, capacidade de computação e energia. Entre as plataformas de borda,
+dois extremos se destacam: \textbf{microcontroladores (MCU)}, de consumo muito baixo e memória da ordem
+de centenas de kilobytes, e \textbf{computadores de placa única (SBC)}, que executam um sistema
+operacional completo e oferecem mais desempenho a um custo energético maior.
+
+O monitoramento do uso de EPIs em canteiros de obra é uma aplicação em que essa escolha é concreta: a
+câmera precisa operar continuamente, frequentemente com alimentação restrita. Falta, porém, uma
+comparação direta e reprodutível do \emph{mesmo} detector quantizado nas duas classes de plataforma.
+
+\subsection{Pergunta de pesquisa e hipóteses}
+\begin{description}
+\item[Pergunta:] como se comparam latência, throughput e energia por inferência entre uma MCU (ESP32 LX6)
+e um SBC (Raspberry Pi Zero 2 W) ao executar o mesmo YOLOX-Nano int8 na detecção de EPIs?
+\item[H1:] o SBC apresenta throughput maior, mas energia por inferência igual ou superior, dado o seu
+consumo estático mais alto.
+\item[H0:] não há diferença nas métricas entre as plataformas.
+\end{description}
+
+\subsection{Objetivos}
+\textbf{Geral:} comparar desempenho e eficiência energética da inferência do YOLOX-Nano int8 em uma MCU e
+em um SBC.
+\textbf{Específicos:}
+\begin{enumerate}
+\item preparar um artefato único \texttt{.tflite} int8 e validar sua equivalência funcional nas duas plataformas;
+\item medir latência por fase, throughput e acurácia (mAP) sob um protocolo declarado;
+\item estimar a energia por inferência por um modelo de potência parametrizado e quantificar sua sensibilidade;
+\item testar H1 com estatística robusta e publicar os dados brutos (CSV) e o código.
+\end{enumerate}
+
+\subsection{Vínculo com a disciplina}
+A comparação mobiliza desempenho e a Lei de Amdahl (tempos entre arquiteturas e o ganho de paralelismo
+nos quatro núcleos do SBC), a hierarquia de memória (SRAM/PSRAM do ESP32 versus DRAM do SBC) e E/S.
+
+\section{Fundamentação e trabalhos relacionados}
+Benchmarks de inferência embarcada como o MLPerf Tiny~\cite{banbury2021mlperftiny} padronizam tarefas,
+métricas (latência e energia) e regras de medição para microcontroladores, medindo apenas a
+inferência. Noronha et al.~\cite{noronha2025} propõem integrar energia e latência separando três fases
+(pré-inferência, inferência e pós-inferência) e adotam o EDP como métrica de eficiência --- abordagem
+que este projeto segue na janela de medição. Fixa-se o runtime (TFLite int8) e varia-se apenas a
+plataforma, para isolar o efeito do hardware.
+Para a metodologia de repetições, seguimos a recomendação de definir o número de execuções a partir da
+variabilidade observada, e não de um valor fixo~\cite{maricq2018}. O YOLOX~\cite{ge2021yolox} é um
+detector \emph{anchor-free}; sua variante Nano tem $\approx$0,91\,M parâmetros e 1,08\,GFLOPs a
+$416\times416$.
+
+\section{Materiais}
+
+\subsection{Plataformas}
+\begin{table}[h]\centering\small
+\caption{Plataformas comparadas (fator independente).}\label{tab:plat}
+\begin{tabularx}{\linewidth}{lLL}\toprule
+ & \textbf{MCU} & \textbf{SBC}\\\midrule
+Dispositivo & ESP32 (Xtensa LX6, dual-core) & Raspberry Pi Zero 2 W (Cortex-A53, 4 núcleos)\\
+Clock & 240\,MHz, sem DFS/light-sleep & 1\,GHz, governor \texttt{performance}\\
+Memória & 520\,KB SRAM + PSRAM externa \pend{confirmar módulo} & 512\,MB LPDDR2\\
+Runtime & TensorFlow Lite Micro (int8) & TFLite/LiteRT (int8), 4 threads\\
+Alimentação & USB 5\,V & fonte oficial 5\,V/2,5\,A\\\bottomrule
+\end{tabularx}
+\end{table}
+
+A proposta original citava o ESP32-S3; adotou-se o ESP32 (LX6) disponível (emenda v1.1), sem as
+extensões vetoriais do S3. Os resultados não se extrapolam para o S3.
+
+\subsection{Modelo}
+YOLOX-Nano na variante \emph{ti-lite} (amigável à quantização), treinado uma única vez por configuração
+de classes no conjunto de treino (fora do escopo medido) e quantizado pós-treino em int8
+\emph{full-integer} com 750 imagens de calibração estratificadas. O mesmo arquivo \texttt{.tflite}, com
+hash SHA-256 registrado, é executado nas duas plataformas.
+
+\subsection{Conjunto de dados}
+Ultralytics Construction-PPE~\cite{ultralytics_cppe} (AGPL-3.0), com 11 classes: \emph{helmet},
+\emph{gloves}, \emph{vest}, \emph{boots}, \emph{goggles}, \emph{none}, \emph{Person},
+\emph{no\_helmet}, \emph{no\_goggle}, \emph{no\_gloves} e \emph{no\_boots}. O bloco A usa só a classe
+\emph{vest}; o bloco B, as 11 classes. A Tabela~\ref{tab:ds} resume as contagens observadas no arquivo
+baixado.
+
+\begin{table}[h]\centering\small
+\caption{Construction-PPE: imagens e instâncias da classe \emph{vest} por split.}\label{tab:ds}
+\begin{tabular}{lrrr}\toprule
+Split & Imagens & Instâncias \emph{vest} & Imagens com \emph{vest}\\\midrule
+Treino & 1142 & 1283 & 837\\
+Validação & 143 & 171 & 109\\
+Teste & 141 & 178 & 111\\\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Metodologia experimental}\label{sec:metodo}
+
+\subsection{Estratégia em fases}
+O trabalho avança em fases com critério de saída: \textbf{F1} validação do modelo com imagens estáticas
+(sem câmera); \textbf{F2} integração da câmera ao vivo; \textbf{F3} coleta das medições; \textbf{F4}
+análise e entrega. Nenhuma medição final ocorre antes de a fase anterior estar funcional. Estado atual:
+o modelo já executa no Raspberry Pi; a integração no ESP32 e a instrumentação final estão em andamento.
+
+\subsection{Variáveis}
+\begin{table}[h]\centering\small
+\caption{Variáveis do experimento.}\label{tab:var}
+\begin{tabularx}{\linewidth}{lL}\toprule
+\textbf{Tipo} & \textbf{Variáveis}\\\midrule
+Independente & Plataforma $\in\{$MCU, SBC$\}$\\
+Dependentes & $t_{pre}$, $t_{inf}$, $t_{post}$, latência $t_{total}$ (ms); throughput (inf/s); energia por
+inferência $E$ (mJ); inferências/J; EDP (mJ$\cdot$ms); mAP@50 e mAP@50-95\\
+Controladas & artefato (hash), resolução comum $r$, quantização, limiares (conf.\ $\geq$0,25; IoU$_{NMS}$
+0,45; até 100 detecções), mesmas 50 entradas, clock/governor, threads, rádio, alimentação, ambiente\\
+Covariáveis & temperatura da CPU, frequência e \emph{throttling} (SBC), temperatura ambiente, nº de
+detecções, imagem, bloco e ordem de execução\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Pipeline e janela de medição}
+A latência cobre a janela completa \emph{pré + inferência + pós}, e as três fases são registradas
+separadamente. Na fase estática, as entradas são tensores brutos $r\times r\times3$ uint8 já em
+\emph{letterbox}, idênticos byte a byte nas duas plataformas; o pré-processamento medido é a cópia e a
+quantização para o tensor de entrada. O pós-processamento é a decodificação da saída do YOLOX e o NMS
+por classe, com a mesma lógica nas duas pontas. A resolução $r$ é comum: a maior de
+$\{416, 320, 256, 224, 160\}$ que caiba na memória do ESP32 e permita ao menos 30 inferências por bloco
+em até 60\,min.
+
+\subsection{Instrumentação}
+Os tempos vêm de relógios monotônicos de alta resolução em software (\texttt{time.perf\_counter\_ns()} no
+SBC; \texttt{esp\_timer\_get\_time()} no MCU). Não há E/S dentro da janela: as medidas ficam em memória e
+são gravadas entre blocos. Telemetria (temperatura, frequência, \emph{throttling}) é lida fora da
+janela. Cada execução gera um CSV com uma linha por inferência e um arquivo de metadados (versões,
+configurações, hashes, ambiente).
+
+\subsection{Experimentos}
+\begin{table}[h]\centering\small
+\caption{Experimentos (repetidos para os blocos A --- 1 classe --- e B --- 11 classes).}\label{tab:exp}
+\begin{tabularx}{\linewidth}{llL}\toprule
+\textbf{Id} & \textbf{Fase} & \textbf{Descrição e saída}\\\midrule
+E0 & F1 & Acurácia offline fp32 $\times$ int8 no teste (141 imagens), por $r$: mAP@50, mAP@50-95\\
+E1 & F1 & Equivalência funcional: mesmas 50 entradas em PC, SBC e MCU; mesmas classes e nº de detecções, IoU $\geq$0,95, $|\Delta$score$|\leq$ 1 passo de quantização\\
+E2 & F1/F3 & Piloto: viabilidade de $r$ no MCU; 100 inferências por plataforma; warm-up $W$ e $N$\\
+E3 & F3 & Benchmark principal estático: 3 blocos por plataforma, $N=\max(30,N_{piloto})$\\
+E3b & F3 & SBC com 1, 2 e 4 threads: fração paralelizável por Amdahl (exploratório)\\
+E3c & F3 & SBC a $416\times416$ quando $r<416$ (exploratório)\\
+E4 & F3 & Throughput sustentado em 60\,s de laço fechado e deriva térmica\\
+E5 & F2 & Câmera ao vivo: FPS sustentado e latência com captura (descritivo)\\
+E6 & F4 & Energia derivada, sensibilidade e \emph{break-even}\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Warm-up e número de repetições.} Em janelas de 10 inferências, descartam-se as iniciais até a
+variação relativa da mediana entre janelas consecutivas ficar abaixo de 2\% em duas janelas seguidas
+(piso de 5). Com o coeficiente de variação (CV) de $t_{total}$ medido no piloto,
+\begin{equation}
+N=\left\lceil\left(\frac{1{,}96\,\mathrm{CV}}{\varepsilon}\right)^{2}\right\rceil,\qquad \varepsilon=1\%,\qquad N_{final}=\max(30,N),
+\end{equation}
+podendo $N$ diferir entre plataformas.
+
+\paragraph{Estrutura de um bloco (E3).} Religar o dispositivo e aguardar 2\,min ocioso (registrar temperatura
+e \emph{throttling}); executar $W$ inferências de warm-up (marcadas e excluídas); executar $\lceil N_{final}/3\rceil$
+inferências cronometradas, percorrendo as 50 entradas em ordem fixa; gravar CSV e metadados; aguardar o
+resfriamento (temperatura de volta a $\pm$2\,°C da inicial no SBC, ou 5\,min no MCU). Os blocos são
+intercalados entre plataformas para diluir efeitos de dia e ambiente.
+
+\subsection{Modelo de energia}
+Como a medição física (INA219) foi descartada por aumentar demais a complexidade e o prazo, a energia é
+estimada por software:
+\begin{equation}
+E_i = P_{pre}\,t_{pre,i}+P_{inf}\,t_{inf,i}+P_{post}\,t_{post,i},
+\end{equation}
+com a potência total do dispositivo em cada modo (Tabela~\ref{tab:pot}).
+
+\begin{table}[h]\centering\small
+\caption{Parâmetros do modelo de potência (nominal e faixa de sensibilidade).}\label{tab:pot}
+\begin{tabularx}{\linewidth}{llrrL}\toprule
+\textbf{Plataforma} & \textbf{Modo} & \textbf{Nominal} & \textbf{Faixa} & \textbf{Fonte}\\\midrule
+SBC (placa, 5\,V) & ocioso & 0,60\,W & 0,50--1,00\,W & \cite{cnx2021zero2w,geerling2021zero2w}\\
+SBC & ativo, 1 núcleo & 1,00\,W & 0,75--1,30\,W & \cite{geerling2021zero2w}\\
+SBC & ativo, 4 núcleos & 2,30\,W & 1,85--2,90\,W & \cite{geerling2021zero2w,toms2021zero2w}\\
+MCU (chip, 3,3\,V) & ativo, 240\,MHz & 0,224\,W & 0,099--0,224\,W & \cite{espressif_esp32_ds}\\
+MCU & \emph{overhead} da placa & 0\,W & 0--0,25\,W & parâmetro declarado\\\bottomrule
+\end{tabularx}
+\end{table}
+
+Com potência constante por modo, $E$ é uma transformação linear dos tempos; a incerteza do modelo é
+tratada por sensibilidade, não pela estatística. A condição de \emph{break-even} é
+\begin{equation}
+E_{SBC}\geq E_{MCU}\iff \frac{P_{SBC}}{P_{MCU}}\geq\frac{t_{MCU}}{t_{SBC}},
+\end{equation}
+e reporta-se se a razão de potências necessária cai dentro da faixa plausível. Como os valores do SBC são
+de placa e os do MCU de chip, H1 é avaliada também no pior caso para o MCU. Para um cenário de aplicação a
+$f$ quadros/s, reporta-se ainda $E_{ciclo}(f)=P_{ativo}\,t+P_{ocioso}(1/f-t)$, válido para $t<1/f$.
+
+\subsection{Análise estatística}
+Por plataforma, reportam-se mediana e IQR, média $\pm$ desvio-padrão e CV das inferências válidas de E3.
+A comparação usa o teste de Mann-Whitney U (bilateral para latência e unilateral nas direções de H1), o
+$\delta$ de Cliff e intervalos de confiança de 95\% por \emph{bootstrap} BCa (10\,000 reamostras) para a
+diferença e a razão das medianas. H1 é avaliada como teste de interseção--união, com
+$\text{throughput}_{SBC}>\text{throughput}_{MCU}$ e $E_{SBC}\geq E_{MCU}$, cada parte a $\alpha=0{,}05$;
+a parte energética é avaliada no valor nominal e nos extremos da Tabela~\ref{tab:pot}. Outliers não são
+removidos; a remoção por Tukey (1,5$\times$IQR) entra apenas como sensibilidade. Verificam-se o efeito de
+bloco (Kruskal-Wallis) e a autocorrelação (ACF de \emph{lag} 1). Uma análise secundária usa apenas
+$t_{inf}$, isolando o núcleo de inferência das diferenças de implementação do pré e do pós-processamento.
+
+\section{Ameaças à validade}
+\begin{table}[h]\centering\small
+\caption{Principais ameaças e mitigação.}\label{tab:ameacas}
+\begin{tabularx}{\linewidth}{LL}\toprule
+\textbf{Ameaça} & \textbf{Mitigação}\\\midrule
+Energia estimada, não medida & mesmo método nas duas plataformas; premissas registradas; sensibilidade e \emph{break-even}\\
+Escopos distintos (placa $\times$ chip) & \emph{overhead} de placa do MCU como parâmetro; H1 no pior caso para o MCU\\
+Throttling térmico no SBC & governor fixo, dissipador, pausas; bloco com \emph{throttling} é repetido\\
+Pré/pós em linguagens diferentes & mesma lógica e limiares; análise secundária só com $t_{inf}$\\
+ESP32 LX6 em vez de S3 & desvio declarado; sem extrapolação para o S3\\
+Resolução reduzida pela MCU & mesma $r$ nas duas plataformas; SBC a 416 apenas exploratório\\
+Pipelines de câmera diferentes (F2) & mesma resolução, formato e nº de buffers; resultado descritivo\\
+Autocorrelação e deriva & blocos independentes, ordem registrada, ACF e efeito de bloco\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Cronograma e estado atual}
+\begin{table}[h]\centering\small
+\caption{Cronograma (15 semanas) e estado em outubro de 2026.}\label{tab:crono}
+\begin{tabularx}{\linewidth}{llL}\toprule
+\textbf{Semanas} & \textbf{Fase} & \textbf{Estado}\\\midrule
+1--2 & Revisão e protocolo & concluída (protocolo v1.3; hardware e dataset definidos)\\
+3--5 & Implementação & SBC executando o modelo; ESP32 e instrumentação em andamento\\
+6--9 & Experimentos & E2 (piloto) assim que $r$ e os artefatos forem fixados\\
+10--11 & Análise & ---\\
+12--13 & Relatório & ---\\
+14--15 & Vídeo e entrega & ---\\\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Entregáveis}
+Repositório versionado com licença MIT; README de reprodutibilidade; dados brutos em CSV e metadados;
+vídeo de demonstração (3--5\,min) nas duas plataformas; relatório técnico conclusivo. Após a disciplina:
+dataset com DOI (Zenodo) e submissão a evento regional.
+
+\bibliographystyle{unsrtnat}
+\bibliography{referencias}
+\end{document}

@@ -1,15 +1,16 @@
 # Protocolo Experimental — PTT6 (YOLOX-Nano int8: ESP32 (LX6) vs Raspberry Pi Zero 2 W)
 
-> **Status: v1.2** — emendas sobre o protocolo **v1.0 congelado**: **v1.1** (plataforma MCU, §13) e
-> **v1.2** (energia estimada por software + execução em fases, §14–§15). A base metodológica
+> **Status: v1.3** — emendas sobre o protocolo **v1.0 congelado**: **v1.1** (plataforma MCU, §13),
+> **v1.2** (energia estimada por software + execução em fases, §14–§15) e **v1.3** (dataset, treino,
+> cronometragem, modelo de potência e desenho experimental, §16 + [`experimentacao.md`](experimentacao.md)). A base metodológica
 > (métricas, estatística) permanece congelada. Decisões finais em **DECISÃO**.
 >
 > Fundamentação e fontes: [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Proposta original:
 > [`proposta/PTT6_Filipe_Guilherme_assinado.pdf`](proposta/PTT6_Filipe_Guilherme_assinado.pdf).
 
-- **Versão:** 1.2 (emendas aprovadas com o orientador)
+- **Versão:** 1.3 (v1.1/v1.2 aprovadas com o orientador; v1.3 proposta pela dupla — validar com o orientador)
 - **Autores:** Filipe Matias, Guilherme Lucas — **Orientador:** Herbert Oliveira Rocha
-- **Última atualização:** 2026-10-13
+- **Última atualização:** 2026-10-18
 
 ### Histórico de versões
 
@@ -19,6 +20,7 @@
 | 1.1 | 2026-10-13 | **D23:** plataforma MCU passa de ESP32-**S3** para **ESP32 (LX6)**, o hardware efetivamente disponível; aprovado pelo orientador (não é impeditivo). Impactos em §2, §3, §9 e §13. |
 | 1.2 | 2026-10-13 | **D24:** energia por inferência passa a ser **estimada por software** (modelo de potência × tempo medido), **descartando a medição física com INA219** — inviável no prazo, decidido com o orientador. **D25:** execução **em fases** — validar o pipeline com **imagens estáticas** antes de integrar a **câmera ao vivo**. Impactos em §2, §5, §6, §9–§11 e §14–§15. |
 
+| 1.3 | 2026-10-18 | **D26:** dataset **Ultralytics Construction-PPE** (1 classe `vest` → 11 classes). **D27:** um *fine-tuning* por configuração de classes, fora do escopo medido (D9 = sem re-treino por plataforma). **D28:** cronometragem por timestamps monotônicos em software. **D29:** parâmetros do modelo de potência + sensibilidade/*break-even*. **D30:** entradas estáticas como tensores brutos idênticos. **D31:** resolução comum definida pela viabilidade no ESP32. **D32:** coleta em 3 blocos por plataforma. INA219 **definitivamente fora** (pedido ao orientador, mas não será usado). Desenho completo em [`experimentacao.md`](experimentacao.md). |
 ---
 
 ## Resumo do plano
@@ -26,8 +28,8 @@
 1. Medir, de forma reprodutível, a inferência do YOLOX-Nano int8 em duas plataformas de borda — ESP32 (LX6) (MCU) e Raspberry Pi Zero 2 W (SBC) — para detecção de EPIs.
 2. Tarefa é detecção (bounding boxes), não classificação; acurácia entra como mAP@50 e mAP@50-95.
 3. Modelo apenas quantizado, sem re-treino; mesmo runtime TFLite int8 nas duas plataformas, para isolar o efeito do hardware.
-4. Artefato único: YOLOX-ti-lite convertido para TFLite int8, calibrado com 750 imagens, com hash registrado.
-5. Começamos com um único EPI, o colete; conjuntos candidatos CHV e Ultralytics Construction-PPE (o SH17 tem pouquíssimas amostras de colete).
+4. Artefato único por configuração de classes: YOLOX-Nano (ti-lite) treinado uma vez no notebook (D27), convertido para TFLite int8, calibrado com 750 imagens, com hash registrado.
+5. Dataset **Ultralytics Construction-PPE** (D26): começamos com uma classe (colete, `vest`) e depois passamos às 11 classes.
 6. Medimos latência de ponta a ponta (pré + inferência + pós), throughput e energia por inferência **estimada por software** (total da janela, incluindo o consumo parado).
 7. Eficiência comparada por inferências/joule e por EDP (energia × latência), com H1 e H0 formalizadas.
 8. Energia **estimada por software** (modelo de potência por modo × tempo medido por fase); **sem medidor físico inline** — a limitação é declarada no relatório.
@@ -95,7 +97,10 @@
 
 ## 4. Dataset de EPIs
 
-- **Base (DECISÃO):** começar por **um EPI — o colete (`safety-vest`)**; expandir depois (issue #20).
+- **Dataset (DECISÃO v1.3 / D26):** **Ultralytics Construction-PPE** (1.416 imgs, 11 classes, AGPL-3.0,
+  splits oficiais). Bloco A: **uma classe — colete (`vest`)**; bloco B: **todas as 11 classes** (issue #20).
+  Detalhes e contagens em [`dataset.md`](dataset.md).
+- **Histórico:** antes da v1.3 o recorte inicial era o colete com CHV/Construction-PPE como candidatos.
 - **Conjuntos registrados para uso:** **CHV** (1.330 imgs, 6 classes, uso público) e
   **Ultralytics Construction-PPE** (1.416 imgs, 11 classes, inclui classes de "EPI ausente";
   AGPL-3.0) como candidatos diretos para o colete. Complementos avaliados: **SH17** (8.099 imgs,
@@ -217,11 +222,19 @@
 | D24 | **Energia (instrumento)** | **Estimar por software** (modelo de potência por modo × tempo medido por fase); **INA219 descartado** por inviabilidade no prazo (com o orientador); limitação declarada; medidor físico só como verificação cruzada | 2026-10-13 |
 | D25 | **Estratégia de execução** | **Em fases**: validar o pipeline com **imagens estáticas** (sem câmera) e só depois integrar a **câmera ao vivo** | 2026-10-13 |
 
+| D26 | **Dataset** | Ultralytics Construction-PPE; bloco A = `vest` (1 classe), bloco B = 11 classes | 2026-10-18 |
+| D27 | **Treino** | Um *fine-tuning* do YOLOX-Nano (ti-lite) por configuração de classes, no notebook, fora do escopo medido; sem QAT; PTQ int8 | 2026-10-18 |
+| D28 | **Cronometragem** | Timestamps monotônicos (`perf_counter_ns` / `esp_timer_get_time`), sem I/O na janela; GPIO só como verificação | 2026-10-18 |
+| D29 | **Modelo de potência** | Valores nominais + faixa (experimentacao.md §6); H1 avaliada no nominal e nos extremos; *break-even* reportado | 2026-10-18 |
+| D30 | **Entradas estáticas** | Tensores `r×r×3` uint8 em letterbox, idênticos byte a byte; JPEG/resize só na fase de câmera | 2026-10-18 |
+| D31 | **Resolução** | Comum às duas plataformas; maior de {416, 320, 256, 224, 160} viável no ESP32 (definida no piloto) | 2026-10-18 |
+| D32 | **Estrutura de coleta** | 3 blocos independentes por plataforma (power-cycle), N = max(30, N_piloto) | 2026-10-18 |
+
 ### 12.2 Em aberto
 
-Uma pendência de parametrização (não metodológica): **preencher e validar os valores do modelo de
-potência** (`P_idle`, `P_ativo`) por plataforma, a partir dos datasheets, antes da coleta final. O
-protocolo está na **v1.2** (v1.0 congelada + emendas D23, D24 e D25). Novas alterações exigem nova
+Pendências de parametrização (não metodológicas): **aprovar os valores nominais do modelo de potência**
+(rascunho em `scripts/power_model.toml`), definir a **resolução comum** `r` no piloto (D31) e confirmar o
+módulo do ESP32 (com/sem PSRAM). O protocolo está na **v1.3** (v1.0 congelada + emendas D23–D32). Novas alterações exigem nova
 versão documentada neste histórico.
 
 ---
@@ -279,6 +292,26 @@ versão documentada neste histórico.
 
 - **Regra:** nenhuma medição final antes de a fase anterior estar funcional. A **câmera entra só na
   F2**; as fases F1 e F2 alimentam a comparabilidade (mesmo artefato, mesmo pipeline).
+
+
+## 16. Emenda v1.3 — Desenho experimental e coleta de métricas
+
+- **Contexto:** hardware em mãos (ESP32 LX6 e RPi Zero 2 W, issue #3); dataset definido pelo Filipe
+  (Construction-PPE, issue #4); o modelo **já executa no Raspberry Pi**. O INA219 chegou a ser pedido ao
+  orientador, mas **não será usado** — a medição física aumentaria demais a complexidade (reafirma D24).
+- **Decisões:** D26–D32 (tabela §12.1). O desenho operacional — variáveis, experimentos E0–E6, formato
+  do CSV, modelo de potência e checklist de preparação — está em [`experimentacao.md`](experimentacao.md).
+- **O que NÃO muda:** pergunta, H1/H0, métricas, janela pré+inf+pós, estatística (Mann-Whitney U +
+  Cliff's δ + bootstrap), regra de outliers (opção A) e entregáveis.
+- **O que muda / deve ser declarado:**
+  1. D9 reinterpretada: existe **um** treino por configuração de classes (o COCO não tem classes de EPI),
+     feito antes e fora das medições; nenhuma plataforma recebe modelo diferente.
+  2. Cronometragem passa a ser por software (D28), já que não há instrumento externo para registrar as
+     bordas de GPIO.
+  3. A energia de MCU (chip) e SBC (placa) tem escopos distintos → *overhead* de placa do MCU como
+     parâmetro e H1 testada também no pior caso para o MCU (D29).
+  4. Pré/pós no SBC (Python/NumPy) e no MCU (C/C++) diferem em linguagem → análise secundária só com
+     `t_inf` (ameaça declarada).
 
 ---
 
