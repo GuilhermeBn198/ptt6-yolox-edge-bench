@@ -2,14 +2,14 @@
 
 > Gerado a partir do GitHub. Repositório: https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench
 > Board (Projects v2): https://github.com/users/GuilhermeBn198/projects/7
-> Gerado em: 2026-10-18T23:04:17Z
+> Gerado em: 2026-10-19T03:20:06Z
 
 ## Milestones
 
 | Milestone | Abertas | Fechadas | Total |
 |---|---:|---:|---:|
 | M1 — Revisão e protocolo (semanas 1–2) | 0 | 4 | 4 |
-| M2 — Implementação (semanas 3–5) | 6 | 0 | 6 |
+| M2 — Implementação (semanas 3–5) | 5 | 1 | 6 |
 | M3 — Experimentos (semanas 6–9) | 2 | 0 | 2 |
 | M4 — Análise (semanas 10–11) | 2 | 0 | 2 |
 | M5 — Relatório (semanas 12–13) | 2 | 0 | 2 |
@@ -38,7 +38,7 @@
 | #17 | [Entregável] Vídeo de demonstração (3–5 min) | OPEN | M6 — Vídeo e entrega (semanas 14–15) | tipo:entregavel, fase:entrega | 2026-10-09T00:41:30Z | — | 10 |
 | #18 | [Pós-disciplina] Submissão a evento regional de sistemas computacionais | OPEN | M6 — Vídeo e entrega (semanas 14–15) | tipo:entregavel, fase:entrega | 2026-10-09T00:41:33Z | — | 14, 16 |
 | #20 | [Dados] Expandir de 1 classe (vest) para as 11 classes do Construction-PPE | OPEN | — | tipo:metodo | 2026-10-13T16:55:23Z | — | 10 |
-| #21 | [Método] Detalhar experimentação, variáveis e coleta de métricas (protocolo v1.3) | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-18T23:03:38Z | — | — |
+| #21 | [Método] Detalhar experimentação, variáveis e coleta de métricas (protocolo v1.3) | CLOSED | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-18T23:03:38Z | 2026-10-19T03:19:49Z | — |
 
 ## Dependências (blocked by)
 
