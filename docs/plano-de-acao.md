@@ -2,7 +2,7 @@
 
 > Gerado a partir do GitHub. Repositório: https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench
 > Board (Projects v2): https://github.com/users/GuilhermeBn198/projects/7
-> Gerado em: 2026-10-19T03:20:06Z
+> Gerado em: 2026-10-19T17:52:53Z
 
 ## Milestones
 
@@ -23,7 +23,7 @@
 | #2 | [Método] Revisão bibliográfica e definição final do protocolo experimental | CLOSED | M1 — Revisão e protocolo (semanas 1–2) | tipo:metodo, fase:revisao, prioridade:alta | 2026-10-09T00:40:50Z | 2026-10-13T17:19:58Z | — |
 | #3 | [Hardware] Preparar ESP32 (LX6) e Raspberry Pi Zero 2 W | CLOSED | M1 — Revisão e protocolo (semanas 1–2) | tipo:setup, fase:revisao, hardware | 2026-10-09T00:40:53Z | 2026-10-18T23:03:41Z | — |
 | #4 | [Dados] Dataset Construction-PPE e classes (1 classe → 11 classes) | CLOSED | M1 — Revisão e protocolo (semanas 1–2) | tipo:setup, fase:revisao | 2026-10-09T00:40:56Z | 2026-10-18T23:03:42Z | 2 |
-| #5 | [Pipeline] Implementar inferência YOLOX-Nano int8 no ESP32 (LX6) (TFLite Micro) | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-09T00:40:58Z | — | 2, 3, 4 |
+| #5 | [Pipeline] Inferência YOLOX-Nano int8 no ESP32 (LX6) com ingestão de imagens pela serial (Arduino + TFLite Micro) | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-09T00:40:58Z | — | 2, 3, 4 |
 | #6 | [Pipeline] Implementar inferência YOLOX-Nano int8 no Raspberry Pi Zero 2 W | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-09T00:41:01Z | — | 2, 3, 4 |
 | #7 | [Validação] Garantir pipeline funcionalmente idêntico nas duas plataformas | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao | 2026-10-09T00:41:03Z | — | 5, 6 |
 | #8 | [Instrumentação] Cronometragem por fase (timestamps em software) e telemetria | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, hardware | 2026-10-09T00:41:06Z | — | 3 |
@@ -39,6 +39,7 @@
 | #18 | [Pós-disciplina] Submissão a evento regional de sistemas computacionais | OPEN | M6 — Vídeo e entrega (semanas 14–15) | tipo:entregavel, fase:entrega | 2026-10-09T00:41:33Z | — | 14, 16 |
 | #20 | [Dados] Expandir de 1 classe (vest) para as 11 classes do Construction-PPE | OPEN | — | tipo:metodo | 2026-10-13T16:55:23Z | — | 10 |
 | #21 | [Método] Detalhar experimentação, variáveis e coleta de métricas (protocolo v1.3) | CLOSED | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-18T23:03:38Z | 2026-10-19T03:19:49Z | — |
+| #23 | [Extra] Integração de câmera ao vivo (opcional — fora de H1) | OPEN | — | tipo:metodo | 2026-10-19T17:52:48Z | — | — |
 
 ## Dependências (blocked by)
 
