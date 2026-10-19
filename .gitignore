@@ -32,3 +32,14 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# LaTeX (auxiliares; o main.pdf é versionado)
+docs/projeto/*.aux
+docs/projeto/*.log
+docs/projeto/*.bbl
+docs/projeto/*.blg
+docs/projeto/*.out
+docs/projeto/*.toc
+docs/projeto/*.fls
+docs/projeto/*.fdb_latexmk
+docs/projeto/*.synctex.gz

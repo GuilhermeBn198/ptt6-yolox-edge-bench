@@ -1,0 +1,21 @@
+# Modelo de potência por modo (protocolo v1.3, D24/D29) — docs/experimentacao.md §6
+# Potências em watts. [nominal, min, max]. Congelar antes do E3; mudanças exigem nova versão.
+version = "1.3-draft"
+
+[SBC]   # Raspberry Pi Zero 2 W — potência TOTAL da placa a 5 V
+scope = "board"
+idle     = [0.60, 0.50, 1.00]   # ~120 mA (CNX Software 2021; Geerling 2021 ~100 mA)
+active_1 = [1.00, 0.75, 1.30]   # 1 núcleo ativo, ~200 mA (Geerling 2021, cores desabilitados)
+active_4 = [2.30, 1.85, 2.90]   # 4 núcleos, ~460 mA (Geerling 2021); 580 mA (Tom's Hardware 2021)
+# modo por fase: pré/pós rodam em 1 thread; Invoke usa `threads` (interpolação linear 1..4)
+pre  = "active_1"
+inf  = "by_threads"
+post = "active_1"
+
+[MCU]   # ESP32 (LX6) @240 MHz, rádio desligado — potência do CHIP a 3,3 V
+scope = "chip"
+active = [0.224, 0.099, 0.224]  # 30–68 mA, Modem-sleep 240 MHz dual-core (ESP32 Datasheet v5.3, Tab. 4-2)
+board_overhead = [0.0, 0.0, 0.25]  # LDO, USB-UART, LED, PSRAM — parâmetro declarado
+pre  = "active"
+inf  = "active"
+post = "active"

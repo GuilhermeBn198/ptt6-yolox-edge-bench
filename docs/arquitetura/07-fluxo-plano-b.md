@@ -1,5 +1,10 @@
 # 07 — Fluxo do Plano B
 
+> **Atualização v1.2/v1.3:** o INA219 foi **descartado** (D24) — a energia é estimada por software e a
+> cronometragem é feita por timestamps em software (D28). Este diagrama permanece como registro histórico;
+> o fluxo vigente está em [`../experimentacao.md`](../experimentacao.md).
+
+
 > Árvore de decisão das contingências (protocolo §10 e §11). Regra de ouro: **nunca bloquear a entrega**
 > — quando um risco se materializa, aciona-se o caminho alternativo **declarando a limitação**.
 
