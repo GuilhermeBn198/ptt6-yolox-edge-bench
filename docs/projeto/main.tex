@@ -6,6 +6,7 @@
 \usepackage{lmodern}
 \usepackage[a4paper,top=3cm,left=3cm,right=2cm,bottom=2cm]{geometry}
 \usepackage{amsmath,amssymb}
+\usepackage{float}
 \usepackage{booktabs,tabularx,longtable,array,multirow}
 \usepackage{enumitem}
 \usepackage{xcolor}
@@ -97,7 +98,7 @@ $416\times416$.
 \section{Materiais}
 
 \subsection{Plataformas}
-\begin{table}[h]\centering\small
+\begin{table}[H]\centering\small
 \caption{Plataformas comparadas (fator independente).}\label{tab:plat}
 \begin{tabularx}{\linewidth}{lLL}\toprule
  & \textbf{MCU} & \textbf{SBC}\\\midrule
@@ -125,7 +126,7 @@ Ultralytics Construction-PPE~\cite{ultralytics_cppe} (AGPL-3.0), com 11 classes:
 \emph{vest}; o bloco B, as 11 classes. A Tabela~\ref{tab:ds} resume as contagens observadas no arquivo
 baixado.
 
-\begin{table}[h]\centering\small
+\begin{table}[H]\centering\small
 \caption{Construction-PPE: imagens e instâncias da classe \emph{vest} por split.}\label{tab:ds}
 \begin{tabular}{lrrr}\toprule
 Split & Imagens & Instâncias \emph{vest} & Imagens com \emph{vest}\\\midrule
@@ -144,7 +145,7 @@ análise e entrega. Nenhuma medição final ocorre antes de a fase anterior esta
 o modelo já executa no Raspberry Pi; a integração no ESP32 e a instrumentação final estão em andamento.
 
 \subsection{Variáveis}
-\begin{table}[h]\centering\small
+\begin{table}[H]\centering\small
 \caption{Variáveis do experimento.}\label{tab:var}
 \begin{tabularx}{\linewidth}{lL}\toprule
 \textbf{Tipo} & \textbf{Variáveis}\\\midrule
@@ -175,7 +176,7 @@ janela. Cada execução gera um CSV com uma linha por inferência e um arquivo d
 configurações, hashes, ambiente).
 
 \subsection{Experimentos}
-\begin{table}[h]\centering\small
+\begin{table}[H]\centering\small
 \caption{Experimentos (repetidos para os blocos A --- 1 classe --- e B --- 11 classes).}\label{tab:exp}
 \begin{tabularx}{\linewidth}{llL}\toprule
 \textbf{Id} & \textbf{Fase} & \textbf{Descrição e saída}\\\midrule
@@ -213,7 +214,7 @@ E_i = P_{pre}\,t_{pre,i}+P_{inf}\,t_{inf,i}+P_{post}\,t_{post,i},
 \end{equation}
 com a potência total do dispositivo em cada modo (Tabela~\ref{tab:pot}).
 
-\begin{table}[h]\centering\small
+\begin{table}[H]\centering\small
 \caption{Parâmetros do modelo de potência (nominal e faixa de sensibilidade).}\label{tab:pot}
 \begin{tabularx}{\linewidth}{llrrL}\toprule
 \textbf{Plataforma} & \textbf{Modo} & \textbf{Nominal} & \textbf{Faixa} & \textbf{Fonte}\\\midrule
@@ -246,7 +247,7 @@ bloco (Kruskal-Wallis) e a autocorrelação (ACF de \emph{lag} 1). Uma análise 
 $t_{inf}$, isolando o núcleo de inferência das diferenças de implementação do pré e do pós-processamento.
 
 \section{Ameaças à validade}
-\begin{table}[h]\centering\small
+\begin{table}[H]\centering\small
 \caption{Principais ameaças e mitigação.}\label{tab:ameacas}
 \begin{tabularx}{\linewidth}{LL}\toprule
 \textbf{Ameaça} & \textbf{Mitigação}\\\midrule
@@ -262,7 +263,7 @@ Autocorrelação e deriva & blocos independentes, ordem registrada, ACF e efeito
 \end{table}
 
 \section{Cronograma e estado atual}
-\begin{table}[h]\centering\small
+\begin{table}[H]\centering\small
 \caption{Cronograma (15 semanas) e estado em outubro de 2026.}\label{tab:crono}
 \begin{tabularx}{\linewidth}{llL}\toprule
 \textbf{Semanas} & \textbf{Fase} & \textbf{Estado}\\\midrule
