@@ -41,14 +41,14 @@ superior, dado seu consumo estático mais alto.
 
 ## Protocolo experimental (resumo)
 
-> Detalhes e justificativas em [`docs/protocolo.md`](docs/protocolo.md) (protocolo congelado + emendas v1.1/v1.2/v1.3).
+> Detalhes e justificativas em [`docs/protocolo.md`](docs/protocolo.md) (protocolo congelado + emendas v1.1–v1.4).
 
 - **Dataset:** Ultralytics **Construction-PPE** — começa com 1 classe (colete) e depois 11 classes ([`docs/dataset.md`](docs/dataset.md))
 - **Desenho experimental e coleta de métricas (v1.3):** [`docs/experimentacao.md`](docs/experimentacao.md)
 - Tarefa de **detecção** (bounding boxes), mesmo artefato **YOLOX-Nano int8 → TFLite** (mesmo
   runtime e mesmo pipeline nas duas plataformas; hash do modelo registrado)
-- **Execução em fases**: validar o pipeline com **imagens estáticas** (sem câmera) e só depois
-  integrar a **câmera ao vivo** (decisão D25)
+- **Entrada**: imagens do dataset **ingeridas diretamente no modelo** (serial no ESP32, disco no RPi);
+  a **câmera ao vivo é extra** (decisão D33, emenda v1.4)
 - Repetições definidas por **piloto** (CV → N para IC 95%; **piso 30**); **warm-up definido pelo dado**
 - **Energia estimada por software**: modelo de potência por modo (datasheet) × tempo medido por fase
   (`E = Σ P_modo · t_fase`); **sem medidor físico inline** (decisão D24) — limitação declarada
@@ -60,7 +60,7 @@ superior, dado seu consumo estático mais alto.
 ## Estrutura do repositório
 
 ```
-firmware/esp32/       # Pipeline de inferência no ESP32 (LX6) (TFLite Micro)
+firmware/esp32/       # ESP32 (LX6): bench_serial.ino (Arduino + TFLite Micro, ingestão por serial)
 raspberry/pi_zero_2w/ # Pipeline de inferência no Raspberry Pi Zero 2 W
 hardware/ina219/      # (histórico) medição física descartada em D24 — energia é estimada por software
 scripts/              # energy_model.py + power_model.toml (energia por software)

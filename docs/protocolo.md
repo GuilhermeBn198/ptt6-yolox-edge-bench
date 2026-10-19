@@ -1,16 +1,17 @@
 # Protocolo Experimental — PTT6 (YOLOX-Nano int8: ESP32 (LX6) vs Raspberry Pi Zero 2 W)
 
 > **Status: v1.3** — emendas sobre o protocolo **v1.0 congelado**: **v1.1** (plataforma MCU, §13),
-> **v1.2** (energia estimada por software + execução em fases, §14–§15) e **v1.3** (dataset, treino,
-> cronometragem, modelo de potência e desenho experimental, §16 + [`experimentacao.md`](experimentacao.md)). A base metodológica
+> **v1.2** (energia estimada por software + execução em fases, §14–§15) **v1.3** (dataset, treino,
+> cronometragem, modelo de potência e desenho experimental, §16 + [`experimentacao.md`](experimentacao.md)) e **v1.4**
+> (câmera ao vivo vira **extra**; validação e medição por **ingestão direta de imagens** no modelo, §17). A base metodológica
 > (métricas, estatística) permanece congelada. Decisões finais em **DECISÃO**.
 >
 > Fundamentação e fontes: [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Proposta original:
 > [`proposta/PTT6_Filipe_Guilherme_assinado.pdf`](proposta/PTT6_Filipe_Guilherme_assinado.pdf).
 
-- **Versão:** 1.3 (v1.1/v1.2 aprovadas com o orientador; v1.3 proposta pela dupla — validar com o orientador)
+- **Versão:** 1.4 (v1.1/v1.2 aprovadas com o orientador; v1.3/v1.4 decididas pela dupla — validar com o orientador)
 - **Autores:** Filipe Matias, Guilherme Lucas — **Orientador:** Herbert Oliveira Rocha
-- **Última atualização:** 2026-10-18
+- **Última atualização:** 2026-10-19
 
 ### Histórico de versões
 
@@ -21,6 +22,8 @@
 | 1.2 | 2026-10-13 | **D24:** energia por inferência passa a ser **estimada por software** (modelo de potência × tempo medido), **descartando a medição física com INA219** — inviável no prazo, decidido com o orientador. **D25:** execução **em fases** — validar o pipeline com **imagens estáticas** antes de integrar a **câmera ao vivo**. Impactos em §2, §5, §6, §9–§11 e §14–§15. |
 
 | 1.3 | 2026-10-18 | **D26:** dataset **Ultralytics Construction-PPE** (1 classe `vest` → 11 classes). **D27:** um *fine-tuning* por configuração de classes, fora do escopo medido (D9 = sem re-treino por plataforma). **D28:** cronometragem por timestamps monotônicos em software. **D29:** parâmetros do modelo de potência + sensibilidade/*break-even*. **D30:** entradas estáticas como tensores brutos idênticos. **D31:** resolução comum definida pela viabilidade no ESP32. **D32:** coleta em 3 blocos por plataforma. INA219 **definitivamente fora** (pedido ao orientador, mas não será usado). Desenho completo em [`experimentacao.md`](experimentacao.md). |
+| 1.4 | 2026-10-19 | **D33:** a **câmera ao vivo passa a ser extra** (fora do caminho crítico e do teste de H1). A validação e a medição usam **ingestão direta de imagens** no modelo: no ESP32 (Arduino/ESP-IDF), as entradas `.bin` chegam pela **serial** (USB-UART) e ficam em RAM antes da janela; no RPi, são lidas do disco para a RAM. Revisa D3, D4 e D25. Detalhes em §17 e [`experimentacao.md`](experimentacao.md). |
+
 ---
 
 ## Resumo do plano
@@ -33,10 +36,10 @@
 6. Medimos latência de ponta a ponta (pré + inferência + pós), throughput e energia por inferência **estimada por software** (total da janela, incluindo o consumo parado).
 7. Eficiência comparada por inferências/joule e por EDP (energia × latência), com H1 e H0 formalizadas.
 8. Energia **estimada por software** (modelo de potência por modo × tempo medido por fase); **sem medidor físico inline** — a limitação é declarada no relatório.
-9. Desenvolvimento **em fases**: validar o pipeline com **imagens estáticas** (sem câmera) e só depois integrar a **câmera ao vivo**. Um piloto define o número de repetições (piso 30, referência até ~240) e o warm-up pelo próprio dado; duas bordas de GPIO separam as três fases.
+9. Desenvolvimento **em fases**: validar o pipeline com **imagens estáticas** (sem câmera) e medir com a **mesma ingestão direta de imagens**; a **câmera ao vivo é extra** (v1.4/D33). Um piloto define o número de repetições (piso 30, referência até ~240) e o warm-up pelo próprio dado; duas bordas de GPIO separam as três fases.
 10. Estatística: mediana + IQR, teste de Mann-Whitney U com tamanho de efeito e IC por bootstrap; não removemos outliers (opção A), só checamos sensibilidade.
 11. Configuração travada: ESP32 (LX6) a 240 MHz sem power management e Raspberry Pi com governor performance a 1 GHz, com ambiente e temperatura registrados.
-12. Testes em fases: validação com imagens estáticas do próprio dataset e, em seguida, câmera ao vivo; resolução, formato e número de buffers iguais nas duas pontas, e a diferença de pipeline de câmera declarada como ameaça à validade.
+12. Entrada: imagens do próprio dataset, pré-processadas no PC e **ingeridas diretamente no modelo** (serial no ESP32, disco no RPi), idênticas byte a byte; a câmera ao vivo fica como extra, se houver tempo.
 13. Entregáveis: repositório com licença, README de reprodutibilidade, CSV bruto das execuções, vídeo de 3–5 min e relatório técnico conclusivo.
 14. Prazo de 15 semanas; depois, publicar o dataset no Zenodo (DOI) e submeter a um evento regional.
 15. Título permanece provisório.
@@ -51,7 +54,7 @@
   YOLOX-Nano int8 em uma MCU (ESP32 (LX6)) e um SBC (Raspberry Pi Zero 2 W).
 - **Pergunta:** como se comparam latência, throughput e energia por inferência entre as duas
   plataformas ao executar o mesmo YOLOX-Nano int8, detectando EPIs (validação com imagens estáticas
-  e, depois, câmera ao vivo)?
+  ingeridas diretamente no modelo)?
 - **H1:** o SBC tem throughput maior, mas energia por inferência igual ou superior.
 - **H0:** não há diferença nas métricas entre as plataformas. **(DECISÃO.)**
 - **Eficiência:** inferências/joule **e** EDP. **(DECISÃO.)**
@@ -62,7 +65,7 @@
 | | MCU | SBC |
 |---|---|---|
 | Modelo | **ESP32 (LX6)** — dual-core Xtensa LX6, até 240 MHz | Raspberry Pi Zero 2 W (Cortex-A53 quad-core @1 GHz, 512 MB) |
-| Entrada | imagens estáticas → câmera ao vivo (fase 2) | imagens estáticas → câmera ao vivo (fase 2) |
+| Entrada | imagens `.bin` via serial → RAM (câmera: extra) | imagens `.bin` do disco → RAM (câmera: extra) |
 | Medição | energia **estimada por software** + cronometragem por GPIO | energia **estimada por software** + cronometragem por GPIO |
 
 > **Emenda v1.1 (D23):** a plataforma MCU é o **ESP32 (LX6)**, hardware efetivamente disponível à
@@ -75,7 +78,7 @@
   e validação do modelo com **imagens estáticas** (o dataset), **sem câmera** — garante que a
   detecção funciona antes de qualquer tempo real. **Fase 2:** integração da **câmera ao vivo**. A
   medição final só ocorre com o pipeline validado na fase anterior.
-- **Câmera (DECISÃO, v1.2):** entra no escopo, porém na **fase 2**. As pipelines diferem
+- **Câmera (DECISÃO, v1.4 / D33):** passa a ser **extra opcional** — não bloqueia a medição nem entra no teste de H1. Se for feita: As pipelines diferem
   (esp32-camera vs V4L2/libcamera) → **ameaça à validade**: fixar resolução, formato e número de
   buffers iguais nas duas pontas.
 - **Relógio (DECISÃO):** ESP32 (LX6) travado em **240 MHz** com DFS/light-sleep desabilitados;
@@ -171,7 +174,8 @@
 | **Plataforma MCU difere da proposta** (ESP32 LX6 em vez de ESP32-S3) | desvio **aprovado pelo orientador**; declarar no relatório; **não** extrapolar resultados para o S3; registrar impactos esperados (sem SIMD, latência/consumo) |
 | **Energia estimada por software** (modelo de potência, não medição física) | usar o mesmo modelo nas duas plataformas; registrar tensão e valores assumidos; verificação cruzada se houver medidor; declarar a limitação |
 | Modelo de potência não captura transientes/picos | documentar como limitação; reportar energia relativa, não absoluta; sensibilidade a `P_mode` |
-| Pipelines de câmera diferentes (fase 2) | declarar; fixar resolução/formato/nº de buffers |
+| Pipelines de câmera diferentes (extra, v1.4) | fora de H1; se feito, fixar resolução/formato/nº de buffers |
+| Ingestão por serial no ESP32 × disco no RPi | transferência **fora** da janela; janela começa com a imagem já em RAM nas duas plataformas (D33) |
 | PSRAM lenta / cache | fixar layout do modelo; registrar uso de PSRAM vs SRAM |
 | Deriva de frequência/autocorrelação | múltiplas execuções; travar frequência; análise temporal |
 | Sem baseline publicado de YOLOX-Nano nas duas plataformas | ver §12 (D16) |
@@ -188,7 +192,8 @@
 |---|---|---|---|
 | Energia estimada por software não refletir o consumo real | média | alto | mesmo modelo nas duas plataformas; registrar premissas; verificação cruzada se possível; declarar limitação |
 | Modelo não performa em um dispositivo | média | alto | outras versões quantizadas do YOLO |
-| Câmera não integrar na fase 2 | baixa | médio | manter a validação estática como evidência; declarar a fase não concluída |
+| Câmera (extra) não integrar | — | baixo | sem impacto em H1 (v1.4); declarar como trabalho futuro |
+| Flash/PSRAM do ESP32 insuficiente para guardar as imagens | média | médio | ingestão por serial, uma imagem por vez (D33) |
 
 ## 12. Registro de decisões e pendências
 
@@ -198,8 +203,8 @@
 |---|---|---|---|
 | D1 | Tarefa | Detecção de EPIs (bounding boxes) | 2026-10-08 |
 | D2 | Prazo | 15 semanas | 2026-10-08 |
-| D3 | Entrada | Imagens estáticas na validação; câmera ao vivo na fase 2 (revisada por D25) | 2026-10-08 |
-| D4 | Câmera | Entra no escopo, na **fase 2** (revisada por D25) | 2026-10-08 |
+| D3 | Entrada | Imagens estáticas na validação; câmera ao vivo na fase 2 (revisada por D25 e D33) | 2026-10-08 |
+| D4 | Câmera | Entra no escopo, na **fase 2** (revisada por D25; **extra** desde D33) | 2026-10-08 |
 | D5 | Janela de latência | Tudo (pré + inferência + pós) | 2026-10-08 |
 | D6 | Energia | Total da janela (inclui idle) | 2026-10-08 |
 | D7 | Instrumento | ~~Medir energia com INA219~~ — **revogada por D24** (energia estimada por software) | 2026-10-08 |
@@ -229,12 +234,13 @@
 | D30 | **Entradas estáticas** | Tensores `r×r×3` uint8 em letterbox, idênticos byte a byte; JPEG/resize só na fase de câmera | 2026-10-18 |
 | D31 | **Resolução** | Comum às duas plataformas; maior de {416, 320, 256, 224, 160} viável no ESP32 (definida no piloto) | 2026-10-18 |
 | D32 | **Estrutura de coleta** | 3 blocos independentes por plataforma (power-cycle), N = max(30, N_piloto) | 2026-10-18 |
+| D33 | **Ingestão / câmera** | Câmera ao vivo = **extra**; validação e medição com ingestão direta de imagens (serial no ESP32, disco no RPi), transferência fora da janela | 2026-10-19 |
 
 ### 12.2 Em aberto
 
 Pendências de parametrização (não metodológicas): **aprovar os valores nominais do modelo de potência**
 (rascunho em `scripts/power_model.toml`), definir a **resolução comum** `r` no piloto (D31) e confirmar o
-módulo do ESP32 (com/sem PSRAM). O protocolo está na **v1.3** (v1.0 congelada + emendas D23–D32). Novas alterações exigem nova
+módulo do ESP32 (com/sem PSRAM). O protocolo está na **v1.4** (v1.0 congelada + emendas D23–D33). Novas alterações exigem nova
 versão documentada neste histórico.
 
 ---
@@ -286,12 +292,12 @@ versão documentada neste histórico.
 | Fase | O quê | Critério de saída |
 |---|---|---|
 | **F1 — Modelo e validação estática** | Dataset preparado, artefato `.tflite` int8 com hash, inferência sobre **imagens estáticas** nas duas plataformas | mAP determinada; mesma predição nas duas plataformas (equivalência) |
-| **F2 — Câmera e tempo real** | Integração da câmera ao vivo, mesmo pipeline, resolução/formato/buffers iguais | Pipeline de tempo real rodando estável nas duas pontas |
+| ~~F2 — Câmera e tempo real~~ → **extra (v1.4)** | Integração opcional da câmera ao vivo; não bloqueia F3 | — (opcional) |
 | **F3 — Medição** | Coleta das repetições (piloto→N, warm-up por dado), energia por software | `data/raw/*.csv` completo e reprodutível |
 | **F4 — Análise e entrega** | Estatística, tabelas/gráficos, relatório, dataset, vídeo | Entregáveis-base concluídos |
 
-- **Regra:** nenhuma medição final antes de a fase anterior estar funcional. A **câmera entra só na
-  F2**; as fases F1 e F2 alimentam a comparabilidade (mesmo artefato, mesmo pipeline).
+- **Regra:** nenhuma medição final antes de a F1 estar funcional. Desde a v1.4 (D33), a **F3 segue
+  direto da F1** com a mesma ingestão de imagens; a câmera ao vivo é extra.
 
 
 ## 16. Emenda v1.3 — Desenho experimental e coleta de métricas
@@ -312,6 +318,25 @@ versão documentada neste histórico.
      parâmetro e H1 testada também no pior caso para o MCU (D29).
   4. Pré/pós no SBC (Python/NumPy) e no MCU (C/C++) diferem em linguagem → análise secundária só com
      `t_inf` (ameaça declarada).
+
+
+## 17. Emenda v1.4 — Câmera ao vivo como extra; ingestão direta de imagens
+
+- **Decisão (D33):** a integração da câmera ao vivo deixa de ser fase obrigatória e passa a **extra**.
+  A validação (F1) e a medição (F3) usam **ingestão direta das imagens no modelo**, dentro do ESP32
+  (Arduino core ou ESP-IDF) e do Raspberry Pi.
+- **Como:** as imagens são pré-processadas uma vez no PC (letterbox `r×r`, RGB uint8, `.bin`, D30).
+  - **ESP32:** o PC envia cada `.bin` pela **serial USB-UART** com um quadro simples (cabeçalho + CRC32);
+    o firmware guarda a imagem em um buffer em RAM, confirma e só então abre a janela cronometrada
+    (pré + inferência + pós). Os resultados voltam pela serial **depois** da janela.
+  - **RPi:** os `.bin` são lidos do disco para a RAM antes do laço (como já faz `bench_collect.py`).
+- **Por que serial e não flash:** 50 imagens a 160×160 ocupam ~3,8 MB, mais que a partição de dados
+  típica do ESP32; uma imagem por vez cabe em RAM/PSRAM. Embutir um subconjunto na flash fica como
+  alternativa, registrada no `meta.json`.
+- **O que NÃO muda:** pergunta, H1/H0, métricas, janela, estatística, modelo de potência, entregáveis.
+- **O que muda:** a fase F2 sai do caminho crítico; o vídeo de demonstração mostra a ingestão de imagens
+  e as detecções (câmera só se o extra for feito); a ameaça "pipelines de câmera diferentes" sai do teste
+  de H1, e entra a ameaça "ingestão por serial × disco" (mitigada por manter a transferência fora da janela).
 
 ---
 

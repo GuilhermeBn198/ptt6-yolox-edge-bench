@@ -1,8 +1,11 @@
-# Desenho Experimental e Coleta de Métricas — PTT6 (protocolo v1.3)
+# Desenho Experimental e Coleta de Métricas — PTT6 (protocolo v1.4)
 
 > Detalha **como** os experimentos são executados e **o que** é medido em cada um. É o documento
 > operacional da emenda **v1.3** do [`protocolo.md`](protocolo.md) (decisões D26–D32). Em caso de
 > conflito, vale o protocolo; este arquivo o operacionaliza.
+>
+> **v1.4 (2026-10-19, D33):** câmera ao vivo é **extra**; validação e medição com **ingestão direta de
+> imagens** no modelo (serial no ESP32, disco no RPi) — ver §5.4.
 >
 > Estado em 2026-10-18: hardware em mãos (ESP32 LX6 + RPi Zero 2 W); dataset definido
 > (Construction-PPE, #4); **modelo já executa no Raspberry Pi** (#6); INA219 **não será usado** (D24).
@@ -54,7 +57,7 @@ descritiva).
 | Resolução de entrada `r` | **comum às duas plataformas** (D31) | coluna `input_res` |
 | Quantização | PTQ int8 *full-integer*, calibração com 750 imagens do *train* (D17) | script + lista de imagens versionados |
 | Limiares de pós-processamento | `conf ≥ 0,25`, `IoU_NMS = 0,45`, máx. 100 detecções | `meta.json` |
-| Entradas | mesmas `M = 50` imagens do *test*, pré-letterboxed em `r×r` RGB uint8 (D30) | hash de cada `.bin` |
+| Entradas | mesmas `M = 50` imagens do *test*, pré-letterboxed em `r×r` RGB uint8 (D30), ingeridas direto no modelo (D33) | hash de cada `.bin` |
 | Clock / governor | MCU 240 MHz, sem DFS/light-sleep; SBC `performance` 1 GHz (D21) | `sdkconfig`, `config.txt`, `scaling_governor` |
 | Threads | MCU: 1 núcleo (TFLM); SBC: 4 threads no principal (E3) | coluna `threads` |
 | Rádio | Wi-Fi/BT desligados no MCU; no SBC, Wi-Fi associado e ocioso (SSH só fora dos blocos) | `meta.json` |
@@ -67,7 +70,7 @@ descritiva).
 `arm_freq_mhz` e `throttled` (`vcgencmd get_throttled`) no SBC, `n_det` (nº de detecções — afeta
 `t_post`), `image_id`, `block_id`, `seq_idx` (ordem — para checar deriva/autocorrelação).
 
-## 3. Decisões operacionais da v1.3 (resumo)
+## 3. Decisões operacionais da v1.3–v1.4 (resumo)
 
 | # | Decisão |
 |---|---|
@@ -78,6 +81,7 @@ descritiva).
 | **D30** | Na fase estática, as entradas são **tensores brutos `r×r×3` uint8 já em letterbox**, byte a byte idênticos nas duas plataformas. `pre` = cópia + quantização para o tensor de entrada; decodificação de JPEG/resize **não** entram na janela estática (entram na fase de câmera, E5). |
 | **D31** | **Resolução comum** `r`: a maior em {416, 320, 256, 224, 160} que caiba na memória do ESP32 (arena TFLM + PSRAM) e conclua ≥ 30 inferências por bloco em ≤ 60 min. Definida em E2; o SBC a 416 entra só como referência exploratória (E3c). |
 | **D32** | Estrutura de coleta em **blocos** (sessões independentes, com *power-cycle*): `B = 3` blocos por plataforma; N total ≥ max(30, N_piloto). |
+| **D33** | Câmera ao vivo vira **extra**. Validação e medição por **ingestão direta**: no ESP32 os `.bin` chegam pela serial e ficam em RAM antes da janela; no RPi são lidos do disco. Transferência sempre **fora** da janela (§5.4). |
 
 ## 4. Experimentos
 
@@ -90,7 +94,7 @@ descritiva).
 | E3b | Varredura de threads {1, 2, 4} (Amdahl) | F3 | SBC | exploratório |
 | E3c | SBC em 416×416 (se `r < 416`) | F3 | SBC | exploratório |
 | **E4** | Throughput sustentado + deriva térmica | F3 | MCU, SBC | contagem/60 s + série de temperatura |
-| **E5** | Câmera ao vivo (tempo real) | F2 | MCU, SBC | FPS sustentado, latência c/ captura |
+| E5 *(extra)* | Câmera ao vivo (tempo real) — opcional, fora de H1 | — | MCU, SBC | FPS sustentado, latência c/ captura |
 | **E6** | Energia derivada + sensibilidade | F4 | — (software) | `data/processed/energy_*.csv` |
 
 ### E0 — Acurácia offline (notebook)
@@ -134,7 +138,8 @@ Ao fim de cada bloco de E3: 60 s de laço fechado sem gravação por inferência
 `throughput_sust = n / 60 s`. No SBC, amostrar `cpu_temp_c` e `throttled` a cada 5 s. Indício de
 throttling (bit ativo ou queda de `arm_freq`) invalida o bloco, que é repetido.
 
-### E5 — Câmera ao vivo (F2, descritivo)
+### E5 — Câmera ao vivo (*extra*, opcional — D33)
+Só se houver tempo depois de E3/E4; não bloqueia a entrega nem entra em H1.
 Mesma resolução de captura, formato (RGB565 → RGB888) e nº de buffers nas duas pontas; 5 min por
 plataforma; mede-se FPS sustentado e latência ponta a ponta **incluindo** captura e resize. Resultado
 descritivo; não entra no teste de H1 (pipelines de câmera diferem — ameaça declarada).
@@ -174,8 +179,29 @@ governor; fonte e cabo; temperatura ambiente; commit do repositório; operador; 
 ### 5.3 Implementação de referência
 - SBC: [`raspberry/pi_zero_2w/bench_collect.py`](../raspberry/pi_zero_2w/bench_collect.py) — instrumenta
   um interpretador TFLite existente, grava CSV + `meta.json` no formato acima (tem `--dry-run`).
-- MCU: mesmo esquema de colunas, impresso via serial **entre** blocos a partir de um buffer em RAM
-  (`esp_timer_get_time()` antes/depois de cada fase).
+- MCU: [`firmware/esp32/bench_serial/bench_serial.ino`](../firmware/esp32/bench_serial/bench_serial.ino)
+  (esqueleto Arduino + TFLite Micro) recebe as imagens pela serial e devolve tempos e detecções;
+  [`scripts/esp_serial_feeder.py`](../scripts/esp_serial_feeder.py) roda no PC, envia as imagens e grava o
+  CSV + `meta.json` no mesmo esquema do SBC.
+
+### 5.4 Ingestão direta de imagens no ESP32 (D33)
+
+```
+PC (esp_serial_feeder.py)                      ESP32 (bench_serial.ino)
+  "IMG" | id:u16 | len:u32 | payload | crc32 ──►  recebe em buffer (PSRAM/SRAM), confere CRC
+                                           ◄──  "ACK,<id>"
+                                                t0 → pré → t1 → Invoke → t2 → pós → t3   (janela)
+                                           ◄──  "RES,<id>,t_pre,t_inf,t_post,t_total,n_det"
+                                           ◄──  "DET,<id>,x1,y1,x2,y2,score,cls"  (× n_det)
+                                           ◄──  "END,<id>"
+```
+
+- Baud padrão 921 600 (registrar). A 160×160 (76,8 KB) a transferência leva ~1 s — **fora** da janela.
+- Nada é impresso na serial entre `t0` e `t3`; o rádio fica desligado (`WiFi.mode(WIFI_OFF)`, `btStop()`).
+- Clock fixo: `setCpuFrequencyMhz(240)` (Arduino) ou `sdkconfig` sem DFS (ESP-IDF); registrar a versão do
+  core Arduino/ESP-IDF e da biblioteca TFLite Micro.
+- As detecções devolvidas alimentam o E1 (equivalência) com as mesmas regras do SBC.
+- Alternativa (registrar se usada): subconjunto de imagens embutido na flash (LittleFS ou array C).
 
 ## 6. Modelo de potência (energia por software, D24/D29)
 
@@ -223,6 +249,12 @@ Notas:
 - [ ] `vcgencmd get_throttled` = `0x0` antes de cada bloco.
 - [ ] Copiar o `.tflite` (conferir SHA-256) e as 50 entradas `.bin` (conferir hashes).
 - [ ] Rodar `bench_collect.py --dry-run` e depois E2 (piloto) com `--experiment E2`.
+
+### Checklist do ESP32 (antes de E2)
+
+- [ ] Confirmar módulo (WROOM/WROVER) e PSRAM; habilitar PSRAM no core Arduino se houver.
+- [ ] Gravar `bench_serial.ino` com o `.tflite` embutido (array C) e conferir o SHA-256 impresso no boot.
+- [ ] `python scripts/esp_serial_feeder.py --port COMx --inputs inputs/ --experiment E2 --n 30` no PC.
 - [ ] Sessão SSH ociosa durante o bloco (iniciar com `nohup`/`tmux` e desconectar).
 
 ## 9. Pendências que bloqueiam a coleta final

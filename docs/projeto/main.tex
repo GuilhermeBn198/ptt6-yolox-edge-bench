@@ -20,7 +20,7 @@
 
 \title{\textbf{Benchmarking de Inferência do YOLO Quantizado em MCU e SBC}\\[2pt]
 \large Desempenho e eficiência energética do YOLOX-Nano int8 para detecção de EPIs em \emph{Edge AI}\\[2pt]
-\normalsize Projeto de Pesquisa --- Trilha PTT6 (protocolo experimental v1.3)}
+\normalsize Projeto de Pesquisa --- Trilha PTT6 (protocolo experimental v1.4)}
 \author{Filipe Matias \and Guilherme Lucas\\[2pt]
 \small Orientador: Prof. Herbert Oliveira Rocha\\
 \small Mestrado Profissional em Computação Aplicada (PPCA) --- Universidade Federal de Roraima\\
@@ -140,8 +140,9 @@ Teste & 141 & 178 & 111\\\bottomrule
 
 \subsection{Estratégia em fases}
 O trabalho avança em fases com critério de saída: \textbf{F1} validação do modelo com imagens estáticas
-(sem câmera); \textbf{F2} integração da câmera ao vivo; \textbf{F3} coleta das medições; \textbf{F4}
-análise e entrega. Nenhuma medição final ocorre antes de a fase anterior estar funcional. Estado atual:
+(sem câmera); \textbf{F3} coleta das medições; \textbf{F4} análise e entrega. A integração da câmera ao vivo
+(\textbf{F2}) passou a ser um \emph{extra} opcional (emenda v1.4): não bloqueia a medição nem entra no teste
+de H1. Nenhuma medição final ocorre antes de a F1 estar funcional. Estado atual:
 o modelo já executa no Raspberry Pi; a integração no ESP32 e a instrumentação final estão em andamento.
 
 \subsection{Variáveis}
@@ -168,6 +169,16 @@ por classe, com a mesma lógica nas duas pontas. A resolução $r$ é comum: a m
 $\{416, 320, 256, 224, 160\}$ que caiba na memória do ESP32 e permita ao menos 30 inferências por bloco
 em até 60\,min.
 
+\subsection{Ingestão direta de imagens}
+Validação e medição usam as mesmas imagens do conjunto de teste, pré-processadas uma vez no PC e
+\emph{ingeridas diretamente no modelo}. No ESP32 (core Arduino ou ESP-IDF com TensorFlow Lite Micro), o PC
+envia cada imagem pela serial USB-UART em um quadro com cabeçalho e CRC32; o firmware a guarda em um buffer
+em RAM, confirma o recebimento e só então abre a janela cronometrada; os tempos e as detecções voltam pela
+serial depois da janela. No Raspberry Pi, as imagens são lidas do disco para a RAM antes do laço. Assim, a
+janela começa com a imagem já em memória nas duas plataformas, e o custo de transferência fica fora da
+medição. A serial foi preferida à flash porque 50 imagens a $160\times160$ ocupam $\approx$3,8\,MB, mais
+que a partição de dados típica do ESP32.
+
 \subsection{Instrumentação}
 Os tempos vêm de relógios monotônicos de alta resolução em software (\texttt{time.perf\_counter\_ns()} no
 SBC; \texttt{esp\_timer\_get\_time()} no MCU). Não há E/S dentro da janela: as medidas ficam em memória e
@@ -187,7 +198,7 @@ E3 & F3 & Benchmark principal estático: 3 blocos por plataforma, $N=\max(30,N_{
 E3b & F3 & SBC com 1, 2 e 4 threads: fração paralelizável por Amdahl (exploratório)\\
 E3c & F3 & SBC a $416\times416$ quando $r<416$ (exploratório)\\
 E4 & F3 & Throughput sustentado em 60\,s de laço fechado e deriva térmica\\
-E5 & F2 & Câmera ao vivo: FPS sustentado e latência com captura (descritivo)\\
+E5 & extra & Câmera ao vivo (opcional, fora de H1): FPS sustentado e latência com captura\\
 E6 & F4 & Energia derivada, sensibilidade e \emph{break-even}\\\bottomrule
 \end{tabularx}
 \end{table}
@@ -257,7 +268,8 @@ Throttling térmico no SBC & governor fixo, dissipador, pausas; bloco com \emph{
 Pré/pós em linguagens diferentes & mesma lógica e limiares; análise secundária só com $t_{inf}$\\
 ESP32 LX6 em vez de S3 & desvio declarado; sem extrapolação para o S3\\
 Resolução reduzida pela MCU & mesma $r$ nas duas plataformas; SBC a 416 apenas exploratório\\
-Pipelines de câmera diferentes (F2) & mesma resolução, formato e nº de buffers; resultado descritivo\\
+Ingestão por serial (MCU) $\times$ disco (SBC) & transferência fora da janela; janela inicia com a imagem em RAM\\
+Câmera ao vivo (extra) & fora do teste de H1; se feita, mesma resolução, formato e nº de buffers\\
 Autocorrelação e deriva & blocos independentes, ordem registrada, ACF e efeito de bloco\\\bottomrule
 \end{tabularx}
 \end{table}
@@ -267,7 +279,7 @@ Autocorrelação e deriva & blocos independentes, ordem registrada, ACF e efeito
 \caption{Cronograma (15 semanas) e estado em outubro de 2026.}\label{tab:crono}
 \begin{tabularx}{\linewidth}{llL}\toprule
 \textbf{Semanas} & \textbf{Fase} & \textbf{Estado}\\\midrule
-1--2 & Revisão e protocolo & concluída (protocolo v1.3; hardware e dataset definidos)\\
+1--2 & Revisão e protocolo & concluída (protocolo v1.4; hardware e dataset definidos)\\
 3--5 & Implementação & SBC executando o modelo; ESP32 e instrumentação em andamento\\
 6--9 & Experimentos & E2 (piloto) assim que $r$ e os artefatos forem fixados\\
 10--11 & Análise & ---\\
@@ -278,7 +290,7 @@ Autocorrelação e deriva & blocos independentes, ordem registrada, ACF e efeito
 
 \section{Entregáveis}
 Repositório versionado com licença MIT; README de reprodutibilidade; dados brutos em CSV e metadados;
-vídeo de demonstração (3--5\,min) nas duas plataformas; relatório técnico conclusivo. Após a disciplina:
+vídeo de demonstração (3--5\,min) nas duas plataformas, mostrando a ingestão de imagens e as detecções; relatório técnico conclusivo. Após a disciplina:
 dataset com DOI (Zenodo) e submissão a evento regional.
 
 \bibliographystyle{unsrtnat}

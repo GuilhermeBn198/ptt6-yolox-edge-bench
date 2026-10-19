@@ -60,7 +60,7 @@ Ferramentas e pipeline **funcionalmente idênticos** nas duas plataformas. Se o 
 - **Modelo não performa em algum dispositivo** (prob. média, impacto alto): usar **outras versões quantizadas do YOLO**.
 
 ### Estratégia em fases (estático → tempo real)
-O desenvolvimento é **em fases**: (F1) converter e **validar o modelo com imagens estáticas**, sem câmera; (F2) integrar a **câmera ao vivo**; (F3) medir; (F4) analisar e entregar. Nenhuma medição final antes de a fase anterior funcionar. A câmera **não** é pressuposta desde o início.
+O desenvolvimento é **em fases**: (F1) converter e **validar o modelo com imagens estáticas**, sem câmera; (F2) a **câmera ao vivo é extra** desde a v1.4 (D33) — a medição usa ingestão direta de imagens; (F3) medir; (F4) analisar e entregar. Nenhuma medição final antes de a fase anterior funcionar. A câmera **não** é pressuposta desde o início.
 
 ### Entregáveis-base (obrigatórios)
 Repositório versionado com licença · README de reprodutibilidade · **dados brutos em CSV** · **vídeo de demonstração (3–5 min)** nas duas plataformas · **relatório técnico conclusivo** com tabelas e gráficos.
