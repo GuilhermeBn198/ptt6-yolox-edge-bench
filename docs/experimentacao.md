@@ -177,12 +177,17 @@ do runtime (LiteRT/tflite-runtime, TFLM), compilador e flags; `sdkconfig`/`confi
 governor; fonte e cabo; temperatura ambiente; commit do repositório; operador; data/hora UTC.
 
 ### 5.3 Implementação de referência
-- SBC: [`raspberry/pi_zero_2w/bench_collect.py`](../raspberry/pi_zero_2w/bench_collect.py) — instrumenta
-  um interpretador TFLite existente, grava CSV + `meta.json` no formato acima (tem `--dry-run`).
-- MCU: [`firmware/esp32/bench_serial/bench_serial.ino`](../firmware/esp32/bench_serial/bench_serial.ino)
-  (esqueleto Arduino + TFLite Micro) recebe as imagens pela serial e devolve tempos e detecções;
-  [`scripts/esp_serial_feeder.py`](../scripts/esp_serial_feeder.py) roda no PC, envia as imagens e grava o
-  CSV + `meta.json` no mesmo esquema do SBC.
+- SBC (orquestrador completo e benchmark v1.3 em 3 fases):
+  [`raspberry/pi_zero_2w/benchmark_yolox.py`](../raspberry/pi_zero_2w/benchmark_yolox.py) e
+  [`raspberry/pi_zero_2w/run_all_v13_experiments.py`](../raspberry/pi_zero_2w/run_all_v13_experiments.py), além do coletor por `.bin`
+  [`raspberry/pi_zero_2w/bench_collect.py`](../raspberry/pi_zero_2w/bench_collect.py).
+- MCU: [`firmware/esp32/esp_idf/`](../firmware/esp32/esp_idf/) (projeto ESP-IDF v6.1 + `esp-tflite-micro`) e
+  [`firmware/esp32/bench_serial/bench_serial.ino`](../firmware/esp32/bench_serial/bench_serial.ino)
+  (esqueleto Arduino + TFLite Micro) com [`scripts/esp_serial_feeder.py`](../scripts/esp_serial_feeder.py) e
+  [`telemetry/record_esp32_serial.py`](../telemetry/record_esp32_serial.py).
+- Fase 4 (E6 — Energia, sensibilidade, estatística robusta e figuras):
+  [`telemetry/energy_and_stats_v13.py`](../telemetry/energy_and_stats_v13.py),
+  [`telemetry/plot_phase4_v13.py`](../telemetry/plot_phase4_v13.py) e [`scripts/energy_model.py`](../scripts/energy_model.py).
 
 ### 5.4 Ingestão direta de imagens no ESP32 (D33)
 
@@ -242,13 +247,13 @@ Notas:
 
 ## 8. Checklist de preparação do Raspberry Pi (antes de E2)
 
-- [ ] Fonte oficial 5 V/2,5 A; dissipador passivo; sem periféricos USB/HDMI.
-- [ ] `config.txt`: `arm_freq=1000`; registrar o arquivo (hash) — sem overclock.
-- [ ] Governor: `echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor`.
-- [ ] Registrar `uname -a`, versão do SO, `python3 --version`, versão do runtime TFLite/LiteRT.
-- [ ] `vcgencmd get_throttled` = `0x0` antes de cada bloco.
-- [ ] Copiar o `.tflite` (conferir SHA-256) e as 50 entradas `.bin` (conferir hashes).
-- [ ] Rodar `bench_collect.py --dry-run` e depois E2 (piloto) com `--experiment E2`.
+- [x] Fonte oficial 5 V/2,5 A; dissipador passivo; sem periféricos USB/HDMI.
+- [x] `config.txt`: `arm_freq=1000`; registrar o arquivo (hash) — sem overclock.
+- [x] Governor: `echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor`.
+- [x] Registrar `uname -a`, versão do SO, `python3 --version`, versão do runtime TFLite/LiteRT (`ai-edge-litert` 2.3.0).
+- [x] `vcgencmd get_throttled` = `0x0` antes e depois de cada bloco.
+- [x] Copiar o `.tflite` (`models/yolox_nano_ppe_int8.tflite` e `models/yolox_nano_ppe_float32.tflite`) e imagens de entrada.
+- [x] Rodar bateria completa no SBC (`run_all_v13_experiments.py`: `E0`, `E1`, `E2`, `E3b` 1/2/4 threads, `E3c` INT8/FP32, `E4` 60 s contínuos e `E5` memória) e gerar relatórios/figuras da Fase 4 (`E6`).
 
 ### Checklist do ESP32 (antes de E2)
 

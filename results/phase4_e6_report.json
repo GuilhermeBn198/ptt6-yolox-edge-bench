@@ -1,0 +1,568 @@
+{
+  "protocol_version": "v1.3",
+  "power_model_table5": {
+    "sbc_idle": {
+      "nominal": 0.6,
+      "min": 0.5,
+      "max": 1.0,
+      "source": "CNX Software [6]; Geerling [7]"
+    },
+    "sbc_1core": {
+      "nominal": 1.0,
+      "min": 0.75,
+      "max": 1.3,
+      "source": "Geerling [7]"
+    },
+    "sbc_2core": {
+      "nominal": 1.65,
+      "min": 1.3,
+      "max": 2.1,
+      "source": "Interpolado [7, 8]"
+    },
+    "sbc_4core": {
+      "nominal": 2.3,
+      "min": 1.85,
+      "max": 2.9,
+      "source": "Geerling [7]; Tom's Hardware [8]"
+    },
+    "mcu_active_chip": {
+      "nominal": 0.224,
+      "min": 0.099,
+      "max": 0.224,
+      "source": "ESP32 Datasheet v5.3 [9]"
+    },
+    "mcu_board_overhead": {
+      "nominal": 0.0,
+      "min": 0.0,
+      "max": 0.25,
+      "source": "Parâmetro declarado (Tabela 5)"
+    },
+    "mcu_idle_chip": {
+      "nominal": 0.066,
+      "min": 0.04,
+      "max": 0.1,
+      "source": "ESP32 Datasheet v5.3 (Modem-sleep)"
+    }
+  },
+  "runs": {
+    "sbc_int8_4t": {
+      "file": "rpi_benchmark_raw.csv",
+      "n": 30,
+      "power_mode": "sbc_4core",
+      "p_active_w": {
+        "nominal": 2.3,
+        "min": 1.85,
+        "max": 2.9
+      },
+      "latency_ms": {
+        "median": 109.517,
+        "iqr": 0.251,
+        "mean": 110.058,
+        "std": 2.256,
+        "cv_percent": 2.05,
+        "min": 109.168,
+        "max": 121.395,
+        "tukey_outliers_count": 3,
+        "tukey_inliers_median": 109.501,
+        "tukey_inliers_mean": 109.481
+      },
+      "pipeline_phases_eq1_ms": {
+        "t_pre": {
+          "median": 33.184,
+          "iqr": 0.072,
+          "mean": 33.203,
+          "std": 0.093
+        },
+        "t_inf": {
+          "median": 109.517,
+          "iqr": 0.251,
+          "mean": 110.058,
+          "std": 2.256
+        },
+        "t_post": {
+          "median": 6.046,
+          "iqr": 0.071,
+          "mean": 6.036,
+          "std": 0.051
+        },
+        "t_total": {
+          "median": 148.757,
+          "iqr": 0.221,
+          "mean": 149.299,
+          "std": 2.23
+        },
+        "throughput_total_fps_mean": 6.7,
+        "energy_total_3phase_nom_mj": 292.37,
+        "energy_total_uniform_nom_mj": 343.39
+      },
+      "throughput_fps": {
+        "median": 9.13,
+        "mean": 9.09
+      },
+      "energy_mj": {
+        "nominal_median": 251.89,
+        "nominal_mean": 253.13,
+        "sensitivity_min_mean": 203.61,
+        "sensitivity_max_mean": 319.17
+      },
+      "efficiency_inf_per_j": {
+        "nominal_mean": 3.95,
+        "sensitivity_range": [
+          3.13,
+          4.91
+        ]
+      },
+      "edp_mj_ms": {
+        "nominal_mean": 27870.8,
+        "sensitivity_range": [
+          22417.9,
+          35141.5
+        ]
+      },
+      "e_ciclo_periodic_mj": {
+        "1fps_mj": 787.1,
+        "2fps_mj": 487.1,
+        "5fps_mj": 307.1
+      },
+      "diagnostics": {
+        "acf_lag1": -0.0879,
+        "kruskal_wallis_h": 0.3794,
+        "kruskal_wallis_p": 0.8272,
+        "pilot_n_formula": 17,
+        "pilot_n_final": 30,
+        "pilot_warmup_w": 5,
+        "cpu_temp_mean_c": 61.05,
+        "cpu_temp_max_c": 63.4
+      }
+    },
+    "sbc_int8_2t": {
+      "file": "rpi_int8_2threads.csv",
+      "n": 30,
+      "power_mode": "sbc_2core",
+      "p_active_w": {
+        "nominal": 1.65,
+        "min": 1.3,
+        "max": 2.1
+      },
+      "latency_ms": {
+        "median": 162.765,
+        "iqr": 0.144,
+        "mean": 162.809,
+        "std": 0.209,
+        "cv_percent": 0.128,
+        "min": 162.524,
+        "max": 163.487,
+        "tukey_outliers_count": 4,
+        "tukey_inliers_median": 162.755,
+        "tukey_inliers_mean": 162.739
+      },
+      "pipeline_phases_eq1_ms": {
+        "t_pre": {
+          "median": 33.172,
+          "iqr": 0.122,
+          "mean": 33.216,
+          "std": 0.146
+        },
+        "t_inf": {
+          "median": 162.765,
+          "iqr": 0.144,
+          "mean": 162.809,
+          "std": 0.209
+        },
+        "t_post": {
+          "median": 6.053,
+          "iqr": 0.106,
+          "mean": 6.045,
+          "std": 0.071
+        },
+        "t_total": {
+          "median": 201.999,
+          "iqr": 0.322,
+          "mean": 202.071,
+          "std": 0.26
+        },
+        "throughput_total_fps_mean": 4.95,
+        "energy_total_3phase_nom_mj": 307.9,
+        "energy_total_uniform_nom_mj": 333.42
+      },
+      "throughput_fps": {
+        "median": 6.14,
+        "mean": 6.14
+      },
+      "energy_mj": {
+        "nominal_median": 268.56,
+        "nominal_mean": 268.64,
+        "sensitivity_min_mean": 211.65,
+        "sensitivity_max_mean": 341.9
+      },
+      "efficiency_inf_per_j": {
+        "nominal_mean": 3.72,
+        "sensitivity_range": [
+          2.92,
+          4.72
+        ]
+      },
+      "edp_mj_ms": {
+        "nominal_mean": 43736.3,
+        "sensitivity_range": [
+          34458.9,
+          55664.4
+        ]
+      },
+      "e_ciclo_periodic_mj": {
+        "1fps_mj": 770.95,
+        "2fps_mj": 470.95,
+        "5fps_mj": 290.95
+      },
+      "diagnostics": {
+        "acf_lag1": -0.1611,
+        "kruskal_wallis_h": 0.72,
+        "kruskal_wallis_p": 0.6977,
+        "pilot_n_formula": 1,
+        "pilot_n_final": 30,
+        "pilot_warmup_w": 5,
+        "cpu_temp_mean_c": 60.34,
+        "cpu_temp_max_c": 61.2
+      }
+    },
+    "sbc_int8_1t": {
+      "file": "rpi_int8_1thread.csv",
+      "n": 30,
+      "power_mode": "sbc_1core",
+      "p_active_w": {
+        "nominal": 1.0,
+        "min": 0.75,
+        "max": 1.3
+      },
+      "latency_ms": {
+        "median": 270.639,
+        "iqr": 0.241,
+        "mean": 270.678,
+        "std": 0.153,
+        "cv_percent": 0.057,
+        "min": 270.465,
+        "max": 271.028,
+        "tukey_outliers_count": 0,
+        "tukey_inliers_median": 270.639,
+        "tukey_inliers_mean": 270.678
+      },
+      "pipeline_phases_eq1_ms": {
+        "t_pre": {
+          "median": 33.142,
+          "iqr": 0.103,
+          "mean": 33.166,
+          "std": 0.103
+        },
+        "t_inf": {
+          "median": 270.639,
+          "iqr": 0.241,
+          "mean": 270.678,
+          "std": 0.153
+        },
+        "t_post": {
+          "median": 6.023,
+          "iqr": 0.056,
+          "mean": 6.032,
+          "std": 0.04
+        },
+        "t_total": {
+          "median": 309.886,
+          "iqr": 0.243,
+          "mean": 309.876,
+          "std": 0.159
+        },
+        "throughput_total_fps_mean": 3.23,
+        "energy_total_3phase_nom_mj": 309.88,
+        "energy_total_uniform_nom_mj": 309.88
+      },
+      "throughput_fps": {
+        "median": 3.69,
+        "mean": 3.69
+      },
+      "energy_mj": {
+        "nominal_median": 270.64,
+        "nominal_mean": 270.68,
+        "sensitivity_min_mean": 203.01,
+        "sensitivity_max_mean": 351.88
+      },
+      "efficiency_inf_per_j": {
+        "nominal_mean": 3.69,
+        "sensitivity_range": [
+          2.84,
+          4.93
+        ]
+      },
+      "edp_mj_ms": {
+        "nominal_mean": 73266.5,
+        "sensitivity_range": [
+          54949.9,
+          95246.4
+        ]
+      },
+      "e_ciclo_periodic_mj": {
+        "1fps_mj": 708.27,
+        "2fps_mj": 408.27,
+        "5fps_mj": null
+      },
+      "diagnostics": {
+        "acf_lag1": -0.1194,
+        "kruskal_wallis_h": 5.1599,
+        "kruskal_wallis_p": 0.0758,
+        "pilot_n_formula": 1,
+        "pilot_n_final": 30,
+        "pilot_warmup_w": 5,
+        "cpu_temp_mean_c": 60.17,
+        "cpu_temp_max_c": 60.7
+      }
+    },
+    "sbc_fp32_4t": {
+      "file": "rpi_fp32_4threads.csv",
+      "n": 30,
+      "power_mode": "sbc_4core",
+      "p_active_w": {
+        "nominal": 2.3,
+        "min": 1.85,
+        "max": 2.9
+      },
+      "latency_ms": {
+        "median": 236.599,
+        "iqr": 0.712,
+        "mean": 237.367,
+        "std": 2.198,
+        "cv_percent": 0.926,
+        "min": 235.617,
+        "max": 245.586,
+        "tukey_outliers_count": 5,
+        "tukey_inliers_median": 236.46,
+        "tukey_inliers_mean": 236.499
+      },
+      "pipeline_phases_eq1_ms": {
+        "t_pre": {
+          "median": 34.544,
+          "iqr": 0.139,
+          "mean": 34.58,
+          "std": 0.173
+        },
+        "t_inf": {
+          "median": 236.599,
+          "iqr": 0.712,
+          "mean": 237.367,
+          "std": 2.198
+        },
+        "t_post": {
+          "median": 8.519,
+          "iqr": 0.051,
+          "mean": 8.524,
+          "std": 0.039
+        },
+        "t_total": {
+          "median": 279.645,
+          "iqr": 0.897,
+          "mean": 280.471,
+          "std": 2.23
+        },
+        "throughput_total_fps_mean": 3.57,
+        "energy_total_3phase_nom_mj": 589.05,
+        "energy_total_uniform_nom_mj": 645.08
+      },
+      "throughput_fps": {
+        "median": 4.23,
+        "mean": 4.21
+      },
+      "energy_mj": {
+        "nominal_median": 544.18,
+        "nominal_mean": 545.94,
+        "sensitivity_min_mean": 439.13,
+        "sensitivity_max_mean": 688.36
+      },
+      "efficiency_inf_per_j": {
+        "nominal_mean": 1.83,
+        "sensitivity_range": [
+          1.45,
+          2.28
+        ]
+      },
+      "edp_mj_ms": {
+        "nominal_mean": 129599.5,
+        "sensitivity_range": [
+          104243.0,
+          163408.0
+        ]
+      },
+      "e_ciclo_periodic_mj": {
+        "1fps_mj": 1003.52,
+        "2fps_mj": 703.52,
+        "5fps_mj": null
+      },
+      "diagnostics": {
+        "acf_lag1": -0.1985,
+        "kruskal_wallis_h": 3.12,
+        "kruskal_wallis_p": 0.2101,
+        "pilot_n_formula": 4,
+        "pilot_n_final": 30,
+        "pilot_warmup_w": 5,
+        "cpu_temp_mean_c": 65.4,
+        "cpu_temp_max_c": 66.6
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "comparison": "SBC_INT8_2T vs SBC_INT8_1T",
+      "mann_whitney_latency_two_sided": {
+        "u": 0.0,
+        "p": 3.0179667984904466e-11
+      },
+      "mann_whitney_throughput_a_gt_b": {
+        "u": 900.0,
+        "p": 1.5089833992452233e-11
+      },
+      "mann_whitney_energy_a_gt_b": {
+        "u": 0.0,
+        "p": 0.9999999999863529
+      },
+      "cliffs_delta_latency": -1.0,
+      "cliffs_delta_energy": -1.0,
+      "bootstrap_bca_95_median_diff_ms": {
+        "estimate": -107.874,
+        "ci_95": [
+          -107.992,
+          -107.784
+        ]
+      },
+      "bootstrap_bca_95_speedup_ratio_b_over_a": {
+        "estimate": 1.6628,
+        "ci_95": [
+          1.6621,
+          1.6635
+        ]
+      },
+      "amdahl_parallel_fraction_p": 0.7972,
+      "amdahl_serial_fraction_1_minus_p": 0.2028
+    },
+    {
+      "comparison": "SBC_INT8_4T vs SBC_INT8_1T",
+      "mann_whitney_latency_two_sided": {
+        "u": 0.0,
+        "p": 3.016075319890922e-11
+      },
+      "mann_whitney_throughput_a_gt_b": {
+        "u": 900.0,
+        "p": 1.508037659945461e-11
+      },
+      "mann_whitney_energy_a_gt_b": {
+        "u": 30.0,
+        "p": 0.9999999997466633
+      },
+      "cliffs_delta_latency": -1.0,
+      "cliffs_delta_energy": -0.9333,
+      "bootstrap_bca_95_median_diff_ms": {
+        "estimate": -161.121,
+        "ci_95": [
+          -161.24,
+          -161.017
+        ]
+      },
+      "bootstrap_bca_95_speedup_ratio_b_over_a": {
+        "estimate": 2.4712,
+        "ci_95": [
+          2.4693,
+          2.4727
+        ]
+      },
+      "amdahl_parallel_fraction_p": 0.7938,
+      "amdahl_serial_fraction_1_minus_p": 0.2062
+    },
+    {
+      "comparison": "SBC_INT8_4T vs SBC_FP32_4T",
+      "mann_whitney_latency_two_sided": {
+        "u": 0.0,
+        "p": 3.0179667984904466e-11
+      },
+      "mann_whitney_throughput_a_gt_b": {
+        "u": 900.0,
+        "p": 1.5089833992452233e-11
+      },
+      "mann_whitney_energy_a_gt_b": {
+        "u": 0.0,
+        "p": 0.9999999999863529
+      },
+      "cliffs_delta_latency": -1.0,
+      "cliffs_delta_energy": -1.0,
+      "bootstrap_bca_95_median_diff_ms": {
+        "estimate": -127.081,
+        "ci_95": [
+          -127.458,
+          -126.804
+        ]
+      },
+      "bootstrap_bca_95_speedup_ratio_b_over_a": {
+        "estimate": 2.1604,
+        "ci_95": [
+          2.1576,
+          2.164
+        ]
+      }
+    }
+  ],
+  "breakeven_analysis_eq3": {
+    "sbc_reference_median_ms": 109.517,
+    "nominal_scenario": {
+      "p_sbc_w": 2.3,
+      "p_mcu_w": 0.224,
+      "critical_power_ratio": 10.27,
+      "max_mcu_latency_for_h1_ms": 1124.5
+    },
+    "worst_case_for_h1_with_board_overhead": {
+      "p_sbc_min_w": 1.85,
+      "p_mcu_max_with_overhead_w": 0.474,
+      "critical_power_ratio": 3.9,
+      "max_mcu_latency_for_h1_ms": 427.44
+    },
+    "best_case_for_h1": {
+      "p_sbc_max_w": 2.9,
+      "p_mcu_min_w": 0.099,
+      "critical_power_ratio": 29.29,
+      "max_mcu_latency_for_h1_ms": 3208.07
+    }
+  },
+  "extra_experiments_v13": {
+    "e1_quantization_sanity": {
+      "num_test_samples": 30,
+      "total_fp32_detections": 228,
+      "total_int8_matched_iou50": 31,
+      "box_agreement_recall_iou50": 0.136,
+      "mean_best_iou": 0.1455,
+      "mean_tensor_mae": 0.17568,
+      "mean_tensor_pearson_r": 0.82086
+    },
+    "e5_memory_footprint": {
+      "runtime": "ai-edge-litert",
+      "int8_flash_bytes": 1214632,
+      "int8_flash_mb": 1.158,
+      "fp32_flash_bytes": 3659412,
+      "fp32_flash_mb": 3.49,
+      "compression_ratio_fp32_over_int8": 3.013,
+      "peak_rss_mb_orchestrator": 100.05,
+      "e1_sanity_summary": {
+        "num_test_samples": 30,
+        "total_fp32_detections": 228,
+        "total_int8_matched_iou50": 31,
+        "box_agreement_recall_iou50": 0.136,
+        "mean_best_iou": 0.1455,
+        "mean_tensor_mae": 0.17568,
+        "mean_tensor_pearson_r": 0.82086
+      }
+    },
+    "e4_continuous_60s": {
+      "total_inferences_in_60s": 399,
+      "t_inf_median_ms": 109.566,
+      "t_inf_iqr_ms": 0.192,
+      "t_total_median_ms": 149.011,
+      "temp_start_c": 65.0,
+      "temp_max_c": 71.4,
+      "temp_end_c": 70.9,
+      "throttled": "0x0"
+    }
+  }
+}

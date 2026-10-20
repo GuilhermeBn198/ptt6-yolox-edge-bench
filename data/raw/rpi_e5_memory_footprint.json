@@ -1,0 +1,18 @@
+{
+  "runtime": "ai-edge-litert",
+  "int8_flash_bytes": 1214632,
+  "int8_flash_mb": 1.158,
+  "fp32_flash_bytes": 3659412,
+  "fp32_flash_mb": 3.49,
+  "compression_ratio_fp32_over_int8": 3.013,
+  "peak_rss_mb_orchestrator": 100.05,
+  "e1_sanity_summary": {
+    "num_test_samples": 30,
+    "total_fp32_detections": 228,
+    "total_int8_matched_iou50": 31,
+    "box_agreement_recall_iou50": 0.136,
+    "mean_best_iou": 0.1455,
+    "mean_tensor_mae": 0.17568,
+    "mean_tensor_pearson_r": 0.82086
+  }
+}

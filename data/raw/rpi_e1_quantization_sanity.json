@@ -1,0 +1,9 @@
+{
+  "num_test_samples": 30,
+  "total_fp32_detections": 228,
+  "total_int8_matched_iou50": 31,
+  "box_agreement_recall_iou50": 0.136,
+  "mean_best_iou": 0.1455,
+  "mean_tensor_mae": 0.17568,
+  "mean_tensor_pearson_r": 0.82086
+}

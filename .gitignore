@@ -32,6 +32,11 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+.Rhistory
+.RData
+*.npy
+*.pth
+id_ed25519*
 
 # LaTeX (auxiliares; o main.pdf é versionado)
 docs/projeto/*.aux
