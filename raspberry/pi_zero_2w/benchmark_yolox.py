@@ -182,7 +182,8 @@ def preprocess_frame(pil_img, raw_arr, target_h: int, target_w: int, input_dtype
         resized = pil_img.resize((new_w, new_h), Image.Resampling.BILINEAR)
         padded = np.full((target_h, target_w, 3), 114, dtype=np.uint8)
         padded[:new_h, :new_w, :] = np.asarray(resized, dtype=np.uint8)
-        rgb = padded
+        # v1.5 (D38): o YOLOX treina em BGR (cv2); PIL entrega RGB -> converter para BGR
+        rgb = np.ascontiguousarray(padded[:, :, ::-1])
     else:
         rgb = np.full((target_h, target_w, 3), 114, dtype=np.uint8)
 

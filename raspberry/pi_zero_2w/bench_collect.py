@@ -4,7 +4,7 @@
 Mede, por inferência, t_pre / t_inf / t_post com time.perf_counter_ns() (D28), sem I/O dentro da
 janela: as linhas ficam em memória e o CSV + meta.json são gravados ao fim do bloco.
 
-Entradas (D30): arquivos .bin com r*r*3 bytes (RGB uint8, já em letterbox), idênticos aos do ESP32.
+Entradas (D30): arquivos .bin com r*r*3 bytes (BGR uint8, já em letterbox), idênticos aos do ESP32.
 
 Uso:
   python3 bench_collect.py --model yolox_nano_int8.tflite --inputs inputs/ --experiment E3 \

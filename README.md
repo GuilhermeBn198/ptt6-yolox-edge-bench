@@ -37,11 +37,11 @@ superior, dado seu consumo estático mais alto.
 - **Throughput** (inferências/s)
 - **Energia por inferência** (mJ, **estimada por software**) e eficiência normalizada
   (**inferências/joule** e **EDP**)
-- **Acurácia**: mAP@50 / mAP@50-95
+- **Acurácia**: mAP@50 / mAP@50-95 no teste (condição de validade das métricas de energia/latência — v1.5)
 
 ## Protocolo experimental (resumo)
 
-> Detalhes e justificativas em [`docs/protocolo.md`](docs/protocolo.md) (protocolo congelado + emendas v1.1–v1.4).
+> Detalhes e justificativas em [`docs/protocolo.md`](docs/protocolo.md) (protocolo congelado + emendas v1.1–v1.5).
 
 - **Dataset:** Ultralytics **Construction-PPE** — começa com 1 classe (colete) e depois 11 classes ([`docs/dataset.md`](docs/dataset.md))
 - **Desenho experimental e coleta de métricas (v1.3):** [`docs/experimentacao.md`](docs/experimentacao.md)

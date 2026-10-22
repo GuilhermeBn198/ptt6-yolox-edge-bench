@@ -20,7 +20,7 @@
 
 \title{\textbf{Benchmarking de Inferência do YOLO Quantizado em MCU e SBC}\\[2pt]
 \large Desempenho e eficiência energética do YOLOX-Nano int8 para detecção de EPIs em \emph{Edge AI}\\[2pt]
-\normalsize Projeto de Pesquisa --- Trilha PTT6 (protocolo experimental v1.4)}
+\normalsize Projeto de Pesquisa --- Trilha PTT6 (protocolo experimental v1.5)}
 \author{Filipe Matias \and Guilherme Lucas\\[2pt]
 \small Orientador: Prof. Herbert Oliveira Rocha\\
 \small Mestrado Profissional em Computação Aplicada (PPCA) --- Universidade Federal de Roraima\\
@@ -35,9 +35,10 @@
 objetos --- YOLOX-Nano quantizado em int8 --- em dois extremos do espectro \emph{Edge AI}: um
 microcontrolador ESP32 (Xtensa LX6) e um computador de placa única Raspberry Pi Zero 2 W. A tarefa é a
 detecção de Equipamentos de Proteção Individual (EPIs) no conjunto Ultralytics Construction-PPE,
-começando pela classe colete e ampliando para as 11 classes. Medem-se latência ponta a ponta (pré,
-inferência e pós-processamento), throughput, energia por inferência --- estimada por software a partir
-de um modelo de potência por modo e dos tempos medidos por fase ---, inferências por joule, EDP e mAP.
+começando pela classe colete e ampliando para as 11 classes. Seguindo a prática dos benchmarks de referência da área, a acurácia (mAP) é tratada como condição de
+validade e reportada lado a lado com latência ponta a ponta (pré, inferência e pós-processamento),
+throughput, energia por inferência --- estimada por software a partir de um modelo de potência por modo e
+dos tempos medidos por fase ---, inferências por joule e EDP.
 A hipótese H1 afirma que o SBC tem throughput maior, mas energia por inferência igual ou superior. O
 desenho prevê piloto para definir repetições e warm-up, coleta em blocos independentes, estatística
 robusta (Mann-Whitney U, $\delta$ de Cliff e IC por \emph{bootstrap}) e análise de sensibilidade do
@@ -66,6 +67,8 @@ e um SBC (Raspberry Pi Zero 2 W) ao executar o mesmo YOLOX-Nano int8 na detecç�
 \item[H1:] o SBC apresenta throughput maior, mas energia por inferência igual ou superior, dado o seu
 consumo estático mais alto.
 \item[H0:] não há diferença nas métricas entre as plataformas.
+\item[H2:] no SBC, a quantização int8 reduz latência e energia em relação ao fp32 ao custo de uma perda de
+mAP, que é quantificada e reportada como trade-off.
 \end{description}
 
 \subsection{Objetivos}
@@ -95,6 +98,32 @@ variabilidade observada, e não de um valor fixo~\cite{maricq2018}. O YOLOX~\cit
 detector \emph{anchor-free}; sua variante Nano tem $\approx$0,91\,M parâmetros e 1,08\,GFLOPs a
 $416\times416$.
 
+
+\paragraph{Métrica principal.} Na literatura de benchmarking de inferência, energia e latência não são
+resultados válidos isoladamente: o MLPerf Inference associa a cada tarefa um \emph{quality target}
+(tipicamente 99\% da acurácia FP32 de referência) que o sistema precisa atingir para que o desempenho conte
+\cite{reddi2020mlperf}, e o MLPerf Tiny mede acurácia, latência e energia exigindo uma acurácia mínima por
+modelo \cite{banbury2021mlperftiny}. Trabalhos de detecção voltados a energia reportam acurácia e energia
+como eixos de um trade-off (fronteira de Pareto), não como um número composto
+\cite{tu2023femtodet,deputter2025poq}, e o detector YOLO quantizado para MCU mais próximo do nosso caso
+reporta mAP ao lado da energia por inferência \cite{moosmann2023tinyissimoyolo}; surveys de TinyML e de
+quantização tratam a avaliação como multiobjetivo \cite{ray2022tinyml,gholami2021survey}. Adotamos,
+portanto, acurácia como condição de validade e os demais eixos lado a lado.
+
+\paragraph{Quantização.} A quantização int8 com aritmética inteira \cite{jacob2018quantization} bem
+executada mantém a queda de mAP de detectores abaixo de cerca de 1 p.p. \cite{wu2020integer}; a avaliação
+compara mAP int8 e FP32 no mesmo conjunto de teste \cite{nagel2021whitepaper}. Conjuntos de calibração da
+ordem de uma centena de amostras costumam bastar para estimar faixas de ativação
+\cite{krishnamoorthi2018quantizing}, mas ativações não-ReLU (sigmoide/Swish) sem suporte dedicado podem
+degradar fortemente a acurácia quantizada \cite{nagel2021whitepaper}.
+
+\paragraph{Orçamento de treino.} As 300 épocas do YOLOX referem-se a treino do zero no COCO
+\cite{ge2021yolox}; a partir de pesos pré-treinados, o fine-tuning requer bem menos iterações
+\cite{he2019rethinking}, e estudos de EPI com YOLO escolhem o número de épocas empiricamente, em geral com
+parada antecipada \cite{otgonbold2022shel5k,ali2022labsafety}. Seguimos a parada pela validação
+\cite{prechelt1998earlystopping} e as recomendações de relato e reprodutibilidade
+\cite{dodge2019showyourwork,pineau2021reproducibility,henderson2018deeprl}.
+
 \section{Materiais}
 
 \subsection{Plataformas}
@@ -114,6 +143,9 @@ A proposta original citava o ESP32-S3; adotou-se o ESP32 (LX6) disponível (emen
 extensões vetoriais do S3. Os resultados não se extrapolam para o S3.
 
 \subsection{Modelo}
+\emph{(v1.5)} O artefato avaliado até aqui é o YOLOX-Nano padrão (ativação SiLU), não a variante \emph{ti-lite}
+prevista; a escolha final depende do diagnóstico de quantização (Seção~\ref{sec:quant}).
+
 YOLOX-Nano na variante \emph{ti-lite} (amigável à quantização), treinado uma única vez por configuração
 de classes no conjunto de treino (fora do escopo medido) e quantizado pós-treino em int8
 \emph{full-integer} com 750 imagens de calibração estratificadas. O mesmo arquivo \texttt{.tflite}, com
@@ -160,6 +192,52 @@ detecções, imagem, bloco e ordem de execução\\\bottomrule
 \end{tabularx}
 \end{table}
 
+\subsection{Métricas e critério de qualidade}\label{sec:metricas}
+Para cada combinação \{plataforma $\times$ precisão\} reportam-se, lado a lado: mAP@50 e mAP@50:95 no
+conjunto de teste (IC 95\% por \emph{bootstrap} de imagens \cite{efron1993bootstrap}), AP@50 do colete,
+latência por fase, throughput, energia estimada, inferências/J e EDP. A retenção de acurácia
+$\rho = \mathrm{mAP}_{\mathrm{int8}}/\mathrm{mAP}_{\mathrm{fp32}}$ é reportada como variável contínua; o alvo de
+referência é $\rho \geq 0{,}99$ \cite{reddi2020mlperf}. Artefatos abaixo do alvo têm seus resultados de
+energia rotulados como ``artefato degradado''. Como o mesmo artefato int8 roda nas duas plataformas, a
+acurácia é idêntica entre elas (verificada no E1) e H1 compara plataformas sob acurácia controlada; H2
+compara precisões no SBC como trade-off.
+
+\subsection{Protocolo de treinamento}\label{sec:treino}
+Fine-tuning a partir dos pesos COCO do YOLOX-Nano, com o número de épocas tratado como hiperparâmetro:
+teto declarado, cronograma do YOLOX (warm-up; Mosaic/MixUp desligados nas últimas épocas) \cite{ge2021yolox},
+mAP de validação a cada época, parada antecipada por paciência \cite{prechelt1998earlystopping} e checkpoint
+final pelo melhor mAP de validação. Ao menos uma seed com curva completa (uma segunda se houver tempo,
+reportando a faixa) \cite{henderson2018deeprl}; todos os hiperparâmetros são reportados
+\cite{dodge2019showyourwork}. O valor fixo de 80 épocas usado na primeira rodada não tem respaldo e é
+substituído por este protocolo.
+
+\subsection{Avaliação de acurácia (E0) e quantização}\label{sec:quant}
+O E0 avalia fp32 e int8 no conjunto de teste (141 imagens, 1.251 anotações) com o mesmo pré e
+pós-processamento dos dispositivos, entrada em BGR (ordem de canais do treino), confiança 0,001 e NMS 0,65
+(limiares de implantação 0,25/0,45 só para demonstração) e AP por classe. A calibração usa 750 imagens do
+treino em BGR; pesos são quantizados por canal e ativações por tensor. A Tabela~\ref{tab:e0} mostra o E0 da
+primeira rodada.
+
+\begin{table}[H]\centering\small
+\caption{E0 da primeira rodada (artefatos SiLU, calibração com 100 imagens em RGB).}\label{tab:e0}
+\begin{tabular}{llrrr}\toprule
+Artefato & Canais & Split & mAP@50 & mAP@50:95\\\midrule
+fp32 & BGR & validação & 60,3\% & 29,1\%\\
+fp32 & BGR & teste & 55,0\% & 27,2\%\\
+fp32 & RGB & teste & 48,6\% & 23,3\%\\
+int8 & BGR & teste & 16,7\% & 6,4\%\\
+int8 & RGB (usado no RPi) & teste & 4,7\% & 1,5\%\\\bottomrule
+\end{tabular}
+\end{table}
+
+O int8 retém $\rho \approx 0{,}30$ do mAP@50 do fp32 (BGR), muito abaixo do alvo e da faixa de PTQ bem
+executada \cite{wu2020integer}; o colapso já está presente antes da concatenação da saída (17,1\% de
+mAP@50 lendo os tensores internos), e a troca de canais custa 6,4 p.p. mesmo em fp32. O diagnóstico mínimo
+compara (Q1) recalibração com 750 imagens BGR no mesmo grafo e (Q2) a variante com ReLU
+\cite{nagel2021whitepaper}; segue para a medição final o artefato de maior $\rho$. As latências e energias já
+medidas no SBC caracterizam o grafo SiLU, mas só serão apresentadas como desempenho de detector com o
+artefato corrigido.
+
 \subsection{Pipeline e janela de medição}
 A latência cobre a janela completa \emph{pré + inferência + pós}, e as três fases são registradas
 separadamente. Na fase estática, as entradas são tensores brutos $r\times r\times3$ uint8 já em
@@ -191,7 +269,7 @@ configurações, hashes, ambiente).
 \caption{Experimentos (repetidos para os blocos A --- 1 classe --- e B --- 11 classes).}\label{tab:exp}
 \begin{tabularx}{\linewidth}{llL}\toprule
 \textbf{Id} & \textbf{Fase} & \textbf{Descrição e saída}\\\midrule
-E0 & F1 & Acurácia offline fp32 $\times$ int8 no teste (141 imagens), por $r$: mAP@50, mAP@50-95\\
+E0 & F1 & Acurácia fp32 $\times$ int8 no teste (141 imagens), BGR, IC \emph{bootstrap}: mAP@50, mAP@50:95, AP do colete\\
 E1 & F1 & Equivalência funcional: mesmas 50 entradas em PC, SBC e MCU; mesmas classes e nº de detecções, IoU $\geq$0,95, $|\Delta$score$|\leq$ 1 passo de quantização\\
 E2 & F1/F3 & Piloto: viabilidade de $r$ no MCU; 100 inferências por plataforma; warm-up $W$ e $N$\\
 E3 & F3 & Benchmark principal estático: 3 blocos por plataforma, $N=\max(30,N_{piloto})$\\
@@ -268,6 +346,8 @@ Throttling térmico no SBC & governor fixo, dissipador, pausas; bloco com \emph{
 Pré/pós em linguagens diferentes & mesma lógica e limiares; análise secundária só com $t_{inf}$\\
 ESP32 LX6 em vez de S3 & desvio declarado; sem extrapolação para o S3\\
 Resolução reduzida pela MCU & mesma $r$ nas duas plataformas; SBC a 416 apenas exploratório\\
+Artefato int8 com baixa retenção de mAP & E0 obrigatório antes de E1--E4; energia rotulada ``degradado'' abaixo do alvo\\
+Ordem de canais (BGR/RGB) inconsistente & BGR fixo em treino, calibração, avaliação e dispositivos\\
 Ingestão por serial (MCU) $\times$ disco (SBC) & transferência fora da janela; janela inicia com a imagem em RAM\\
 Câmera ao vivo (extra) & fora do teste de H1; se feita, mesma resolução, formato e nº de buffers\\
 Autocorrelação e deriva & blocos independentes, ordem registrada, ACF e efeito de bloco\\\bottomrule
@@ -279,8 +359,8 @@ Autocorrelação e deriva & blocos independentes, ordem registrada, ACF e efeito
 \caption{Cronograma (15 semanas) e estado em outubro de 2026.}\label{tab:crono}
 \begin{tabularx}{\linewidth}{llL}\toprule
 \textbf{Semanas} & \textbf{Fase} & \textbf{Estado}\\\midrule
-1--2 & Revisão e protocolo & concluída (protocolo v1.4; hardware e dataset definidos)\\
-3--5 & Implementação & SBC executando o modelo; ESP32 e instrumentação em andamento\\
+1--2 & Revisão e protocolo & concluída (protocolo v1.5; hardware e dataset definidos)\\
+3--5 & Implementação & SBC medido (grafo SiLU); E0 revelou int8 degradado: retreino e requantização (v1.5)\\
 6--9 & Experimentos & E2 (piloto) assim que $r$ e os artefatos forem fixados\\
 10--11 & Análise & ---\\
 12--13 & Relatório & ---\\

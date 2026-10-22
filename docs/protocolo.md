@@ -1,17 +1,18 @@
 # Protocolo Experimental — PTT6 (YOLOX-Nano int8: ESP32 (LX6) vs Raspberry Pi Zero 2 W)
 
-> **Status: v1.3** — emendas sobre o protocolo **v1.0 congelado**: **v1.1** (plataforma MCU, §13),
-> **v1.2** (energia estimada por software + execução em fases, §14–§15) **v1.3** (dataset, treino,
+> **Status: v1.5** — emendas sobre o protocolo **v1.0 congelado**: **v1.1** (plataforma MCU, §13),
+> **v1.2** (energia estimada por software + execução em fases, §14–§15), **v1.3** (dataset, treino,
 > cronometragem, modelo de potência e desenho experimental, §16 + [`experimentacao.md`](experimentacao.md)) e **v1.4**
-> (câmera ao vivo vira **extra**; validação e medição por **ingestão direta de imagens** no modelo, §17). A base metodológica
-> (métricas, estatística) permanece congelada. Decisões finais em **DECISÃO**.
+> (câmera ao vivo vira **extra**; validação e medição por **ingestão direta de imagens** no modelo, §17) e **v1.5**
+> (métricas com **acurácia como condição de validade**, E0 medido, protocolo de treino e de quantização, §18 +
+> [`revisao/README.md`](revisao/README.md)). A estatística permanece congelada; as métricas foram ampliadas na v1.5. Decisões finais em **DECISÃO**.
 >
 > Fundamentação e fontes: [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Proposta original:
 > [`proposta/PTT6_Filipe_Guilherme_assinado.pdf`](proposta/PTT6_Filipe_Guilherme_assinado.pdf).
 
-- **Versão:** 1.4 (v1.1/v1.2 aprovadas com o orientador; v1.3/v1.4 decididas pela dupla — validar com o orientador)
+- **Versão:** 1.5 (v1.1/v1.2 aprovadas com o orientador; v1.3–v1.5 decididas pela dupla — validar com o orientador)
 - **Autores:** Filipe Matias, Guilherme Lucas — **Orientador:** Herbert Oliveira Rocha
-- **Última atualização:** 2026-10-19
+- **Última atualização:** 2026-10-22
 
 ### Histórico de versões
 
@@ -23,6 +24,7 @@
 
 | 1.3 | 2026-10-18 | **D26:** dataset **Ultralytics Construction-PPE** (1 classe `vest` → 11 classes). **D27:** um *fine-tuning* por configuração de classes, fora do escopo medido (D9 = sem re-treino por plataforma). **D28:** cronometragem por timestamps monotônicos em software. **D29:** parâmetros do modelo de potência + sensibilidade/*break-even*. **D30:** entradas estáticas como tensores brutos idênticos. **D31:** resolução comum definida pela viabilidade no ESP32. **D32:** coleta em 3 blocos por plataforma. INA219 **definitivamente fora** (pedido ao orientador, mas não será usado). Desenho completo em [`experimentacao.md`](experimentacao.md). |
 | 1.4 | 2026-10-19 | **D33:** a **câmera ao vivo passa a ser extra** (fora do caminho crítico e do teste de H1). A validação e a medição usam **ingestão direta de imagens** no modelo: no ESP32 (Arduino/ESP-IDF), as entradas `.bin` chegam pela **serial** (USB-UART) e ficam em RAM antes da janela; no RPi, são lidas do disco para a RAM. Revisa D3, D4 e D25. Detalhes em §17 e [`experimentacao.md`](experimentacao.md). |
+| 1.5 | 2026-10-22 | Revisão de literatura com auditoria e contra-revisão ([`revisao/`](revisao/README.md)) + **E0 medido**. **D34:** avaliação conjunta acurácia + latência + energia, lado a lado, com acurácia como condição de validade (referência MLPerf: ≥ 99% do FP32); sem métrica composta escalar. **D35:** H1/H2 reformuladas. **D36:** protocolo do E0 (split de teste, BGR, conf 0,001/NMS 0,65, IC *bootstrap*). **D37:** protocolo de treino (épocas como hiperparâmetro, parada pela validação; **as 80 épocas não têm respaldo**). **D38:** protocolo de quantização (BGR em toda a cadeia, 750 imagens, diagnóstico SiLU × calibração). **D39:** experimentos a refazer. **D40:** firmware alinhado a D23 (ESP32 LX6). |
 
 ---
 
@@ -55,7 +57,11 @@
 - **Pergunta:** como se comparam latência, throughput e energia por inferência entre as duas
   plataformas ao executar o mesmo YOLOX-Nano int8, detectando EPIs (validação com imagens estáticas
   ingeridas diretamente no modelo)?
-- **H1:** o SBC tem throughput maior, mas energia por inferência igual ou superior.
+- **H1:** o SBC tem throughput maior, mas energia por inferência igual ou superior. *(v1.5/D35: testada com o
+  **mesmo artefato int8** nas duas plataformas — acurácia idêntica, verificada pelo E1 — e interpretada junto do
+  mAP desse artefato; ver §18.)*
+- **H2 (v1.5):** no SBC, o int8 reduz latência e energia por inferência em relação ao fp32, ao custo de uma
+  perda de mAP que deve ser quantificada (retenção int8/fp32 com IC); avaliada como trade-off, não como ganho isolado.
 - **H0:** não há diferença nas métricas entre as plataformas. **(DECISÃO.)**
 - **Eficiência:** inferências/joule **e** EDP. **(DECISÃO.)**
 - **Prazo:** cronograma de **15 semanas**.
@@ -120,7 +126,8 @@
 | Energia por inferência | `E = Σ P_modo · t_fase` — potência do **modelo por modo** × tempo **medido** por fase | **total, incluindo idle (DECISÃO); estimada por software (D24)** |
 | Eficiência | inferências/joule | derivada |
 | EDP | energia × latência | derivada |
-| Acurácia | mAP@50 / mAP@50-95 | validação |
+| Acurácia | mAP@50 / mAP@50-95 + AP@50 do colete | **teste** (v1.5/D36; IC *bootstrap*) |
+| Retenção de acurácia (v1.5) | mAP(int8) / mAP(fp32), mesmo split | derivada (D34) |
 
 - Mesmo estimando o total, **reportar as 3 fases separadas** (pré/inferência/pós) para permitir reanálise.
 - A energia é **derivada de software** (não medida fisicamente): o tempo vem da instrumentação; a
@@ -235,12 +242,19 @@
 | D31 | **Resolução** | Comum às duas plataformas; maior de {416, 320, 256, 224, 160} viável no ESP32 (definida no piloto) | 2026-10-18 |
 | D32 | **Estrutura de coleta** | 3 blocos independentes por plataforma (power-cycle), N = max(30, N_piloto) | 2026-10-18 |
 | D33 | **Ingestão / câmera** | Câmera ao vivo = **extra**; validação e medição com ingestão direta de imagens (serial no ESP32, disco no RPi), transferência fora da janela | 2026-10-19 |
+| D34 | **Estrutura de avaliação** | Acurácia (mAP@50, mAP@50:95, AP do colete) + latência + energia reportados lado a lado para cada {plataforma × precisão}; acurácia é condição de validade (referência MLPerf ≥ 99% do FP32), retenção int8/FP32 contínua com IC; sem métrica composta escalar | 2026-10-22 |
+| D35 | **Hipóteses** | H1 com o mesmo artefato int8 nas duas plataformas; H2 = trade-off int8 × fp32 no SBC; fp32 no ESP32 só como tentativa condicional | 2026-10-22 |
+| D36 | **E0 (acurácia)** | Split de teste (141 imgs, 1.251 anotações), mesmo pré/pós dos dispositivos, BGR, conf 0,001/NMS 0,65 (avaliação) separado de 0,25/0,45 (implantação), AP por classe, IC *bootstrap* por imagens; rótulo explícito de split | 2026-10-22 |
+| D37 | **Treino** | Épocas como hiperparâmetro com teto declarado; mAP de validação por época; parada antecipada por paciência; checkpoint pelo melhor mAP de validação; ≥ 1 seed com curva (2ª se houver tempo); hiperparâmetros reportados | 2026-10-22 |
+| D38 | **Quantização** | BGR em toda a cadeia; calibração com 750 imagens do train estratificadas; diagnóstico Q1 (recalibração BGR-750) e Q2 (variante ReLU/ti-lite); artefato só segue para medição final após E0 | 2026-10-22 |
+| D39 | **Reaproveitamento** | Latência/energia medidas no RPi valem para o grafo SiLU, mas não como desempenho de detector; refazer E0/E1 e repetir E3/E4 com o artefato final | 2026-10-22 |
+| D40 | **Firmware ESP32** | `sdkconfig` deve ter alvo `esp32` (LX6, D23), não `esp32s3`; PSRAM/resolução conforme o módulo real | 2026-10-22 |
 
 ### 12.2 Em aberto
 
 Pendências de parametrização (não metodológicas): **aprovar os valores nominais do modelo de potência**
 (rascunho em `scripts/power_model.toml`), definir a **resolução comum** `r` no piloto (D31) e confirmar o
-módulo do ESP32 (com/sem PSRAM). O protocolo está na **v1.4** (v1.0 congelada + emendas D23–D33). Novas alterações exigem nova
+módulo do ESP32 (com/sem PSRAM). O protocolo está na **v1.5** (v1.0 congelada + emendas D23–D40). Novas alterações exigem nova
 versão documentada neste histórico.
 
 ---
@@ -325,7 +339,7 @@ versão documentada neste histórico.
 - **Decisão (D33):** a integração da câmera ao vivo deixa de ser fase obrigatória e passa a **extra**.
   A validação (F1) e a medição (F3) usam **ingestão direta das imagens no modelo**, dentro do ESP32
   (Arduino core ou ESP-IDF) e do Raspberry Pi.
-- **Como:** as imagens são pré-processadas uma vez no PC (letterbox `r×r`, RGB uint8, `.bin`, D30).
+- **Como:** as imagens são pré-processadas uma vez no PC (letterbox `r×r`, BGR uint8, `.bin`, D30).
   - **ESP32:** o PC envia cada `.bin` pela **serial USB-UART** com um quadro simples (cabeçalho + CRC32);
     o firmware guarda a imagem em um buffer em RAM, confirma e só então abre a janela cronometrada
     (pré + inferência + pós). Os resultados voltam pela serial **depois** da janela.
@@ -338,11 +352,58 @@ versão documentada neste histórico.
   e as detecções (câmera só se o extra for feito); a ameaça "pipelines de câmera diferentes" sai do teste
   de H1, e entra a ameaça "ingestão por serial × disco" (mitigada por manter a transferência fora da janela).
 
+
+## 18. Emenda v1.5 — Acurácia como condição de validade; E0, treino e quantização
+
+**Motivação.** Os resultados da v1.3 no RPi cobriam latência e energia, mas não a acurácia do artefato. A
+revisão de literatura ([`revisao/README.md`](revisao/README.md)) e o E0 medido mostraram que (i) na área, energia
+e latência só são resultados válidos acompanhados da acurácia do modelo; (ii) o artefato int8 usado retém
+~30% do mAP@50 do fp32 (4,7% de mAP@50 com a entrada RGB efetivamente usada no RPi); (iii) as 80 épocas de
+treino não têm respaldo citável.
+
+**D34 — Estrutura de avaliação.** Para cada combinação {plataforma × precisão}, reportar lado a lado:
+mAP@50 e mAP@50:95 (teste, IC 95% por *bootstrap* de imagens), AP@50 do colete, latência por fase,
+throughput, energia estimada, inferências/J e EDP. A acurácia é **condição de validade**: o alvo de
+referência é o do MLPerf Inference (≥ 99% do FP32) [Reddi et al. 2020]; um artefato abaixo dele é reportado
+com sua retenção de mAP e seus resultados de energia são rotulados "artefato degradado". Não se usa métrica
+composta escalar (não há precedente em detecção; FemtoDet e POQ reportam eixos separados/Pareto).
+
+**D35 — Hipóteses.** H1 é testada com o **mesmo** artefato int8 nas duas plataformas (acurácia idêntica,
+E1); H2 (trade-off int8 × fp32) é testada no SBC. O fp32 no ESP32 (3,5 MB; FPU escalar sem SIMD; exige PSRAM)
+é tentativa condicional: mede-se uma latência preliminar e documenta-se a viabilidade.
+
+**D36 — Protocolo do E0.** `scripts/eval_map_tflite.py`: split de teste (141 imagens, 1.251 anotações),
+pré/pós idênticos aos dispositivos, **ordem BGR**, conf 0,001 e NMS 0,65 para mAP (limiares de implantação
+0,25/0,45 só para demonstração), AP por classe, IC por *bootstrap* (B = 1000) [Efron & Tibshirani 1993].
+Todo número de mAP é rotulado com o split (o 59,9%/29,0% anterior era de validação).
+
+**D37 — Protocolo de treino.** Substitui as 80 épocas fixas: teto declarado, avaliação de mAP de validação
+a cada época, parada antecipada por paciência [Prechelt 1998], checkpoint pelo melhor mAP de validação,
+cronograma do YOLOX (warm-up; Mosaic/MixUp desligados nas últimas épocas) [Ge et al. 2021], ≥ 1 seed com
+curva completa e 2ª seed se houver tempo [Henderson et al. 2018]; reportar todos os hiperparâmetros
+[Dodge et al. 2019; Pineau et al. 2021]. Justificativa de orçamento: fine-tuning a partir de pesos
+pré-treinados requer bem menos iterações que treino do zero [He et al. 2019].
+
+**D38 — Protocolo de quantização.** BGR em treino, calibração, avaliação e dispositivos; calibração com 750
+imagens do train estratificadas (D17); pesos por canal (já é o padrão do TFLite) e ativações por tensor.
+Diagnóstico mínimo: **Q1** recalibração BGR com 750 imagens (mesmo grafo); **Q2** variante com ReLU
+(ti-lite), condicional ao tempo [Nagel et al. 2021 sobre ativações não-ReLU]. O artefato final é o de maior
+retenção de mAP; segue para E1–E4 somente após o E0.
+
+**D39 — Reaproveitamento.** As latências/energias medidas no RPi na v1.3 caracterizam o grafo SiLU e
+continuam válidas como tal (dependem do grafo, não dos pesos); não podem ser apresentadas como desempenho de
+um detector útil. Se o artefato final mantiver o grafo (Q1), basta refazer E0/E1 e repetir E3/E4 para
+confirmar; se mudar o grafo (Q2), refazer E2–E4.
+
+**D40 — Firmware.** O projeto ESP-IDF commitado tem `CONFIG_IDF_TARGET="esp32s3"` e PSRAM octal, em
+conflito com D23 (ESP32 LX6). Ajustar o alvo para `esp32`, confirmar o módulo/PSRAM e a resolução (D31).
+
 ---
 
 ## Referências
 
-Fontes primárias detalhadas em [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Principais:
+Fontes da v1.5 (verificadas e auditadas): [`revisao/referencias_consolidadas.bib`](revisao/referencias_consolidadas.bib) e
+[`revisao/README.md`](revisao/README.md). Fontes primárias anteriores em [`pesquisa-protocolo.md`](pesquisa-protocolo.md). Principais:
 MLPerf Tiny (arXiv:2106.07597), Noronha et al. 2025 (arXiv:2505.15622), Maricq et al. OSDI'18,
 NIST TN 1830, datasheets **ESP32 (LX6)**/**ESP32-S3** (contexto) e RPi Zero 2 W, repositórios
 Espressif/YOLOX/NCNN, datasets CHV/SH17/SFCHD/Construction-PPE. O datasheet do **INA219** permanece

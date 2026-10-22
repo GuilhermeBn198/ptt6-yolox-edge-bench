@@ -202,6 +202,8 @@ $$E_i = P_{\text{pre}}\,t_{\text{pre},i} + P_{\text{inf}}\,t_{\text{inf},i} + P_
 # Progresso Realizado e Resultados Experimentais já Obtidos
 
 ## Fase F1 — Treinamento, Exportação ONNX e Quantização INT8
+
+> **Nota v1.5 (2026-10-22):** as 80 épocas abaixo não têm respaldo citável e os 59,9%/29,0% são de **validação**; no teste o fp32 tem 55,0%/27,2% e o int8 16,7%/6,4% (BGR) ou 4,7%/1,5% (RGB, como rodou no RPi). Ver `protocolo.md` §18 e `revisao/README.md`.
 - **Fine-Tuning YOLOX-Nano (Bloco B — 11 classes, $416 \times 416$)**: 80 épocas concluídas na GPU RTX 4050, atingindo **59,9% de mAP@50** e **29,0% de mAP@[0.50:0.95]**.
 - **Modelos Exportados (`models/`)**:
   - `models/yolox_nano_ppe_raw.onnx` (3,6 MB, opset 13).

@@ -44,7 +44,7 @@ Classe mais rara: `no_boots` (88 instâncias no train, 4 no val, 23 no test) —
 ## Pré-processamento (idêntico nas duas plataformas — D11/D30)
 
 1. Letterbox para `r×r` (resolução comum, D31) com preenchimento cinza 114, mantendo a proporção.
-2. RGB, uint8, layout HWC; **sem normalização** (YOLOX usa 0..255).
+2. BGR, uint8, layout HWC; **sem normalização** (YOLOX usa 0..255).
 3. Gravado como `.bin` bruto (`r·r·3` bytes) com SHA-256 registrado; o mesmo arquivo vai para o
    SBC (disco) e para o MCU (flash/SD).
 4. No dispositivo, `pre` = cópia para o tensor de entrada + quantização com `scale`/`zero_point` do modelo.

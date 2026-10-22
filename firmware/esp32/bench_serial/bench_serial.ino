@@ -29,7 +29,7 @@ constexpr float kConfThr = 0.25f, kNmsIou = 0.45f;
 constexpr int kMaxDet = 100;
 constexpr size_t kImgBytes = (size_t)kInputRes * kInputRes * 3;
 
-static uint8_t* g_img = nullptr;      // imagem recebida (r*r*3, RGB uint8, letterbox)
+static uint8_t* g_img = nullptr;      // imagem recebida (r*r*3, BGR uint8, letterbox)
 static uint8_t* g_arena = nullptr;
 static tflite::MicroInterpreter* g_interp = nullptr;
 

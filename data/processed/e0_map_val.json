@@ -1,0 +1,42 @@
+{
+ "split": "val",
+ "n_images": 143,
+ "n_gt": 1172,
+ "protocol": "COCO bbox, conf=0.001, NMS=0.65, letterbox 416 pad114, max 100 dets",
+ "yolox_nano_ppe_float32.tflite|BGR": {
+  "mAP50": 0.6029,
+  "mAP50_95": 0.2911,
+  "n_dets": 5839,
+  "AP50_per_class": {
+   "helmet": 0.7962,
+   "gloves": 0.7842,
+   "vest": 0.872,
+   "boots": 0.7782,
+   "goggles": 0.8177,
+   "none": 0.5293,
+   "Person": 0.9041,
+   "no_helmet": 0.4606,
+   "no_goggle": 0.3116,
+   "no_gloves": 0.2706,
+   "no_boots": 0.1074
+  }
+ },
+ "yolox_nano_ppe_int8.tflite|BGR": {
+  "mAP50": 0.1632,
+  "mAP50_95": 0.0608,
+  "n_dets": 7120,
+  "AP50_per_class": {
+   "helmet": 0.2656,
+   "gloves": 0.0283,
+   "vest": 0.4311,
+   "boots": 0.0374,
+   "goggles": 0.1532,
+   "none": 0.1352,
+   "Person": 0.5768,
+   "no_helmet": 0.1214,
+   "no_goggle": 0.0128,
+   "no_gloves": 0.0333,
+   "no_boots": 0.0
+  }
+ }
+}

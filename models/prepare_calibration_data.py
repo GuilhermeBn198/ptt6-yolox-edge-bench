@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Script para gerar conjunto de calibração representativo (100 imagens de EPIs)
+Script para gerar conjunto de calibração representativo (750 imagens de EPIs, BGR — protocolo v1.5)
 para a quantização INT8 do modelo YOLOX-Nano.
 
-Gera o arquivo 'models/calibration_data.npy' no formato NCHW [100, 3, 416, 416] (float32).
+Gera o arquivo 'models/calibration_data.npy' no formato NCHW [750, 3, 416, 416] (float32).
 """
 
 import os
@@ -29,8 +29,7 @@ def preprocess_image(img_path: str, input_size=(416, 416)) -> np.ndarray:
   padded = np.full((target_h, target_w, 3), 114, dtype=np.uint8)
   padded[:new_h, :new_w] = resized
 
-  # BGR para RGB
-  padded = padded[:, :, ::-1]
+  # v1.5 (D38): manter BGR — o YOLOX treina com cv2 (BGR); calibrar em RGB descasa as ativações
 
   # Transpor de HWC para CHW e converter para float32 [0..255] (YOLOX recebe float32 sem dividir por 255)
   chw = padded.transpose(2, 0, 1).astype(np.float32)
@@ -52,9 +51,10 @@ def main():
 
   print(f"Total de imagens encontradas: {len(image_files)}")
 
-  # Amostrar 100 imagens distribuídas pelo dataset
-  step = max(1, len(image_files) // 100)
-  selected_files = image_files[::step][:100]
+  # v1.5 (D17/D38): 750 imagens do train distribuídas pelo dataset (estratificação simples por ordem)
+  n_calib = 750
+  step = max(1, len(image_files) // n_calib)
+  selected_files = image_files[::step][:n_calib]
 
   calib_data = []
   for f in selected_files:

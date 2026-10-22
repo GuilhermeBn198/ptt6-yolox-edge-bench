@@ -1,8 +1,12 @@
-# Desenho Experimental e Coleta de Métricas — PTT6 (protocolo v1.4)
+# Desenho Experimental e Coleta de Métricas — PTT6 (protocolo v1.5)
 
 > Detalha **como** os experimentos são executados e **o que** é medido em cada um. É o documento
 > operacional da emenda **v1.3** do [`protocolo.md`](protocolo.md) (decisões D26–D32). Em caso de
 > conflito, vale o protocolo; este arquivo o operacionaliza.
+>
+> **v1.5 (2026-10-22, D34–D40):** acurácia passa a ser **condição de validade** das métricas de energia e
+> latência; E0 medido (§4.1); protocolos de treino (§4.2) e de quantização (§4.3). Fundamentação em
+> [`revisao/README.md`](revisao/README.md).
 >
 > **v1.4 (2026-10-19, D33):** câmera ao vivo é **extra**; validação e medição com **ingestão direta de
 > imagens** no modelo (serial no ESP32, disco no RPi) — ver §5.4.
@@ -47,7 +51,8 @@ descritiva).
 | Energia por inferência | mJ | **derivada** pelo modelo de potência (§6): `E = Σ P_fase · t_fase` |
 | Eficiência | inf/J | `1 / E` |
 | EDP | mJ·ms | `E × t_total` |
-| Acurácia | mAP@50, mAP@50-95 | E0 (offline) e verificação de equivalência E1 |
+| Acurácia | mAP@50, mAP@50-95, AP@50 do colete | E0 no **teste** (IC *bootstrap*) e equivalência E1 |
+| Retenção de acurácia | mAP(int8)/mAP(fp32) | derivada; referência MLPerf ≥ 99% (D34) |
 
 ### 2.3 Controladas (fixadas e registradas)
 
@@ -57,7 +62,7 @@ descritiva).
 | Resolução de entrada `r` | **comum às duas plataformas** (D31) | coluna `input_res` |
 | Quantização | PTQ int8 *full-integer*, calibração com 750 imagens do *train* (D17) | script + lista de imagens versionados |
 | Limiares de pós-processamento | `conf ≥ 0,25`, `IoU_NMS = 0,45`, máx. 100 detecções | `meta.json` |
-| Entradas | mesmas `M = 50` imagens do *test*, pré-letterboxed em `r×r` RGB uint8 (D30), ingeridas direto no modelo (D33) | hash de cada `.bin` |
+| Entradas | mesmas `M = 50` imagens do *test*, pré-letterboxed em `r×r` BGR uint8 (D30), ingeridas direto no modelo (D33) | hash de cada `.bin` |
 | Clock / governor | MCU 240 MHz, sem DFS/light-sleep; SBC `performance` 1 GHz (D21) | `sdkconfig`, `config.txt`, `scaling_governor` |
 | Threads | MCU: 1 núcleo (TFLM); SBC: 4 threads no principal (E3) | coluna `threads` |
 | Rádio | Wi-Fi/BT desligados no MCU; no SBC, Wi-Fi associado e ocioso (SSH só fora dos blocos) | `meta.json` |
@@ -97,7 +102,50 @@ descritiva).
 | E5 *(extra)* | Câmera ao vivo (tempo real) — opcional, fora de H1 | — | MCU, SBC | FPS sustentado, latência c/ captura |
 | **E6** | Energia derivada + sensibilidade | F4 | — (software) | `data/processed/energy_*.csv` |
 
-### E0 — Acurácia offline (notebook)
+### 4.1 E0 — Acurácia (v1.5, D36) — **resultado medido**
+
+Medido com [`scripts/eval_map_tflite.py`](../scripts/eval_map_tflite.py) sobre os artefatos de `models/`
+(protocolo COCO; conf 0,001; NMS 0,65; letterbox 416; resultados em
+[`data/processed/e0_map_test.json`](../data/processed/e0_map_test.json) e `e0_map_val.json`):
+
+| Artefato | Canais | Split | mAP@50 | mAP@50:95 | AP@50 colete |
+|---|---|---|---:|---:|---:|
+| fp32 | BGR | val | 60,3% | 29,1% | — |
+| fp32 | BGR | test | 55,0% | 27,2% | 88,8% |
+| fp32 | RGB | test | 48,6% | 23,3% | — |
+| int8 | BGR | test | 16,7% | 6,4% | 47,1% |
+| int8 | RGB (usado no RPi) | test | 4,7% | 1,5% | — |
+
+- Retenção int8/fp32 (BGR, test): 30% do mAP@50 — muito abaixo da referência de ≥ 99% (MLPerf) e da faixa de
+  PTQ bem executada em detectores (< 1 p.p.). **Artefato reprovado para a medição final.**
+- O colapso não vem da concatenação da saída (tensores internos antes dela: 17,1% de mAP@50); pesos já são
+  por canal. Causas a isolar: ativações SiLU por tensor e calibração com 100 imagens em RGB (§4.3).
+- A troca BGR→RGB custa 6,4 p.p. de mAP@50 mesmo no fp32 → BGR passa a ser variável controlada.
+
+Procedimento (para cada novo artefato): treinar (§4.2) → exportar → quantizar (§4.3) → E0 no teste (fp32 e
+int8, BGR, AP por classe, IC *bootstrap* B = 1000) → só então E1–E4.
+
+### 4.2 Protocolo de treino (v1.5, D37)
+
+As 80 épocas usadas não têm respaldo citável (ver `revisao/03-epocas-fine-tuning.md`). Procedimento:
+1. Fine-tuning a partir dos pesos COCO do YOLOX-Nano; teto de épocas declarado (ex.: 300) com cronograma do
+   YOLOX (warm-up; Mosaic/MixUp desligados nas últimas 15 épocas).
+2. mAP@50:95 de **validação** a cada época (`eval_interval = 1`); parada antecipada por paciência (ex.: 30
+   épocas sem melhora).
+3. Checkpoint final = melhor mAP de validação (`best_ckpt.pth`), nunca a última época.
+4. Seed fixa e registrada; ≥ 1 execução com curva completa; 2ª seed se houver tempo (reportar min–máx).
+5. Reportar: épocas efetivas, critério de parada, lr/schedule/batch/warm-up, augmentations, seed(s), GPU.
+6. Pré-processamento do treino é BGR (padrão YOLOX) — manter BGR em toda a cadeia.
+
+### 4.3 Protocolo de quantização (v1.5, D38)
+
+1. Calibração: 750 imagens do *train*, estratificadas por classe, **BGR**, mesmo letterbox da inferência.
+2. PTQ full-integer (pesos por canal, ativações por tensor — padrão TFLite); registrar versão do conversor.
+3. Diagnóstico mínimo: **Q1** recalibrar o artefato atual com 750 imagens BGR (isola calibração/canal);
+   **Q2** variante com ReLU (ti-lite) retreinada pelo §4.2 (isola a ativação), condicional ao tempo.
+4. Escolher o artefato de maior retenção de mAP; registrar hash; seguir para E1–E4.
+
+### E0 — Acurácia offline (notebook) — procedimento original (v1.3)
 1. Treinar (D27) e exportar ONNX → TFLite int8 (`onnx2tf`), calibração com 750 imagens do *train*
    estratificadas por classe (sem usar *val*/*test*).
 2. Avaliar **fp32** e **int8** no *test* oficial (141 imagens) para cada `r` candidato.

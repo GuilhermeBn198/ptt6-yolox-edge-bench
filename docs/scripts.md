@@ -1,3 +1,5 @@
+> **Nota v1.5 (2026-10-22):** o treino deve seguir `experimentacao.md` §4.2 (sem número fixo de épocas; parada pela validação) e a calibração §4.3 (750 imagens **BGR**; o script atual converte para RGB e usa 100 imagens).
+
 ## Fine-tunning Yolox
 ```bash
 # cd ~/Projetos/Python/Vis_Comp_Disp_Borda/Git_Borda/YOLOX
