@@ -246,7 +246,7 @@
 | D35 | **Hipóteses** | H1 com o mesmo artefato int8 nas duas plataformas; H2 = trade-off int8 × fp32 no SBC; fp32 no ESP32 só como tentativa condicional | 2026-10-22 |
 | D36 | **E0 (acurácia)** | Split de teste (141 imgs, 1.251 anotações), mesmo pré/pós dos dispositivos, BGR, conf 0,001/NMS 0,65 (avaliação) separado de 0,25/0,45 (implantação), AP por classe, IC *bootstrap* por imagens; rótulo explícito de split | 2026-10-22 |
 | D37 | **Treino** | Épocas como hiperparâmetro com teto declarado; mAP de validação por época; parada antecipada por paciência; checkpoint pelo melhor mAP de validação; ≥ 1 seed com curva (2ª se houver tempo); hiperparâmetros reportados | 2026-10-22 |
-| D38 | **Quantização** | BGR em toda a cadeia; calibração com 750 imagens do train estratificadas; diagnóstico Q1 (recalibração BGR-750) e Q2 (variante ReLU/ti-lite); artefato só segue para medição final após E0 | 2026-10-22 |
+| D38 | **Quantização** | Apenas **correções de execução**: BGR em toda a cadeia e calibração com as 750 imagens já previstas (D17). Sem investigar a quantização (proposta §6.2 exclui *tuning*). Se o int8 corrigido não atingir acurácia aceitável → **Plano B da proposta**: outra versão quantizada do YOLO | 2026-10-22 (rev. 2026-10-23) |
 | D39 | **Reaproveitamento** | Latência/energia medidas no RPi valem para o grafo SiLU, mas não como desempenho de detector; refazer E0/E1 e repetir E3/E4 com o artefato final | 2026-10-22 |
 | D40 | **Firmware ESP32** | `sdkconfig` deve ter alvo `esp32` (LX6, D23), não `esp32s3`; PSRAM/resolução conforme o módulo real | 2026-10-22 |
 
@@ -384,11 +384,14 @@ curva completa e 2ª seed se houver tempo [Henderson et al. 2018]; reportar todo
 [Dodge et al. 2019; Pineau et al. 2021]. Justificativa de orçamento: fine-tuning a partir de pesos
 pré-treinados requer bem menos iterações que treino do zero [He et al. 2019].
 
-**D38 — Protocolo de quantização.** BGR em treino, calibração, avaliação e dispositivos; calibração com 750
-imagens do train estratificadas (D17); pesos por canal (já é o padrão do TFLite) e ativações por tensor.
-Diagnóstico mínimo: **Q1** recalibração BGR com 750 imagens (mesmo grafo); **Q2** variante com ReLU
-(ti-lite), condicional ao tempo [Nagel et al. 2021 sobre ativações não-ReLU]. O artefato final é o de maior
-retenção de mAP; segue para E1–E4 somente após o E0.
+**D38 — Protocolo de quantização (revisado em 2026-10-23).** A proposta assinada exclui "otimização/tuning da
+quantização" (§6.2). Por isso a v1.5 faz **apenas correções de erros de execução**: ordem de canais BGR em
+treino, calibração, avaliação e dispositivos, e calibração com as 750 imagens já previstas em D17 (a primeira
+rodada usou 100 imagens em RGB). Pesos por canal e ativações por tensor (padrão do TFLite), sem ajustes. Não
+se investiga a causa do colapso (o diagnóstico Q2 — variante ReLU — proposto inicialmente foi **retirado**).
+Se o int8 corrigido continuar com acurácia inaceitável, aplica-se o risco previsto na proposta (§9: "modelo
+não performar em algum dos dispositivos → utilizar outras versões quantizadas do Yolo"). O artefato só segue
+para E1–E4 após o E0.
 
 **D39 — Reaproveitamento.** As latências/energias medidas no RPi na v1.3 caracterizam o grafo SiLU e
 continuam válidas como tal (dependem do grafo, não dos pesos); não podem ser apresentadas como desempenho de
@@ -397,6 +400,52 @@ confirmar; se mudar o grafo (Q2), refazer E2–E4.
 
 **D40 — Firmware.** O projeto ESP-IDF commitado tem `CONFIG_IDF_TARGET="esp32s3"` e PSRAM octal, em
 conflito com D23 (ESP32 LX6). Ajustar o alvo para `esp32`, confirmar o módulo/PSRAM e a resolução (D31).
+
+
+## 19. Alinhamento com a proposta assinada e situação dos resultados da v1.3 (2026-10-23)
+
+### 19.1 O que é da proposta e o que é emenda
+
+| Item | Proposta assinada | Projeto atual | Natureza |
+|---|---|---|---|
+| Objetivo geral | Comparar sistematicamente desempenho e eficiência energética do YOLOX-Nano quantizado em uma MCU e um SBC | Mantido sem alteração | Original |
+| Pergunta e H1 | Latência, throughput e energia MCU × SBC; H1: SBC com maior throughput e energia igual ou maior | Mantidas | Original |
+| Tarefa | "classificação de EPIs" | Detecção (caixas), pois o YOLOX é detector | Emenda v1.0 (D1) |
+| MCU | ESP32-S3 | ESP32 (LX6), hardware disponível | Emenda v1.1 (D23) |
+| Energia | Medidor inline (ou proxy, Plano B) | Estimativa por software | Emenda v1.2 (D24) — é o Plano B previsto |
+| Repetições | 30 por plataforma | Piloto define N, piso 30 | Emenda v1.0 (D19, D22) |
+| Entrada | Dataset de EPIs | Imagens do dataset ingeridas no modelo; câmera é extra | Emenda v1.4 (D33) |
+| Variáveis dependentes | Latência, throughput, energia | + **acurácia (mAP) como condição de validade** | Emenda v1.5 (D34), fundamentada na literatura |
+| Treino | Não previsto | Um fine-tuning (o COCO não tem classes de EPI), com protocolo documentado | Emenda v1.3 (D27) e v1.5 (D37) |
+| Quantização | *Tuning* excluído (§6.2) | Só correções de execução (BGR, 750 imagens); sem investigação | Respeita §6.2 (D38 revisado) |
+| Modelo não performar | Usar outras versões quantizadas do YOLO | Mantido como Plano B | Original |
+| int8 × fp32 (H2) | Não previsto | Comparação secundária no SBC; o fp32 é necessário de qualquer forma como referência de acurácia | Emenda v1.5 (D35), exploratória |
+
+Pendente para o orientador: o **requisito da aplicação** (frequência de inspeção e acurácia mínima do colete)
+não consta da proposta e é necessário para julgar se cada plataforma "serve".
+
+### 19.2 Situação dos resultados da primeira rodada no RPi (commit bc05622)
+
+| Resultado | Situação | Observação |
+|---|---|---|
+| Latência por fase, int8 4 threads (pré 33,2 / inf 109,5 / pós 6,0 / total 148,8 ms, medianas) | **Válido** | Caracteriza o grafo; não depende dos pesos nem da ordem de canais. Ressalva: uma única imagem (D30 previa 50) |
+| Escalonamento 1/2/4 threads e Amdahl (E3b) | **Válido** (exploratório) | Mesma ressalva |
+| Latência fp32 4 threads (inf 236,6 / total 279,6 ms) | **Válido** | Grafo fp32 |
+| 60 s contínuos, temperatura, `throttled=0x0` (E4) | **Válido** | — |
+| Linha de base ociosa (rotulada "E0" nos arquivos) | **Válido** | Renomear: E0 no protocolo é a acurácia |
+| Memória: int8 1,16 MB, fp32 3,49 MB, RSS 100 MB | **Válido** | — |
+| Estatística (Mann-Whitney, Cliff, KW p = 0,83, ACF) | **Método válido** | Recalcular com os dados finais |
+| Energia por inferência 253 mJ (int8) / 546 mJ (fp32) | **Corrigir** | Usou só `t_inf`; a janela do protocolo (D5/D6) dá **292 mJ / 589 mJ**, já calculados no relatório |
+| Throughput 9,1 inf/s | **Corrigir** | É `1/t_inf`; pela janela completa: **6,7 inf/s** |
+| "int8 economiza energia em relação ao fp32" | **Não reportável** | O int8 medido tem 4,7% de mAP@50 (entrada RGB); comparação só com o artefato corrigido (H2) |
+| Concordância int8 × fp32 de 13,6% ("E1" nos arquivos) | **Substituído** pelo E0 | Usou 30 cópias deslocadas de uma imagem, não o dataset |
+| *Break-even* MCU × SBC (fig. 3) | **Válido como sensibilidade** | Não é medição do MCU; retirar a projeção ESP32-S3 (fora do escopo, D23) |
+| Curva de energia por ciclo com "referência MCU t = 500 ms" (fig. 4a) | **Hipotético** | Valor assumido, não medido |
+| Qualquer resultado do ESP32 | **Inexistente** | H1 ainda não pode ser testada |
+
+Em resumo: a caracterização do SBC (latência, threads, térmica, memória) é aproveitável; energia e throughput
+precisam ser recalculados pela janela completa; nada pode ser apresentado como desempenho de detector até o
+artefato int8 corrigido passar no E0; e o MCU ainda precisa ser medido.
 
 ---
 

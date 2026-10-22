@@ -80,6 +80,10 @@ contínua com IC por *bootstrap* [efron1993bootstrap].
   hiperparâmetros e orçamento [dodge2019showyourwork; pineau2021reproducibility] e múltiplas seeds
   [henderson2018deeprl].
 
+> **Revisão de 2026-10-23:** o diagnóstico com variante ReLU (Q2) foi retirado por estar fora do escopo da
+> proposta (§6.2 exclui *tuning* da quantização). Ficam só as correções de execução (BGR, 750 imagens) e, se
+> necessário, o Plano B da proposta (outra versão quantizada do YOLO).
+
 **Protocolo adotado (D37):** épocas como hiperparâmetro com teto declarado; mAP de validação a cada época;
 parada antecipada por paciência; checkpoint pelo melhor mAP de validação; ≥ 1 seed com curva completa
 (2ª seed se houver tempo, reportando min–máx); todos os hiperparâmetros no artigo.

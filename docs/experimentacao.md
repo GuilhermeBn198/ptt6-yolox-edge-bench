@@ -141,9 +141,17 @@ As 80 épocas usadas não têm respaldo citável (ver `revisao/03-epocas-fine-tu
 
 1. Calibração: 750 imagens do *train*, estratificadas por classe, **BGR**, mesmo letterbox da inferência.
 2. PTQ full-integer (pesos por canal, ativações por tensor — padrão TFLite); registrar versão do conversor.
-3. Diagnóstico mínimo: **Q1** recalibrar o artefato atual com 750 imagens BGR (isola calibração/canal);
-   **Q2** variante com ReLU (ti-lite) retreinada pelo §4.2 (isola a ativação), condicional ao tempo.
-4. Escolher o artefato de maior retenção de mAP; registrar hash; seguir para E1–E4.
+3. Somente correções de execução (a proposta exclui *tuning* da quantização, §6.2): recalibrar com 750
+   imagens BGR e rodar o E0. Não se investiga a causa do colapso (o diagnóstico com variante ReLU foi retirado).
+4. Se o int8 corrigido continuar com acurácia inaceitável → Plano B da proposta: outra versão quantizada do
+   YOLO, com o mesmo protocolo. Registrar hash; seguir para E1–E4.
+
+### 4.4 Situação dos resultados da primeira rodada
+
+Ver [`protocolo.md` §19.2](protocolo.md): a caracterização do SBC (latência por fase, threads, térmica,
+memória) é válida; energia e throughput devem ser recalculados pela janela completa (292 mJ e 6,7 inf/s no
+int8, 589 mJ e 3,6 inf/s no fp32); a comparação int8 × fp32 e qualquer afirmação de detector dependem do E0
+com o artefato corrigido; o ESP32 ainda não foi medido.
 
 ### E0 — Acurácia offline (notebook) — procedimento original (v1.3)
 1. Treinar (D27) e exportar ONNX → TFLite int8 (`onnx2tf`), calibração com 750 imagens do *train*
