@@ -27,8 +27,13 @@ Não existe classe `no_vest`.
 | val | 143 | 171 | 109 |
 | test | 141 | 178 | 111 |
 
-> A documentação oficial informa 1.132 imagens de treino; o arquivo baixado contém 1.142 rótulos em
-> `labels/train`. Registrar o hash do zip usado ao preparar os dados.
+> A documentação oficial informa 1.132 imagens de treino; o zip contém 1.132 imagens e 1.142 arquivos de
+> rótulo em `labels/train`.
+
+**Arquivo de referência (não versionar as imagens):** `construction-ppe.zip` oficial da Ultralytics
+(`https://github.com/ultralytics/assets/releases/download/v0.0.0/construction-ppe.zip`), 178.415.813 bytes,
+SHA-256 `bef8dcb599aa4e9d9f5e602cb6fa7143d3c84d7f6a0ff40463d7f2a4c2632ccc`. A cópia local usada pelo Filipe no treino é idêntica (mesmo hash, conferido em 2026-10-22).
+Basta baixar o zip e conferir o hash; o E0 e a calibração usam esse mesmo arquivo.
 
 Classe mais rara: `no_boots` (88 instâncias no train, 4 no val, 23 no test) — relevante para o bloco B.
 
