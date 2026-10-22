@@ -2,14 +2,14 @@
 
 > Gerado a partir do GitHub. Repositório: https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench
 > Board (Projects v2): https://github.com/users/GuilhermeBn198/projects/7
-> Gerado em: 2026-10-19T17:52:53Z
+> Gerado em: 2026-10-22T04:56:56Z
 
 ## Milestones
 
 | Milestone | Abertas | Fechadas | Total |
 |---|---:|---:|---:|
 | M1 — Revisão e protocolo (semanas 1–2) | 0 | 4 | 4 |
-| M2 — Implementação (semanas 3–5) | 5 | 1 | 6 |
+| M2 — Implementação (semanas 3–5) | 8 | 1 | 9 |
 | M3 — Experimentos (semanas 6–9) | 2 | 0 | 2 |
 | M4 — Análise (semanas 10–11) | 2 | 0 | 2 |
 | M5 — Relatório (semanas 12–13) | 2 | 0 | 2 |
@@ -40,6 +40,9 @@
 | #20 | [Dados] Expandir de 1 classe (vest) para as 11 classes do Construction-PPE | OPEN | — | tipo:metodo | 2026-10-13T16:55:23Z | — | 10 |
 | #21 | [Método] Detalhar experimentação, variáveis e coleta de métricas (protocolo v1.3) | CLOSED | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-18T23:03:38Z | 2026-10-19T03:19:49Z | — |
 | #23 | [Extra] Integração de câmera ao vivo (opcional — fora de H1) | OPEN | — | tipo:metodo | 2026-10-19T17:52:48Z | — | — |
+| #24 | [E0] Int8 reprovado na acurácia — requantizar (BGR, 750 imgs) e testar variante ReLU (D36/D38) | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao, prioridade:alta | 2026-10-22T04:56:48Z | — | — |
+| #25 | [Treino] Refazer/re-reportar o fine-tuning pelo protocolo D37 (80 épocas sem respaldo) | OPEN | M2 — Implementação (semanas 3–5) | tipo:metodo, fase:implementacao | 2026-10-22T04:56:49Z | — | — |
+| #26 | [Firmware] sdkconfig do ESP-IDF tem alvo esp32s3 — alinhar a D23 (ESP32 LX6) (D40) | OPEN | M2 — Implementação (semanas 3–5) | tipo:setup, fase:implementacao, hardware | 2026-10-22T04:56:51Z | — | — |
 
 ## Dependências (blocked by)
 
