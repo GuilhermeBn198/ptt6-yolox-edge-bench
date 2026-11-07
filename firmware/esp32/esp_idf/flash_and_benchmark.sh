@@ -2,9 +2,16 @@
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$DIR/../../.." && pwd)"
 cd "$DIR"
 
-PORT="${1:-/dev/ttyUSB0}"
+if [ -n "$1" ]; then
+    PORT="$1"
+elif [ -e "/dev/ttyACM0" ]; then
+    PORT="/dev/ttyACM0"
+else
+    PORT="/dev/ttyUSB0"
+fi
 
 if [ ! -r "$PORT" ] || [ ! -w "$PORT" ]; then
     echo "ERRO: Permissao negada na porta $PORT."
@@ -13,10 +20,11 @@ if [ ! -r "$PORT" ] || [ ! -w "$PORT" ]; then
 fi
 
 echo "======================================================"
-echo "  Gravando Firmware YOLOX-Nano INT8 no ESP32 ($PORT)  "
+echo "  Compilando e Gravando YOLOX-Nano INT8 ($PORT)       "
 echo "======================================================"
 
 . /home/filipe/.espressif/v6.1/esp-idf/export.sh
+idf.py build
 idf.py -p "$PORT" flash
 
 echo ""
@@ -24,5 +32,5 @@ echo "======================================================"
 echo "  Iniciando Coleta Serial Automatizada do Benchmark   "
 echo "======================================================"
 
-python ../../../telemetry/record_esp32_serial.py --port "$PORT"
-
+cd "$REPO_ROOT"
+python3 telemetry/record_esp32_serial.py --port "$PORT"

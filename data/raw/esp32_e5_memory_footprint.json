@@ -1,0 +1,13 @@
+{
+  "device": "ESP32-S3 (Xtensa LX7 @ 240 MHz)",
+  "runtime": "esp-tflite-micro (ESP-NN SIMD)",
+  "int8_flash_bytes": 1214632,
+  "int8_flash_mb": 1.158,
+  "tflm_arena_used_bytes": 2224564,
+  "tflm_arena_used_kb": 2172.43,
+  "tflm_arena_used_mb": 2.122,
+  "free_internal_sram_bytes": 362075,
+  "free_internal_sram_kb": 353.59,
+  "free_octal_psram_bytes": 4191848,
+  "free_octal_psram_kb": 4093.6
+}

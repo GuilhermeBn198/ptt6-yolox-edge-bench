@@ -404,6 +404,186 @@
         "cpu_temp_mean_c": 65.4,
         "cpu_temp_max_c": 66.6
       }
+    },
+    "mcu_int8_nominal": {
+      "file": "esp32_benchmark_raw.csv",
+      "n": 30,
+      "power_mode": "mcu_active_chip",
+      "p_active_w": {
+        "nominal": 0.224,
+        "min": 0.099,
+        "max": 0.224
+      },
+      "latency_ms": {
+        "median": 4953.293,
+        "iqr": 0.003,
+        "mean": 4953.296,
+        "std": 0.009,
+        "cv_percent": 0.0,
+        "min": 4953.29,
+        "max": 4953.321,
+        "tukey_outliers_count": 6,
+        "tukey_inliers_median": 4953.292,
+        "tukey_inliers_mean": 4953.292
+      },
+      "pipeline_phases_eq1_ms": {
+        "t_pre": {
+          "median": 49.112,
+          "iqr": 0.001,
+          "mean": 49.112,
+          "std": 0.001
+        },
+        "t_inf": {
+          "median": 4953.293,
+          "iqr": 0.003,
+          "mean": 4953.296,
+          "std": 0.009
+        },
+        "t_post": {
+          "median": 1.6,
+          "iqr": 0.002,
+          "mean": 1.6,
+          "std": 0.001
+        },
+        "t_total": {
+          "median": 5004.004,
+          "iqr": 0.003,
+          "mean": 5004.008,
+          "std": 0.01
+        },
+        "throughput_total_fps_mean": 0.2,
+        "energy_total_3phase_nom_mj": 1120.9,
+        "energy_total_uniform_nom_mj": 1120.9
+      },
+      "throughput_fps": {
+        "median": 0.2,
+        "mean": 0.2
+      },
+      "energy_mj": {
+        "nominal_median": 1109.54,
+        "nominal_mean": 1109.54,
+        "sensitivity_min_mean": 490.38,
+        "sensitivity_max_mean": 1109.54
+      },
+      "efficiency_inf_per_j": {
+        "nominal_mean": 0.9,
+        "sensitivity_range": [
+          0.9,
+          2.04
+        ]
+      },
+      "edp_mj_ms": {
+        "nominal_mean": 5495872.5,
+        "sensitivity_range": [
+          2428979.4,
+          5495872.5
+        ]
+      },
+      "e_ciclo_periodic_mj": {
+        "1fps_mj": null,
+        "2fps_mj": null,
+        "5fps_mj": null
+      },
+      "diagnostics": {
+        "acf_lag1": 0.3713,
+        "kruskal_wallis_h": 0.2838,
+        "kruskal_wallis_p": 0.8677,
+        "pilot_n_formula": 1,
+        "pilot_n_final": 30,
+        "pilot_warmup_w": 5,
+        "cpu_temp_mean_c": null,
+        "cpu_temp_max_c": null
+      }
+    },
+    "mcu_int8_worst_overhead": {
+      "file": "esp32_benchmark_raw.csv",
+      "n": 30,
+      "power_mode": "mcu_active_chip",
+      "p_active_w": {
+        "nominal": 0.224,
+        "min": 0.099,
+        "max": 0.474
+      },
+      "latency_ms": {
+        "median": 4953.293,
+        "iqr": 0.003,
+        "mean": 4953.296,
+        "std": 0.009,
+        "cv_percent": 0.0,
+        "min": 4953.29,
+        "max": 4953.321,
+        "tukey_outliers_count": 6,
+        "tukey_inliers_median": 4953.292,
+        "tukey_inliers_mean": 4953.292
+      },
+      "pipeline_phases_eq1_ms": {
+        "t_pre": {
+          "median": 49.112,
+          "iqr": 0.001,
+          "mean": 49.112,
+          "std": 0.001
+        },
+        "t_inf": {
+          "median": 4953.293,
+          "iqr": 0.003,
+          "mean": 4953.296,
+          "std": 0.009
+        },
+        "t_post": {
+          "median": 1.6,
+          "iqr": 0.002,
+          "mean": 1.6,
+          "std": 0.001
+        },
+        "t_total": {
+          "median": 5004.004,
+          "iqr": 0.003,
+          "mean": 5004.008,
+          "std": 0.01
+        },
+        "throughput_total_fps_mean": 0.2,
+        "energy_total_3phase_nom_mj": 1120.9,
+        "energy_total_uniform_nom_mj": 1120.9
+      },
+      "throughput_fps": {
+        "median": 0.2,
+        "mean": 0.2
+      },
+      "energy_mj": {
+        "nominal_median": 1109.54,
+        "nominal_mean": 1109.54,
+        "sensitivity_min_mean": 490.38,
+        "sensitivity_max_mean": 2347.86
+      },
+      "efficiency_inf_per_j": {
+        "nominal_mean": 0.9,
+        "sensitivity_range": [
+          0.43,
+          2.04
+        ]
+      },
+      "edp_mj_ms": {
+        "nominal_mean": 5495872.5,
+        "sensitivity_range": [
+          2428979.4,
+          11629658.8
+        ]
+      },
+      "e_ciclo_periodic_mj": {
+        "1fps_mj": null,
+        "2fps_mj": null,
+        "5fps_mj": null
+      },
+      "diagnostics": {
+        "acf_lag1": 0.3713,
+        "kruskal_wallis_h": 0.2838,
+        "kruskal_wallis_p": 0.8677,
+        "pilot_n_formula": 1,
+        "pilot_n_final": 30,
+        "pilot_warmup_w": 5,
+        "cpu_temp_mean_c": null,
+        "cpu_temp_max_c": null
+      }
     }
   },
   "comparisons": [
@@ -503,6 +683,37 @@
           2.164
         ]
       }
+    },
+    {
+      "comparison": "SBC_INT8_4T vs MCU_INT8",
+      "mann_whitney_latency_two_sided": {
+        "u": 0.0,
+        "p": 2.4728668235902057e-11
+      },
+      "mann_whitney_throughput_a_gt_b": {
+        "u": 900.0,
+        "p": 1.2364334117951029e-11
+      },
+      "mann_whitney_energy_a_gt_b": {
+        "u": 0.0,
+        "p": 0.9999999999888275
+      },
+      "cliffs_delta_latency": -1.0,
+      "cliffs_delta_energy": -1.0,
+      "bootstrap_bca_95_median_diff_ms": {
+        "estimate": -4843.775,
+        "ci_95": [
+          -4843.837,
+          -4843.708
+        ]
+      },
+      "bootstrap_bca_95_speedup_ratio_b_over_a": {
+        "estimate": 45.2283,
+        "ci_95": [
+          45.198,
+          45.2504
+        ]
+      }
     }
   ],
   "breakeven_analysis_eq3": {
@@ -553,6 +764,58 @@
         "mean_tensor_mae": 0.17568,
         "mean_tensor_pearson_r": 0.82086
       }
+    },
+    "esp32_e1_predictions": {
+      "device": "ESP32-S3",
+      "model": "models/yolox_nano_ppe_int8.tflite",
+      "image": "raspberry/pi_zero_2w/test_image.jpg (416x416x3 letterbox RGB)",
+      "first_run_timing_us": {
+        "t_pre": 49118,
+        "t_inf": 4953278,
+        "t_post": 1605,
+        "t_total": 5004001,
+        "num_dets": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "det_idx": 0,
+          "class_id": 5,
+          "class_name": "none",
+          "score": 0.3222,
+          "bbox_xyxy": [
+            167.73,
+            103.97,
+            274.7,
+            265.65
+          ]
+        },
+        {
+          "det_idx": 1,
+          "class_id": 6,
+          "class_name": "Person",
+          "score": 0.6111,
+          "bbox_xyxy": [
+            155.0,
+            71.2,
+            278.35,
+            268.18
+          ]
+        }
+      ]
+    },
+    "esp32_e5_memory_footprint": {
+      "device": "ESP32-S3 (Xtensa LX7 @ 240 MHz)",
+      "runtime": "esp-tflite-micro (ESP-NN SIMD)",
+      "int8_flash_bytes": 1214632,
+      "int8_flash_mb": 1.158,
+      "tflm_arena_used_bytes": 2224564,
+      "tflm_arena_used_kb": 2172.43,
+      "tflm_arena_used_mb": 2.122,
+      "free_internal_sram_bytes": 362075,
+      "free_internal_sram_kb": 353.59,
+      "free_octal_psram_bytes": 4191848,
+      "free_octal_psram_kb": 4093.6
     },
     "e4_continuous_60s": {
       "total_inferences_in_60s": 399,

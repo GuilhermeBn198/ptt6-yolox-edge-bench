@@ -1,0 +1,39 @@
+{
+  "device": "ESP32-S3",
+  "model": "models/yolox_nano_ppe_int8.tflite",
+  "image": "raspberry/pi_zero_2w/test_image.jpg (416x416x3 letterbox RGB)",
+  "first_run_timing_us": {
+    "t_pre": 49118,
+    "t_inf": 4953278,
+    "t_post": 1605,
+    "t_total": 5004001,
+    "num_dets": 2
+  },
+  "num_detections": 2,
+  "detections": [
+    {
+      "det_idx": 0,
+      "class_id": 5,
+      "class_name": "none",
+      "score": 0.3222,
+      "bbox_xyxy": [
+        167.73,
+        103.97,
+        274.7,
+        265.65
+      ]
+    },
+    {
+      "det_idx": 1,
+      "class_id": 6,
+      "class_name": "Person",
+      "score": 0.6111,
+      "bbox_xyxy": [
+        155.0,
+        71.2,
+        278.35,
+        268.18
+      ]
+    }
+  ]
+}

@@ -311,16 +311,9 @@ Notas:
 - [x] Copiar o `.tflite` (`models/yolox_nano_ppe_int8.tflite` e `models/yolox_nano_ppe_float32.tflite`) e imagens de entrada.
 - [x] Rodar bateria completa no SBC (`run_all_v13_experiments.py`: `E0`, `E1`, `E2`, `E3b` 1/2/4 threads, `E3c` INT8/FP32, `E4` 60 s contínuos e `E5` memória) e gerar relatórios/figuras da Fase 4 (`E6`).
 
-### Checklist do ESP32 (antes de E2)
+### Checklist do ESP32-S3 (Concluído)
 
-- [ ] Confirmar módulo (WROOM/WROVER) e PSRAM; habilitar PSRAM no core Arduino se houver.
-- [ ] Gravar `bench_serial.ino` com o `.tflite` embutido (array C) e conferir o SHA-256 impresso no boot.
-- [ ] `python scripts/esp_serial_feeder.py --port COMx --inputs inputs/ --experiment E2 --n 30` no PC.
-- [ ] Sessão SSH ociosa durante o bloco (iniciar com `nohup`/`tmux` e desconectar).
-
-## 9. Pendências que bloqueiam a coleta final
-
-1. `r` comum (depende da viabilidade no ESP32 — E2).
-2. Artefatos A/B treinados e quantizados (E0) com hash.
-3. Confirmar o módulo do ESP32 (WROOM sem PSRAM inviabiliza `r` alto).
-4. Valores nominais de §6 aprovados pela dupla (podem ser refinados até o início de E3; depois, congelados).
+- [x] Confirmar módulo (**ESP32-S3 QFN56 rev v0.2**) e PSRAM (**8 MB Octal PSRAM `AP_3v3` @ 80 MHz**, 16 MB Flash); habilitar Octal PSRAM e clock fixo de 240 MHz em [`firmware/esp32/esp_idf/sdkconfig.defaults`](../firmware/esp32/esp_idf/sdkconfig.defaults).
+- [x] Compilar e gravar [`firmware/esp32/esp_idf/main/main.cpp`](../firmware/esp32/esp_idf/main/main.cpp) com `models/yolox_nano_ppe_int8.tflite` ($1{,}158\,\text{MiB}$) e `test_image.bin` ($416\times 416\times 3$ `uint8` letterbox RGB) embutidos em Flash.
+- [x] Coletar telemetria serial via [`telemetry/record_esp32_serial.py`](../telemetry/record_esp32_serial.py) (`/dev/ttyUSB0`), gerando [`data/raw/esp32_benchmark_raw.csv`](../data/raw/esp32_benchmark_raw.csv) ($n = 30$, 3 blocos $\times$ 10 execuções), [`data/raw/esp32_e1_predictions.json`](../data/raw/esp32_e1_predictions.json) e [`data/raw/esp32_e5_memory_footprint.json`](../data/raw/esp32_e5_memory_footprint.json).
+- [x] Executar [`telemetry/energy_and_stats_v13.py`](../telemetry/energy_and_stats_v13.py) e [`telemetry/plot_phase4_v13.py`](../telemetry/plot_phase4_v13.py) para consolidar `E6` e gerar as 6 figuras científicas em [`report/figures/`](../report/figures/).

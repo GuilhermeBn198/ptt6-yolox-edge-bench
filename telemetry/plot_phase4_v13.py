@@ -204,42 +204,44 @@ def plot_fig1_latency_and_amdahl(runs: dict, report: dict, out_dir: str):
 def plot_fig2_energy_sensitivity_and_edp(runs: dict, out_dir: str):
     """
     Figura 2:
-    (a) Energia por Inferência E_i (mJ) com barras de erro da análise de sensibilidade (Tabela 5)
-    (b) Produto Energia-Atraso (EDP em mJ·s) demonstrando o ganho de 4 threads vs 1 e 2 threads (race-to-idle)
+    (a) Energia por Inferência E_i (mJ) com barras de erro da análise de sensibilidade (Tabela 5), incluindo ESP32-S3
+    (b) Produto Energia-Atraso (EDP em mJ·s) no SBC demonstrando o ganho de 4 threads vs 1 e 2 threads (race-to-idle)
     """
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.6, 5.0))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.2, 5.2))
     fig.subplots_adjust(wspace=0.26)
 
-    keys = [k for k in ["sbc_int8_4t", "sbc_int8_2t", "sbc_int8_1t", "sbc_fp32_4t"] if k in runs]
+    keys_a = [k for k in ["sbc_int8_4t", "sbc_int8_2t", "sbc_int8_1t", "sbc_fp32_4t", "mcu_int8_worst_overhead"] if k in runs]
     label_map = {
         "sbc_int8_4t": "SBC INT8\n4 Threads\n(2,30 W)",
         "sbc_int8_2t": "SBC INT8\n2 Threads\n(1,65 W)",
         "sbc_int8_1t": "SBC INT8\n1 Thread\n(1,00 W)",
         "sbc_fp32_4t": "SBC FP32\n4 Threads\n(2,30 W)",
+        "mcu_int8_worst_overhead": "ESP32-S3\nINT8 TFLM\n(0,224 W)",
     }
     color_map = {
         "sbc_int8_4t": "#2ecc71",
         "sbc_int8_2t": "#1abc9c",
         "sbc_int8_1t": "#3498db",
         "sbc_fp32_4t": "#e67e22",
+        "mcu_int8_worst_overhead": "#8e44ad",
     }
-    labels = [label_map[k] for k in keys]
-    colors = [color_map[k] for k in keys]
+    labels_a = [label_map[k] for k in keys_a]
+    colors_a = [color_map[k] for k in keys_a]
 
-    e_nom = [runs[k]["energy_mj"]["nominal_mean"] for k in keys]
-    e_min = [runs[k]["energy_mj"]["sensitivity_min_mean"] for k in keys]
-    e_max = [runs[k]["energy_mj"]["sensitivity_max_mean"] for k in keys]
+    e_nom = [runs[k]["energy_mj"]["nominal_mean"] for k in keys_a]
+    e_min = [runs[k]["energy_mj"]["sensitivity_min_mean"] for k in keys_a]
+    e_max = [runs[k]["energy_mj"]["sensitivity_max_mean"] for k in keys_a]
     e_err_low = [n - mn for n, mn in zip(e_nom, e_min)]
     e_err_high = [mx - n for n, mx in zip(e_nom, e_max)]
 
-    x = np.arange(len(keys))
+    x_a = np.arange(len(keys_a))
     bars1 = ax1.bar(
-        x,
+        x_a,
         e_nom,
         yerr=[e_err_low, e_err_high],
         capsize=5,
-        width=0.46,
-        color=colors,
+        width=0.48,
+        color=colors_a,
         edgecolor="#2c3e50",
         linewidth=1.1,
         alpha=0.88,
@@ -249,37 +251,41 @@ def plot_fig2_energy_sensitivity_and_edp(runs: dict, out_dir: str):
     for idx, bar in enumerate(bars1):
         val = e_nom[idx]
         mn, mx = e_min[idx], e_max[idx]
-        eff = runs[keys[idx]]["efficiency_inf_per_j"]["nominal_mean"]
+        eff = runs[keys_a[idx]]["efficiency_inf_per_j"]["nominal_mean"]
         ax1.text(
             bar.get_x() + bar.get_width() / 2.0,
-            mx + 16,
-            f"{val:.1f} mJ\n[{mn:.0f}–{mx:.0f} mJ]\n({eff:.2f} inf/J)",
+            mx + 35,
+            f"{val:.1f} mJ\n[{mn:.0f}–{mx:.0f}]\n({eff:.2f} inf/J)",
             ha="center",
             va="bottom",
-            fontsize=7.8,
+            fontsize=7.4,
             fontweight="bold",
         )
 
-    ax1.set_xticks(x)
-    ax1.set_xticklabels(labels, fontsize=8.3)
+    ax1.set_xticks(x_a)
+    ax1.set_xticklabels(labels_a, fontsize=8.0)
     ax1.set_ylabel("Energia por Inferência $E_i$ (mJ)")
-    ax1.set_title("(a) Energia por Inferência e Sensibilidade (Tabela 5)", pad=10)
+    ax1.set_title("(a) Energia por Inferência SBC vs. ESP32-S3 (Tabela 5)", pad=10)
     ax1.set_ylim(0, max(e_max) * 1.24)
 
-    # Painel (b): EDP em mJ·s
-    edp_nom_s = [runs[k]["edp_mj_ms"]["nominal_mean"] / 1000.0 for k in keys]
-    edp_min_s = [runs[k]["edp_mj_ms"]["sensitivity_range"][0] / 1000.0 for k in keys]
-    edp_max_s = [runs[k]["edp_mj_ms"]["sensitivity_range"][1] / 1000.0 for k in keys]
+    # Painel (b): EDP em mJ·s para configurações SBC (com anotação do EDP do ESP32-S3)
+    keys_b = [k for k in ["sbc_int8_4t", "sbc_int8_2t", "sbc_int8_1t", "sbc_fp32_4t"] if k in runs]
+    labels_b = [label_map[k] for k in keys_b]
+    colors_b = [color_map[k] for k in keys_b]
+    edp_nom_s = [runs[k]["edp_mj_ms"]["nominal_mean"] / 1000.0 for k in keys_b]
+    edp_min_s = [runs[k]["edp_mj_ms"]["sensitivity_range"][0] / 1000.0 for k in keys_b]
+    edp_max_s = [runs[k]["edp_mj_ms"]["sensitivity_range"][1] / 1000.0 for k in keys_b]
     edp_err_low = [n - mn for n, mn in zip(edp_nom_s, edp_min_s)]
     edp_err_high = [mx - n for n, mx in zip(edp_nom_s, edp_max_s)]
 
+    x_b = np.arange(len(keys_b))
     bars2 = ax2.bar(
-        x,
+        x_b,
         edp_nom_s,
         yerr=[edp_err_low, edp_err_high],
         capsize=5,
         width=0.46,
-        color=colors,
+        color=colors_b,
         edgecolor="#2c3e50",
         linewidth=1.1,
         alpha=0.88,
@@ -299,19 +305,24 @@ def plot_fig2_energy_sensitivity_and_edp(runs: dict, out_dir: str):
             fontweight="bold",
         )
 
+    mcu_note = ""
+    if "mcu_int8_nominal" in runs:
+        mcu_edp_s = runs["mcu_int8_nominal"]["edp_mj_ms"]["nominal_mean"] / 1000.0
+        mcu_note = f"\n(ESP32-S3 @ 4,95s: EDP = {mcu_edp_s:.0f} mJ·s)"
+
     ax2.annotate(
-        "Efeito Race-to-Idle:\n4 cores reduzem EDP em 2,64x\nvs. 1 core (e 4,65x vs. FP32)",
+        f"Efeito Race-to-Idle:\n4 cores reduzem EDP em 2,63x\nvs. 1 core e 4,65x vs. FP32{mcu_note}",
         xy=(0, edp_nom_s[0] + 8),
-        xytext=(0.05, max(edp_max_s) * 0.84),
+        xytext=(0.05, max(edp_max_s) * 0.78),
         arrowprops=dict(arrowstyle="->", color="#27ae60", lw=1.4),
-        fontsize=8.3,
+        fontsize=8.1,
         bbox=dict(boxstyle="round,pad=0.3", facecolor="#eafaf1", edgecolor="#27ae60"),
     )
 
-    ax2.set_xticks(x)
-    ax2.set_xticklabels(labels, fontsize=8.3)
+    ax2.set_xticks(x_b)
+    ax2.set_xticklabels(labels_b, fontsize=8.3)
     ax2.set_ylabel("Produto Energia-Atraso $\\mathrm{EDP} = E_i \\cdot t_i$ (mJ·s)")
-    ax2.set_title("(b) Produto Energia-Atraso (EDP) e Sensibilidade", pad=10)
+    ax2.set_title("(b) Produto Energia-Atraso (EDP) e Efeito Race-to-Idle", pad=10)
     ax2.set_ylim(0, max(edp_max_s) * 1.20)
 
     fig.suptitle("Fase 4 (Experimento E6) — Modelagem de Energia por Software e EDP (Equação 2)", fontsize=12, fontweight="bold", y=1.03)
@@ -323,16 +334,16 @@ def plot_fig2_energy_sensitivity_and_edp(runs: dict, out_dir: str):
 def plot_fig3_breakeven_space(runs: dict, out_dir: str):
     """
     Figura 3:
-    Espaço de Break-Even Energético MCU vs. SBC (Equação 3)
+    Espaço de Break-Even Energético MCU vs. SBC (Equação 3) + Ponto Empírico Medido no ESP32-S3
     """
-    fig, ax = plt.subplots(figsize=(9.5, 5.4))
+    fig, ax = plt.subplots(figsize=(10.4, 5.6))
 
     t_sbc_med = runs["sbc_int8_4t"]["latency_ms"]["median"]
     e_sbc_nom = runs["sbc_int8_4t"]["energy_mj"]["nominal_mean"]
     e_sbc_min = runs["sbc_int8_4t"]["energy_mj"]["sensitivity_min_mean"]
     e_sbc_max = runs["sbc_int8_4t"]["energy_mj"]["sensitivity_max_mean"]
 
-    t_mcu_grid = np.linspace(100, 1750, 400)  # ms
+    t_mcu_grid = np.linspace(100, 5350, 500)  # ms
 
     p_mcu_nom = POWER_MODEL_TABLE5["mcu_active_chip"]["nominal"]  # 0.224 W
     p_mcu_min = POWER_MODEL_TABLE5["mcu_active_chip"]["min"]      # 0.099 W
@@ -344,13 +355,13 @@ def plot_fig3_breakeven_space(runs: dict, out_dir: str):
     e_mcu_worst = p_mcu_worst * t_mcu_grid
     e_s3_proj = p_esp32_s3_proj * t_mcu_grid
 
-    ax.axhspan(e_sbc_min, e_sbc_max, color="#e74c3c", alpha=0.14, label="Faixa de Sensibilidade SBC (1,85–2,90 W $\\Rightarrow [203;\\,318]\\,\\mathrm{mJ}$)")
+    ax.axhspan(e_sbc_min, e_sbc_max, color="#e74c3c", alpha=0.14, label="Faixa de Sensibilidade SBC (1,85–2,90 W $\\Rightarrow [204;\\,319]\\,\\mathrm{mJ}$)")
     ax.axhline(e_sbc_nom, color="#c0392b", linewidth=2.5, label=f"Energia Nominal SBC Medida ($E_{{\\mathrm{{SBC}}}} = {e_sbc_nom:.1f}\\,\\mathrm{{mJ}}$ @ $t_{{\\mathrm{{SBC}}}}={t_sbc_med:.1f}\\,\\mathrm{{ms}}$)")
 
-    ax.fill_between(t_mcu_grid, e_mcu_min, e_mcu_worst, color="#2ecc71", alpha=0.14, label="Envelope de Sensibilidade MCU ($0,099\\,\\mathrm{W}$ chip mín. até $0,474\\,\\mathrm{W}$ c/ overhead placa)")
-    ax.plot(t_mcu_grid, e_mcu_nom, "-", color="#27ae60", linewidth=2.5, label="MCU Nominal Chip ($P_{\\mathrm{MCU}} = 0,224\\,\\mathrm{W}$, Tabela 5)")
+    ax.fill_between(t_mcu_grid, e_mcu_min, e_mcu_worst, color="#2ecc71", alpha=0.12, label="Envelope de Sensibilidade MCU ($0,099\\,\\mathrm{W}$ chip mín. até $0,474\\,\\mathrm{W}$ c/ overhead placa)")
+    ax.plot(t_mcu_grid, e_mcu_nom, "-", color="#27ae60", linewidth=2.4, label="MCU Nominal Chip ($P_{\\mathrm{MCU}} = 0,224\\,\\mathrm{W}$, Tabela 5)")
     ax.plot(t_mcu_grid, e_mcu_worst, "--", color="#16a085", linewidth=2.0, label="MCU Pior Caso c/ Overhead de Placa ($0,224 + 0,250 = 0,474\\,\\mathrm{W}$)")
-    ax.plot(t_mcu_grid, e_s3_proj, "-.", color="#8e44ad", linewidth=2.1, label="Projeção ESP32-S3 c/ Octal PSRAM + PIE ($P \\approx 0,35\\,\\mathrm{W}$)")
+    ax.plot(t_mcu_grid, e_s3_proj, "-.", color="#8e44ad", linewidth=2.1, label="ESP32-S3 c/ Octal PSRAM + PIE ($P \\approx 0,35\\,\\mathrm{W}$)")
 
     t_be_nom = e_sbc_nom / p_mcu_nom
     t_be_worst = e_sbc_min / p_mcu_worst
@@ -359,60 +370,67 @@ def plot_fig3_breakeven_space(runs: dict, out_dir: str):
     ax.axvline(t_be_nom, color="#27ae60", linestyle=":", linewidth=1.4)
     ax.axvline(t_be_worst, color="#16a085", linestyle=":", linewidth=1.4)
 
-    ax.scatter([t_be_worst, t_be_s3, t_be_nom], [e_sbc_min, e_sbc_nom, e_sbc_nom], color=["#16a085", "#8e44ad", "#27ae60"], s=75, zorder=6, edgecolor="black")
+    ax.scatter([t_be_worst, t_be_s3, t_be_nom], [e_sbc_min, e_sbc_nom, e_sbc_nom], color=["#16a085", "#8e44ad", "#27ae60"], s=70, zorder=6, edgecolor="black")
 
     ax.annotate(
-        f"Break-Even Pior Caso:\n$t_{{\\mathrm{{MCU}}}} \\leq {t_be_worst:.0f}\\,\\mathrm{{ms}}$\n(Razão $\\leq {t_be_worst/t_sbc_med:.2f}\\times$)",
-        xy=(t_be_worst, e_sbc_min),
-        xytext=(t_be_worst - 300, e_sbc_min + 140),
-        arrowprops=dict(arrowstyle="->", color="#16a085", lw=1.3),
-        fontsize=8.5,
-        fontweight="bold",
-        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#16a085"),
-    )
-
-    ax.annotate(
-        f"Break-Even ESP32-S3:\n$t_{{\\mathrm{{S3}}}} \\leq {t_be_s3:.0f}\\,\\mathrm{{ms}}$ ({t_be_s3/t_sbc_med:.2f}$\\times$)",
-        xy=(t_be_s3, e_sbc_nom),
-        xytext=(t_be_s3 - 150, e_sbc_nom + 125),
-        arrowprops=dict(arrowstyle="->", color="#8e44ad", lw=1.3),
-        fontsize=8.5,
-        fontweight="bold",
-        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#8e44ad"),
-    )
-
-    ax.annotate(
-        f"Break-Even Nominal:\n$t_{{\\mathrm{{MCU}}}} \\leq {t_be_nom:.0f}\\,\\mathrm{{ms}}$\n($t_{{\\mathrm{{MCU}}}}/t_{{\\mathrm{{SBC}}}} \\leq {t_be_nom/t_sbc_med:.2f}\\times$)",
+        f"Break-Even Nominal:\n$t_{{\\mathrm{{MCU}}}} \\leq {t_be_nom:.0f}\\,\\mathrm{{ms}}$ ({t_be_nom/t_sbc_med:.2f}$\\times$)\n[Pior caso: $\\leq {t_be_worst:.0f}\\,\\mathrm{{ms}}$]",
         xy=(t_be_nom, e_sbc_nom),
-        xytext=(t_be_nom + 70, e_sbc_nom - 95),
+        xytext=(t_be_nom + 180, e_sbc_nom - 160),
         arrowprops=dict(arrowstyle="->", color="#27ae60", lw=1.3),
-        fontsize=8.5,
+        fontsize=8.3,
         fontweight="bold",
         bbox=dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#27ae60"),
     )
 
+    if "mcu_int8_nominal" in runs:
+        t_mcu_emp = runs["mcu_int8_nominal"]["latency_ms"]["median"]
+        e_mcu_emp_nom = p_mcu_nom * t_mcu_emp
+        e_mcu_emp_s3 = p_esp32_s3_proj * t_mcu_emp
+        e_mcu_emp_worst = p_mcu_worst * t_mcu_emp
+
+        ax.axvline(t_mcu_emp, color="#8e44ad", linestyle="--", linewidth=1.8, alpha=0.85)
+        ax.scatter(
+            [t_mcu_emp, t_mcu_emp, t_mcu_emp],
+            [e_mcu_emp_nom, e_mcu_emp_s3, e_mcu_emp_worst],
+            color=["#27ae60", "#8e44ad", "#16a085"],
+            marker="D",
+            s=80,
+            zorder=7,
+            edgecolor="black",
+            label=f"Ponto Medido ESP32-S3 ($t_{{\\mathrm{{inf}}}} = {t_mcu_emp:.1f}\\,\\mathrm{{ms}} = {t_mcu_emp/t_sbc_med:.1f}\\times t_{{\\mathrm{{SBC}}}}$)",
+        )
+        ax.annotate(
+            f"Medição Empírica ESP32-S3 (416×416):\n$t_{{\\mathrm{{inf}}}} = {t_mcu_emp:.1f}\\,\\mathrm{{ms}}$ ({t_mcu_emp/t_sbc_med:.2f}$\\times t_{{\\mathrm{{SBC}}}}$)\n• Nominal (0,224 W): {e_mcu_emp_nom:.1f} mJ\n• S3 PSRAM (0,35 W): {e_mcu_emp_s3:.1f} mJ\n• Pior Caso (0,474 W): {e_mcu_emp_worst:.1f} mJ\n$\\Rightarrow E_{{\\mathrm{{MCU}}}} > E_{{\\mathrm{{SBC}}}}$ (Refuta parte 2 de $H_1$)",
+            xy=(t_mcu_emp, e_mcu_emp_nom),
+            xytext=(t_mcu_emp - 2350, 390),
+            arrowprops=dict(arrowstyle="->", color="#8e44ad", lw=1.5),
+            fontsize=8.2,
+            fontweight="bold",
+            bbox=dict(boxstyle="round,pad=0.35", facecolor="#f5eef8", edgecolor="#8e44ad"),
+        )
+
     ax.text(
-        180,
-        45,
-        "REGIÃO DE VALIDADE DE $H_1$:\n$E_{\\mathrm{MCU}} \\leq E_{\\mathrm{SBC}}$ e $\\mathrm{Throughput}_{\\mathrm{SBC}} > \\mathrm{Throughput}_{\\mathrm{MCU}}$",
-        fontsize=9.0,
+        160,
+        680,
+        "REGIÃO DE VALIDADE DE $H_1$:\n$t_{\\mathrm{MCU}} \\leq 1124,5\\,\\mathrm{ms}$ ($E_{\\mathrm{MCU}} \\leq E_{\\mathrm{SBC}}$)",
+        fontsize=8.5,
         fontweight="bold",
         color="#1e8449",
-        bbox=dict(boxstyle="round,pad=0.35", facecolor="#eafaf1", edgecolor="#27ae60"),
+        bbox=dict(boxstyle="round,pad=0.3", facecolor="#eafaf1", edgecolor="#27ae60"),
     )
 
     ax.set_xlabel("Latência de Inferência na MCU $t_{\\mathrm{MCU}}$ (ms)")
     ax.set_ylabel("Energia por Inferência $E$ (mJ)")
-    ax.set_title("Fase 4 (Equação 3) — Análise de Break-Even Energético ($E_{\\mathrm{SBC}} \\geq E_{\\mathrm{MCU}} \\Longleftrightarrow P_{\\mathrm{SBC}}/P_{\\mathrm{MCU}} \\geq t_{\\mathrm{MCU}}/t_{\\mathrm{SBC}}$)", fontweight="bold")
-    ax.set_xlim(100, 1750)
-    ax.set_ylim(0, 620)
+    ax.set_title("Fase 4 (Equação 3) — Break-Even Energético vs. Medição Real no ESP32-S3 ($416\\times 416$ INT8)", fontweight="bold")
+    ax.set_xlim(100, 5350)
+    ax.set_ylim(0, 2600)
 
     ax_top = ax.twiny()
-    ax_top.set_xlim(100 / t_sbc_med, 1750 / t_sbc_med)
+    ax_top.set_xlim(100 / t_sbc_med, 5350 / t_sbc_med)
     ax_top.set_xlabel("Razão de Tempos $t_{\\mathrm{MCU}} / t_{\\mathrm{SBC}}$ (múltiplos da latência do Raspberry Pi Zero 2 W)")
     ax_top.grid(False)
 
-    ax.legend(loc="upper left", fontsize=8.3)
+    ax.legend(loc="upper left", fontsize=8.0)
 
     for ext in ["png", "pdf"]:
         fig.savefig(os.path.join(out_dir, f"fig3_breakeven_space_mcu_vs_sbc.{ext}"))
@@ -607,6 +625,138 @@ def plot_fig5_3phase_and_e4_continuous(runs: dict, out_dir: str):
     plt.close(fig)
 
 
+def plot_fig6_esp32_predictions_and_comparison(runs: dict, out_dir: str):
+    """
+    Figura 6:
+    (a) Previsão Real do YOLOX-Nano INT8 no ESP32-S3 (test_image.jpg 416x416 letterbox)
+    (b) Comparação Direta por Fase (t_pre, t_inf, t_post, t_total) e Pegada de Memória (E5): SBC vs. ESP32-S3
+    """
+    pred_path = resolve_input_path("data/raw/esp32_e1_predictions.json")
+    img_path = resolve_input_path("raspberry/pi_zero_2w/test_image.jpg")
+    if not os.path.exists(pred_path) or not os.path.exists(img_path) or "mcu_int8_nominal" not in runs:
+        return
+
+    from PIL import Image
+    import matplotlib.patches as mpatches
+
+    with open(pred_path, "r", encoding="utf-8") as f:
+        pred_data = json.load(f)
+
+    pil_img = Image.open(img_path).convert("RGB").resize((416, 416), Image.Resampling.BILINEAR)
+    img_arr = np.asarray(pil_img, dtype=np.uint8)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.6, 5.5))
+    fig.subplots_adjust(wspace=0.30)
+
+    # Painel (a): Imagem 416x416 com Bounding Boxes previstas pelo ESP32-S3
+    ax1.imshow(img_arr)
+    for d in pred_data.get("detections", []):
+        x1, y1, x2, y2 = d["bbox_xyxy"]
+        cname = d["class_name"]
+        sc = d["score"]
+        color = "#2ecc71" if cname == "Person" else "#f39c12"
+        rect = mpatches.Rectangle(
+            (x1, y1),
+            x2 - x1,
+            y2 - y1,
+            linewidth=2.4,
+            edgecolor=color,
+            facecolor="none",
+        )
+        ax1.add_patch(rect)
+        ax1.text(
+            x1 + 3,
+            max(14, y1 - 6),
+            f"{cname}: {sc:.4f} [{x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f}]",
+            color="white",
+            fontsize=8.2,
+            fontweight="bold",
+            bbox=dict(boxstyle="round,pad=0.2", facecolor=color, edgecolor="black", alpha=0.90),
+        )
+
+    ax1.set_title("(a) Previsão On-Device no ESP32-S3 ($416\\times 416$)", pad=10)
+    ax1.set_xlabel("Coordenada Horizontal $x$ (pixels, escala $416\\times 416$)")
+    ax1.set_ylabel("Coordenada Vertical $y$ (pixels, escala $416\\times 416$)")
+    ax1.grid(False)
+
+    # Painel (b): Comparação em escala logarítmica das 3 fases + Memória RAM entre SBC (INT8 4t) e MCU (ESP32-S3)
+    sbc_p = runs["sbc_int8_4t"]["pipeline_phases_eq1_ms"]
+    mcu_p = runs["mcu_int8_nominal"]["pipeline_phases_eq1_ms"]
+
+    metrics_labels = [
+        "$t_{\\mathrm{pre}}$ (ms)\n[Quant.]",
+        "$t_{\\mathrm{inf}}$ (ms)\n[Grafo]",
+        "$t_{\\mathrm{post}}$ (ms)\n[NMS]",
+        "$t_{\\mathrm{total}}$ (ms)\n[Ciclo]",
+        "RAM (MiB)\n[Exp. E5]",
+    ]
+    sbc_vals = [
+        sbc_p["t_pre"]["median"],
+        sbc_p["t_inf"]["median"],
+        sbc_p["t_post"]["median"],
+        sbc_p["t_total"]["median"],
+        60.60,
+    ]
+    mcu_vals = [
+        mcu_p["t_pre"]["median"],
+        mcu_p["t_inf"]["median"],
+        mcu_p["t_post"]["median"],
+        mcu_p["t_total"]["median"],
+        2.122,
+    ]
+
+    x = np.arange(len(metrics_labels))
+    w = 0.36
+    b_sbc = ax2.bar(x - w / 2, sbc_vals, width=w, color="#2ecc71", edgecolor="#1e8449", linewidth=1.1, label="Raspberry Pi Zero 2 W (INT8, 4 Threads)")
+    b_mcu = ax2.bar(x + w / 2, mcu_vals, width=w, color="#8e44ad", edgecolor="#5b2c6f", linewidth=1.1, label="ESP32-S3 @ 240 MHz (INT8, esp-tflite-micro)")
+
+    ax2.set_yscale("log")
+    ax2.set_ylim(0.7, 55000)
+
+    for bar, val in zip(b_sbc, sbc_vals):
+        ax2.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            val * 1.18,
+            f"{val:.2f}",
+            ha="center",
+            va="bottom",
+            fontsize=7.6,
+            fontweight="bold",
+            color="#1e8449",
+        )
+    for bar, val in zip(b_mcu, mcu_vals):
+        ax2.text(
+            bar.get_x() + bar.get_width() / 2.0,
+            val * 1.18,
+            f"{val:.2f}",
+            ha="center",
+            va="bottom",
+            fontsize=7.6,
+            fontweight="bold",
+            color="#5b2c6f",
+        )
+
+    ax2.annotate(
+        "C++ -O3 na MCU é 3,78x mais rápido\nno pós-processamento (1,60 vs 6,05 ms),\nmas PSRAM Octal limita $t_{\\mathrm{inf}}$ (45,2x maior)",
+        xy=(2 + w / 2, mcu_vals[2] * 1.8),
+        xytext=(1.35, 320),
+        arrowprops=dict(arrowstyle="->", color="#5b2c6f", lw=1.2),
+        fontsize=7.7,
+        bbox=dict(boxstyle="round,pad=0.26", facecolor="#f5eef8", edgecolor="#8e44ad"),
+    )
+
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(metrics_labels, fontsize=8.3)
+    ax2.set_ylabel("Valor Medido (escala logarítmica: ms ou MiB)")
+    ax2.set_title("(b) Decomposição (Eq. 1) e Memória (E5): SBC vs. MCU", pad=10)
+    ax2.legend(loc="upper left", fontsize=8.1)
+
+    fig.suptitle("Fase 4 (Protocolo v1.3) — Validação Funcional (E1), Decomposição Temporal (E3) e Memória (E5) no ESP32-S3", fontsize=12, fontweight="bold", y=1.03)
+    for ext in ["png", "pdf"]:
+        fig.savefig(os.path.join(out_dir, f"fig6_esp32_predictions_and_comparison.{ext}"))
+    plt.close(fig)
+
+
 def main():
     out_dir = "report/figures"
     os.makedirs(out_dir, exist_ok=True)
@@ -619,6 +769,14 @@ def main():
     p_2t = resolve_input_path("data/raw/rpi_int8_2threads.csv")
     if os.path.exists(p_2t):
         runs["sbc_int8_2t"] = analyze_platform_run(load_benchmark_csv(p_2t), "sbc_2core")
+    p_mcu = resolve_input_path("data/raw/esp32_benchmark_raw.csv")
+    if os.path.exists(p_mcu):
+        runs["mcu_int8_nominal"] = analyze_platform_run(
+            load_benchmark_csv(p_mcu), "mcu_active_chip", idle_key="mcu_idle_chip", include_overhead=False
+        )
+        runs["mcu_int8_worst_overhead"] = analyze_platform_run(
+            load_benchmark_csv(p_mcu), "mcu_active_chip", idle_key="mcu_idle_chip", include_overhead=True
+        )
 
     rep_path = resolve_input_path("data/processed/phase4_e6_report.json")
     with open(rep_path, "r", encoding="utf-8") as f:
@@ -629,6 +787,7 @@ def main():
     plot_fig3_breakeven_space(runs, out_dir)
     plot_fig4_periodic_cycle_and_diagnostics(runs, out_dir)
     plot_fig5_3phase_and_e4_continuous(runs, out_dir)
+    plot_fig6_esp32_predictions_and_comparison(runs, out_dir)
 
     # Espelhar em plots/phase4_v13 se existir
     if os.path.isdir("plots/phase4_v13"):

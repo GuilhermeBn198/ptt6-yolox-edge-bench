@@ -517,6 +517,14 @@ def main():
     if os.path.exists(e5_path):
         with open(e5_path, "r", encoding="utf-8") as f:
             extra_experiments["e5_memory_footprint"] = json.load(f)
+    esp32_e1_path = resolve_input_path("data/raw/esp32_e1_predictions.json")
+    if os.path.exists(esp32_e1_path):
+        with open(esp32_e1_path, "r", encoding="utf-8") as f:
+            extra_experiments["esp32_e1_predictions"] = json.load(f)
+    esp32_e5_path = resolve_input_path("data/raw/esp32_e5_memory_footprint.json")
+    if os.path.exists(esp32_e5_path):
+        with open(esp32_e5_path, "r", encoding="utf-8") as f:
+            extra_experiments["esp32_e5_memory_footprint"] = json.load(f)
     e4_path = resolve_input_path("data/raw/rpi_e4_continuous_60s.csv")
     if os.path.exists(e4_path):
         e4_data = load_benchmark_csv(e4_path)

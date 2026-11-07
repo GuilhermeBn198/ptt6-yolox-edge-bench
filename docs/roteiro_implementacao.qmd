@@ -211,21 +211,25 @@ $$E_i = P_{\text{pre}}\,t_{\text{pre},i} + P_{\text{inf}}\,t_{\text{inf},i} + P_
   - [`models/yolox_nano_ppe_int8.tflite`](../models/yolox_nano_ppe_int8.tflite) (1,2 MB, Full INT8).
   - [`firmware/esp32/esp_idf/main/model_data.h`](../firmware/esp32/esp_idf/main/model_data.h) (header C alinhado em 16 bytes).
 
-## Fase F3 — Resultados Experimentais Completos no SBC (Protocolo v1.3: `E0`, `E1`, `E2`, `E3b`, `E3c`, `E4` e `E5`)
+## Fase F3 — Resultados Experimentais Completos no SBC e na MCU (Protocolo v1.3: `E0`, `E1`, `E2`, `E3`, `E3b`, `E3c`, `E4` e `E5`)
 
-No Raspberry Pi Zero 2 W (Debian 13 Trixie 64-bit, governador `performance` @ 1,0 GHz, runtime `ai-edge-litert` v2.3.0 com delegate XNNPACK NEON), **todos os experimentos previstos no Protocolo v1.3** foram executados via [`raspberry/pi_zero_2w/benchmark_yolox.py`](../raspberry/pi_zero_2w/benchmark_yolox.py) e [`raspberry/pi_zero_2w/run_all_v13_experiments.py`](../raspberry/pi_zero_2w/run_all_v13_experiments.py), em **3 blocos independentes de 10 execuções ($n = 30$) com 10 *warmups* descartados por bloco**, cronometrando separadamente $t_{\text{pre}}$, $t_{\text{inf}}$, $t_{\text{post}}$ e $t_{\text{total}}$.
+- **No Raspberry Pi Zero 2 W** (Debian 13 Trixie 64-bit, governador `performance` @ 1,0 GHz, runtime `ai-edge-litert` v2.3.0 com delegate XNNPACK NEON), todos os experimentos do Protocolo v1.3 foram executados via [`raspberry/pi_zero_2w/benchmark_yolox.py`](../raspberry/pi_zero_2w/benchmark_yolox.py) e [`raspberry/pi_zero_2w/run_all_v13_experiments.py`](../raspberry/pi_zero_2w/run_all_v13_experiments.py), em **3 blocos independentes de 10 execuções ($n = 30$) com 10 *warmups* descartados por bloco**.
+- **No ESP32-S3** (Xtensa LX7 dual-core @ 240 MHz, 8 MB Octal PSRAM `AP_3v3` @ 80 MHz, ESP-IDF v6.1 + `esp-tflite-micro` v1.4.2 + `esp-nn` v1.4.2 SIMD), o mesmo modelo `models/yolox_nano_ppe_int8.tflite` ($416\times 416$) foi compilado em [`firmware/esp32/esp_idf/main/main.cpp`](../firmware/esp32/esp_idf/main/main.cpp) e executado em **3 blocos independentes de 10 execuções ($n = 30$) + 2 *warmups* por bloco**, obtendo:
+  - **Previsão On-Device (`E1`, [`data/raw/esp32_e1_predictions.json`](../data/raw/esp32_e1_predictions.json))**: Detecção de `Person` (`cls_id=6`, `score=0.6111`, `bbox=[155.00, 71.20, 278.35, 268.18]`) e `none` (`cls_id=5`, `score=0.3222`, `bbox=[167.73, 103.97, 274.70, 265.65]`) sobre `test_image.jpg` ($416\times 416$).
+  - **Tempos por Fase (`E3`, [`data/raw/esp32_benchmark_raw.csv`](../data/raw/esp32_benchmark_raw.csv))**: $\tilde{t}_{\text{pre}} = 49{,}112\,\text{ms}$, $\tilde{t}_{\text{inf}} = 4953{,}293\,\text{ms}$ ($\text{IQR} = 0{,}003\,\text{ms}$), $\tilde{t}_{\text{post}} = 1{,}600\,\text{ms}$ ($3{,}78\times$ mais rápido em C++ `-O3` que os $6{,}05\,\text{ms}$ em Python/NumPy no SBC) e $\tilde{t}_{\text{total}} = 5004{,}004\,\text{ms}$ ($0{,}202\,\text{inf/s}$).
+  - **Pegada de Memória (`E5`, [`data/raw/esp32_e5_memory_footprint.json`](../data/raw/esp32_e5_memory_footprint.json))**: Flash de $1{,}158\,\text{MiB}$, *Tensor Arena* do TFLite Micro de **$2{,}122\,\text{MiB}$ ($2172{,}43\,\text{KiB}$)** na Octal PSRAM ($28{,}6\times$ menor que o pico de RSS de $60{,}60\,\text{MiB}$ do processo Linux no SBC), restando $353{,}59\,\text{KiB}$ de SRAM interna livre e $4093{,}60\,\text{KiB}$ de PSRAM livre.
 
 ## Fase F4 — Modelagem Energética (`E6`), Estatística Robusta e Figuras Científicas (`report/figures/`)
 
-Os módulos [`telemetry/energy_and_stats_v13.py`](../telemetry/energy_and_stats_v13.py) e [`telemetry/plot_phase4_v13.py`](../telemetry/plot_phase4_v13.py) consolidam os resultados quantitativos em [`data/processed/phase4_e6_report.json`](../data/processed/phase4_e6_report.json) e [`data/processed/phase4_energy_stats_summary.csv`](../data/processed/phase4_energy_stats_summary.csv), gerando **5 figuras científicas** (PNG 300 DPI + PDF vetorial):
+Os módulos [`telemetry/energy_and_stats_v13.py`](../telemetry/energy_and_stats_v13.py) e [`telemetry/plot_phase4_v13.py`](../telemetry/plot_phase4_v13.py) consolidam os resultados quantitativos das duas plataformas em [`data/processed/phase4_e6_report.json`](../data/processed/phase4_e6_report.json) e [`data/processed/phase4_energy_stats_summary.csv`](../data/processed/phase4_energy_stats_summary.csv), gerando **6 figuras científicas** (PNG 300 DPI + PDF vetorial):
 
 ### Figura 1 — Desempenho de Inferência e Escalabilidade Multi-Core (1, 2 e 4 Threads — Lei de Amdahl)
 ![Figura 1 — Latência e Lei de Amdahl no SBC](../report/figures/fig1_latency_and_amdahl_bootstrap.png)
 
-### Figura 2 — Energia por Inferência, Análise de Sensibilidade (Tabela 5) e Produto Energia-Atraso (EDP)
+### Figura 2 — Energia por Inferência (SBC vs. ESP32-S3), Sensibilidade (Tabela 5) e Produto Energia-Atraso (EDP)
 ![Figura 2 — Energia por Inferência e EDP](../report/figures/fig2_energy_sensitivity_and_edp.png)
 
-### Figura 3 — Espaço de *Break-Even* Energético MCU vs. SBC (Incluindo Projeção para o ESP32-S3)
+### Figura 3 — Espaço de *Break-Even* Energético MCU vs. SBC com Ponto Medido no ESP32-S3 ($416\times 416$)
 ![Figura 3 — Análise de Break-Even Energético MCU vs. SBC](../report/figures/fig3_breakeven_space_mcu_vs_sbc.png)
 
 ### Figura 4 — Energia por Ciclo em Regime Periódico $E_{\text{ciclo}}(f)$ e Diagnósticos de Validade Interna (3 Blocos)
@@ -234,6 +238,9 @@ Os módulos [`telemetry/energy_and_stats_v13.py`](../telemetry/energy_and_stats_
 ### Figura 5 — Decomposição em 3 Fases ($t_{\text{pre}} + t_{\text{inf}} + t_{\text{post}}$) e Estabilidade Contínua de 60 s (`E4`)
 ![Figura 5 — Decomposição em 3 Fases e Teste Contínuo E4 de 60s](../report/figures/fig5_3phase_and_e4_continuous.png)
 
+### Figura 6 — Previsão On-Device (`E1`), Decomposição por Fase (`E3`) e Memória (`E5`) no ESP32-S3 vs. SBC
+![Figura 6 — Previsão On-Device e Comparação SBC vs. ESP32-S3](../report/figures/fig6_esp32_predictions_and_comparison.png)
+
 ---
 
 # Checklist de Conclusão de Etapas (Definition of Done — v1.3–v1.4)
@@ -241,8 +248,8 @@ Os módulos [`telemetry/energy_and_stats_v13.py`](../telemetry/energy_and_stats_
 - [x] Modelo YOLOX-Nano treinado e exportado para ONNX (opset 13) e TFLite (`fp32` e `int8`).
 - [x] Ambiente do Raspberry Pi Zero 2 W provisionado via USB/Wi-Fi com governador `performance` @ 1,0 GHz e `ai-edge-litert` v2.3.0.
 - [x] Execução integral no SBC de todos os experimentos do **Protocolo v1.3**: `E0` (baseline ocioso), `E1` (sanidade da quantização), `E2` (dimensionamento $N$), `E3b` (**1, 2 e 4 threads** em 3 blocos com 10 warmups/bloco), `E3c` (INT8 vs. FP32 com decomposição $t_{\text{pre}}, t_{\text{inf}}, t_{\text{post}}$), `E4` (60 s contínuos sem pausa) e `E5` (pegada de Flash e RAM de pico).
+- [x] Execução física completa no **ESP32-S3** (240 MHz, 8 MB Octal PSRAM, `esp-tflite-micro` + `esp-nn` SIMD) na resolução de $416\times 416$: previsão on-device (`E1`), benchmark em 3 blocos de 10 execuções (`E3`) e pegada de memória (`E5`).
 - [x] Roteiro de implementação sincronizado com o **Protocolo Experimental v1.3–v1.4**.
-- [x] Implementação do módulo da **Fase 4 (`E6`)** (`telemetry/energy_and_stats_v13.py`) e geração dos **5 conjuntos de figuras científicas** (`telemetry/plot_phase4_v13.py` $\to$ `report/figures/*.png` e `*.pdf`).
-- [ ] Execução dos experimentos físicos na MCU assim que o **ESP32-S3** for disponibilizado pelo orientador (ou em placa ESP32 LX6 de contingência) e atualização automática das figuras.
+- [x] Implementação do módulo da **Fase 4 (`E6`)** (`telemetry/energy_and_stats_v13.py`) e geração dos **6 conjuntos de figuras científicas** (`telemetry/plot_phase4_v13.py` $\to$ `report/figures/*.png` e `*.pdf`).
 - [ ] Consolidação final do artigo e gravação do vídeo demonstrativo (3–5 minutos).
 
