@@ -1,0 +1,2124 @@
+{
+  "platform": "PC (TFLite Micro Reference C++ x86_64)",
+  "model": "models/yolox_nano_ppe_int8.tflite",
+  "model_sha256": "7205d9dd41fb532c54eec2283a0f78e8aa491ed3f8c42b6b46c4e24df1778f54",
+  "channel_order": "BGR",
+  "input_res": 416,
+  "conf_thr": 0.25,
+  "nms_thr": 0.45,
+  "num_images": 50,
+  "total_detections": 147,
+  "images": [
+    {
+      "image_id": "01_image1",
+      "timing_us": {
+        "t_pre_us": 267,
+        "t_inf_us": 3347731,
+        "t_post_us": 28,
+        "t_total_us": 3348027,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            268.44,
+            142.12,
+            315.05,
+            179.51
+          ],
+          "score": 0.8492,
+          "cls": 0
+        }
+      ]
+    },
+    {
+      "image_id": "02_image10",
+      "timing_us": {
+        "t_pre_us": 246,
+        "t_inf_us": 3438680,
+        "t_post_us": 13,
+        "t_total_us": 3438940,
+        "n_det": 4
+      },
+      "num_detections": 4,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            222.37,
+            176.67,
+            255.86,
+            222.01
+          ],
+          "score": 0.8462,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            189.72,
+            183.85,
+            220.55,
+            217.34
+          ],
+          "score": 0.7052,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            100.68,
+            172.06,
+            155.92,
+            244.82
+          ],
+          "score": 0.6824,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            96.14,
+            167.39,
+            158.1,
+            253.62
+          ],
+          "score": 0.4534,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "03_image1003",
+      "timing_us": {
+        "t_pre_us": 244,
+        "t_inf_us": 3011675,
+        "t_post_us": 11,
+        "t_total_us": 3011931,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            120.1,
+            90.91,
+            196.97,
+            165.69
+          ],
+          "score": 0.8462,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            104.8,
+            61.91,
+            209.36,
+            307.43
+          ],
+          "score": 0.5732,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            134.75,
+            67.41,
+            175.56,
+            87.91
+          ],
+          "score": 0.414,
+          "cls": 0
+        }
+      ]
+    },
+    {
+      "image_id": "04_image1007",
+      "timing_us": {
+        "t_pre_us": 112,
+        "t_inf_us": 1985927,
+        "t_post_us": 10,
+        "t_total_us": 1986049,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            159.51,
+            106.47,
+            243.0,
+            181.25
+          ],
+          "score": 0.4709,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            158.34,
+            113.8,
+            244.16,
+            188.58
+          ],
+          "score": 0.4094,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            140.9,
+            87.62,
+            248.38,
+            225.33
+          ],
+          "score": 0.3791,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "05_image1009",
+      "timing_us": {
+        "t_pre_us": 116,
+        "t_inf_us": 1790056,
+        "t_post_us": 7,
+        "t_total_us": 1790181,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            189.5,
+            59.64,
+            288.46,
+            319.07
+          ],
+          "score": 0.3094,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            139.62,
+            117.14,
+            253.19,
+            343.2
+          ],
+          "score": 0.2912,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "06_image1014",
+      "timing_us": {
+        "t_pre_us": 194,
+        "t_inf_us": 3547879,
+        "t_post_us": 22,
+        "t_total_us": 3548096,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            151.49,
+            110.7,
+            264.51,
+            211.94
+          ],
+          "score": 0.7992,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            112.59,
+            58.39,
+            289.03,
+            325.05
+          ],
+          "score": 0.6377,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            185.04,
+            87.2,
+            244.76,
+            105.98
+          ],
+          "score": 0.3139,
+          "cls": 4
+        }
+      ]
+    },
+    {
+      "image_id": "07_image1019",
+      "timing_us": {
+        "t_pre_us": 253,
+        "t_inf_us": 3626171,
+        "t_post_us": 9,
+        "t_total_us": 3626434,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "08_image1023",
+      "timing_us": {
+        "t_pre_us": 248,
+        "t_inf_us": 2679366,
+        "t_post_us": 10,
+        "t_total_us": 2679625,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            147.78,
+            49.66,
+            310.23,
+            323.77
+          ],
+          "score": 0.6377,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            243.81,
+            151.9,
+            279.2,
+            193.65
+          ],
+          "score": 0.5687,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            169.43,
+            87.51,
+            285.62,
+            213.7
+          ],
+          "score": 0.4504,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "09_image1037",
+      "timing_us": {
+        "t_pre_us": 236,
+        "t_inf_us": 2031775,
+        "t_post_us": 18,
+        "t_total_us": 2032030,
+        "n_det": 9
+      },
+      "num_detections": 9,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            223.73,
+            117.01,
+            261.12,
+            154.41
+          ],
+          "score": 0.7992,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            258.84,
+            125.87,
+            340.07,
+            224.36
+          ],
+          "score": 0.7506,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            43.23,
+            150.83,
+            62.02,
+            171.23
+          ],
+          "score": 0.7256,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            296.89,
+            130.0,
+            342.23,
+            210.84
+          ],
+          "score": 0.6187,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            282.72,
+            91.9,
+            315.31,
+            123.59
+          ],
+          "score": 0.5641,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            38.16,
+            177.7,
+            64.3,
+            216.13
+          ],
+          "score": 0.5277,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            146.22,
+            107.01,
+            276.55,
+            303.99
+          ],
+          "score": 0.5095,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            266.86,
+            94.44,
+            348.47,
+            266.09
+          ],
+          "score": 0.4928,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            23.88,
+            140.62,
+            73.6,
+            263.97
+          ],
+          "score": 0.273,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "10_image1065",
+      "timing_us": {
+        "t_pre_us": 134,
+        "t_inf_us": 1780102,
+        "t_post_us": 8,
+        "t_total_us": 1780245,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            137.1,
+            92.06,
+            285.95,
+            232.95
+          ],
+          "score": 0.7757,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            105.56,
+            45.01,
+            313.69,
+            359.58
+          ],
+          "score": 0.7506,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "11_image1074",
+      "timing_us": {
+        "t_pre_us": 249,
+        "t_inf_us": 3355202,
+        "t_post_us": 29,
+        "t_total_us": 3355482,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            102.12,
+            32.86,
+            347.64,
+            365.24
+          ],
+          "score": 0.6816,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            125.39,
+            84.81,
+            282.68,
+            229.63
+          ],
+          "score": 0.5914,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "12_image1076",
+      "timing_us": {
+        "t_pre_us": 247,
+        "t_inf_us": 3430118,
+        "t_post_us": 12,
+        "t_total_us": 3430378,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            107.79,
+            31.98,
+            389.55,
+            383.18
+          ],
+          "score": 0.5876,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            147.55,
+            82.79,
+            277.26,
+            231.65
+          ],
+          "score": 0.3518,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "13_image1088",
+      "timing_us": {
+        "t_pre_us": 245,
+        "t_inf_us": 3360810,
+        "t_post_us": 8,
+        "t_total_us": 3361065,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            184.53,
+            47.43,
+            282.55,
+            68.4
+          ],
+          "score": 0.273,
+          "cls": 4
+        },
+        {
+          "bbox_xyxy": [
+            145.93,
+            96.32,
+            286.81,
+            276.83
+          ],
+          "score": 0.2616,
+          "cls": 5
+        }
+      ]
+    },
+    {
+      "image_id": "14_image1089",
+      "timing_us": {
+        "t_pre_us": 119,
+        "t_inf_us": 1967173,
+        "t_post_us": 7,
+        "t_total_us": 1967301,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            141.19,
+            106.98,
+            294.2,
+            260.0
+          ],
+          "score": 0.5527,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            106.5,
+            47.6,
+            396.13,
+            389.27
+          ],
+          "score": 0.2502,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "15_image110",
+      "timing_us": {
+        "t_pre_us": 168,
+        "t_inf_us": 2028342,
+        "t_post_us": 24,
+        "t_total_us": 2028536,
+        "n_det": 5
+      },
+      "num_detections": 5,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            202.5,
+            143.26,
+            224.66,
+            161.04
+          ],
+          "score": 0.7961,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            177.77,
+            143.82,
+            243.24,
+            267.17
+          ],
+          "score": 0.7431,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            92.31,
+            172.35,
+            159.61,
+            260.99
+          ],
+          "score": 0.6506,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            113.07,
+            195.09,
+            141.47,
+            217.25
+          ],
+          "score": 0.5687,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            184.58,
+            161.24,
+            212.2,
+            192.08
+          ],
+          "score": 0.4731,
+          "cls": 0
+        }
+      ]
+    },
+    {
+      "image_id": "16_image1111",
+      "timing_us": {
+        "t_pre_us": 113,
+        "t_inf_us": 2140123,
+        "t_post_us": 11,
+        "t_total_us": 2140248,
+        "n_det": 6
+      },
+      "num_detections": 6,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            141.4,
+            37.37,
+            333.03,
+            360.73
+          ],
+          "score": 0.7961,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            171.87,
+            94.42,
+            305.21,
+            231.47
+          ],
+          "score": 0.7279,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            188.28,
+            65.8,
+            283.65,
+            81.72
+          ],
+          "score": 0.6142,
+          "cls": 4
+        },
+        {
+          "bbox_xyxy": [
+            199.14,
+            35.96,
+            282.63,
+            73.53
+          ],
+          "score": 0.414,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            283.81,
+            151.17,
+            319.2,
+            204.66
+          ],
+          "score": 0.3412,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            195.63,
+            40.74,
+            281.45,
+            77.29
+          ],
+          "score": 0.3344,
+          "cls": 0
+        }
+      ]
+    },
+    {
+      "image_id": "17_image1114",
+      "timing_us": {
+        "t_pre_us": 123,
+        "t_inf_us": 2240820,
+        "t_post_us": 11,
+        "t_total_us": 2240955,
+        "n_det": 6
+      },
+      "num_detections": 6,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            152.72,
+            33.46,
+            355.2,
+            365.84
+          ],
+          "score": 0.7734,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            190.07,
+            85.43,
+            343.08,
+            234.29
+          ],
+          "score": 0.5118,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            208.81,
+            45.88,
+            297.03,
+            102.66
+          ],
+          "score": 0.4853,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            201.71,
+            58.79,
+            282.55,
+            76.56
+          ],
+          "score": 0.3298,
+          "cls": 4
+        },
+        {
+          "bbox_xyxy": [
+            284.49,
+            207.67,
+            322.93,
+            242.09
+          ],
+          "score": 0.3071,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            192.62,
+            53.86,
+            296.19,
+            87.35
+          ],
+          "score": 0.3025,
+          "cls": 4
+        }
+      ]
+    },
+    {
+      "image_id": "18_image116",
+      "timing_us": {
+        "t_pre_us": 125,
+        "t_inf_us": 2016894,
+        "t_post_us": 15,
+        "t_total_us": 2017035,
+        "n_det": 4
+      },
+      "num_detections": 4,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            256.05,
+            140.34,
+            286.05,
+            164.4
+          ],
+          "score": 0.6597,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            18.19,
+            156.34,
+            125.67,
+            364.47
+          ],
+          "score": 0.3276,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            235.08,
+            180.53,
+            253.87,
+            210.52
+          ],
+          "score": 0.273,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            127.12,
+            223.67,
+            223.39,
+            334.15
+          ],
+          "score": 0.2548,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "19_image122",
+      "timing_us": {
+        "t_pre_us": 220,
+        "t_inf_us": 3376383,
+        "t_post_us": 28,
+        "t_total_us": 3376632,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            93.95,
+            55.81,
+            320.01,
+            397.47
+          ],
+          "score": 0.7476,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            120.82,
+            172.89,
+            291.65,
+            385.82
+          ],
+          "score": 0.5687,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            170.52,
+            85.32,
+            254.01,
+            158.07
+          ],
+          "score": 0.3222,
+          "cls": 1
+        }
+      ]
+    },
+    {
+      "image_id": "20_image1354",
+      "timing_us": {
+        "t_pre_us": 253,
+        "t_inf_us": 3441486,
+        "t_post_us": 29,
+        "t_total_us": 3441769,
+        "n_det": 12
+      },
+      "num_detections": 12,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            231.5,
+            83.63,
+            407.94,
+            241.66
+          ],
+          "score": 0.8462,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            242.18,
+            117.82,
+            364.94,
+            213.64
+          ],
+          "score": 0.8189,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            135.48,
+            87.53,
+            273.19,
+            241.28
+          ],
+          "score": 0.7643,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            171.13,
+            112.82,
+            250.15,
+            211.31
+          ],
+          "score": 0.6581,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            10.37,
+            59.46,
+            172.82,
+            245.89
+          ],
+          "score": 0.5641,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            191.05,
+            83.4,
+            240.53,
+            112.73
+          ],
+          "score": 0.4337,
+          "cls": 7
+        },
+        {
+          "bbox_xyxy": [
+            252.07,
+            83.61,
+            310.44,
+            109.87
+          ],
+          "score": 0.3662,
+          "cls": 7
+        },
+        {
+          "bbox_xyxy": [
+            195.9,
+            99.31,
+            227.59,
+            110.45
+          ],
+          "score": 0.3185,
+          "cls": 8
+        },
+        {
+          "bbox_xyxy": [
+            47.5,
+            94.26,
+            145.99,
+            195.5
+          ],
+          "score": 0.2965,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            295.63,
+            93.64,
+            326.47,
+            113.48
+          ],
+          "score": 0.2866,
+          "cls": 9
+        },
+        {
+          "bbox_xyxy": [
+            197.15,
+            95.58,
+            226.34,
+            106.11
+          ],
+          "score": 0.2707,
+          "cls": 8
+        },
+        {
+          "bbox_xyxy": [
+            237.88,
+            99.9,
+            270.46,
+            131.59
+          ],
+          "score": 0.2548,
+          "cls": 9
+        }
+      ]
+    },
+    {
+      "image_id": "21_image140",
+      "timing_us": {
+        "t_pre_us": 274,
+        "t_inf_us": 3435038,
+        "t_post_us": 14,
+        "t_total_us": 3435327,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            139.57,
+            160.9,
+            206.87,
+            249.54
+          ],
+          "score": 0.737,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            151.19,
+            182.06,
+            204.93,
+            256.85
+          ],
+          "score": 0.6703,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            209.66,
+            156.14,
+            268.3,
+            247.25
+          ],
+          "score": 0.4185,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "22_image149",
+      "timing_us": {
+        "t_pre_us": 247,
+        "t_inf_us": 2392520,
+        "t_post_us": 9,
+        "t_total_us": 2392777,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            152.27,
+            151.91,
+            182.27,
+            177.34
+          ],
+          "score": 0.6824,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            108.85,
+            151.87,
+            188.24,
+            384.24
+          ],
+          "score": 0.4928,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            117.9,
+            181.57,
+            194.77,
+            330.43
+          ],
+          "score": 0.4549,
+          "cls": 5
+        }
+      ]
+    },
+    {
+      "image_id": "23_image150",
+      "timing_us": {
+        "t_pre_us": 123,
+        "t_inf_us": 2129829,
+        "t_post_us": 22,
+        "t_total_us": 2129975,
+        "n_det": 4
+      },
+      "num_detections": 4,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            256.97,
+            176.43,
+            352.79,
+            342.62
+          ],
+          "score": 0.7522,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            138.59,
+            179.4,
+            229.27,
+            316.46
+          ],
+          "score": 0.7036,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            111.58,
+            132.27,
+            238.37,
+            318.7
+          ],
+          "score": 0.6308,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            241.79,
+            140.66,
+            355.36,
+            343.14
+          ],
+          "score": 0.6157,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "24_image160",
+      "timing_us": {
+        "t_pre_us": 121,
+        "t_inf_us": 2156486,
+        "t_post_us": 8,
+        "t_total_us": 2156616,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            166.72,
+            79.34,
+            277.2,
+            311.71
+          ],
+          "score": 0.3094,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            182.0,
+            117.7,
+            252.78,
+            270.71
+          ],
+          "score": 0.2707,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "25_image161",
+      "timing_us": {
+        "t_pre_us": 131,
+        "t_inf_us": 2273713,
+        "t_post_us": 13,
+        "t_total_us": 2273859,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            61.01,
+            28.76,
+            367.04,
+            399.85
+          ],
+          "score": 0.7052,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            110.49,
+            110.63,
+            323.42,
+            354.99
+          ],
+          "score": 0.5755,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "26_image167",
+      "timing_us": {
+        "t_pre_us": 121,
+        "t_inf_us": 2345221,
+        "t_post_us": 27,
+        "t_total_us": 2345370,
+        "n_det": 12
+      },
+      "num_detections": 12,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            313.11,
+            108.12,
+            378.28,
+            309.64
+          ],
+          "score": 0.8462,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            319.85,
+            79.82,
+            355.24,
+            114.25
+          ],
+          "score": 0.8227,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            211.67,
+            66.92,
+            242.5,
+            109.83
+          ],
+          "score": 0.7992,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            255.51,
+            86.95,
+            292.9,
+            129.86
+          ],
+          "score": 0.7431,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            120.22,
+            75.49,
+            197.46,
+            349.6
+          ],
+          "score": 0.7431,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            125.69,
+            117.51,
+            200.48,
+            336.38
+          ],
+          "score": 0.7279,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            311.02,
+            80.7,
+            378.32,
+            347.36
+          ],
+          "score": 0.6581,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            246.14,
+            68.44,
+            313.44,
+            342.55
+          ],
+          "score": 0.6377,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            185.45,
+            115.3,
+            266.68,
+            334.18
+          ],
+          "score": 0.5732,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            180.5,
+            60.23,
+            259.89,
+            334.34
+          ],
+          "score": 0.5732,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            242.67,
+            111.78,
+            315.43,
+            330.65
+          ],
+          "score": 0.4398,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            197.32,
+            122.49,
+            243.93,
+            205.58
+          ],
+          "score": 0.3139,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "27_image168",
+      "timing_us": {
+        "t_pre_us": 223,
+        "t_inf_us": 3546657,
+        "t_post_us": 32,
+        "t_total_us": 3546912,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            96.29,
+            17.91,
+            394.01,
+            389.0
+          ],
+          "score": 0.7287,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            128.53,
+            108.58,
+            330.05,
+            321.51
+          ],
+          "score": 0.7052,
+          "cls": 5
+        }
+      ]
+    },
+    {
+      "image_id": "28_image169",
+      "timing_us": {
+        "t_pre_us": 251,
+        "t_inf_us": 3493382,
+        "t_post_us": 9,
+        "t_total_us": 3493642,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            50.48,
+            15.15,
+            382.86,
+            418.19
+          ],
+          "score": 0.5277,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "29_image180",
+      "timing_us": {
+        "t_pre_us": 125,
+        "t_inf_us": 1961697,
+        "t_post_us": 9,
+        "t_total_us": 1961832,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            65.74,
+            6.34,
+            398.12,
+            409.38
+          ],
+          "score": 0.4701,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            143.2,
+            128.04,
+            344.73,
+            324.09
+          ],
+          "score": 0.3738,
+          "cls": 5
+        }
+      ]
+    },
+    {
+      "image_id": "30_image182",
+      "timing_us": {
+        "t_pre_us": 136,
+        "t_inf_us": 2430627,
+        "t_post_us": 7,
+        "t_total_us": 2430771,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "31_image190",
+      "timing_us": {
+        "t_pre_us": 229,
+        "t_inf_us": 2832020,
+        "t_post_us": 11,
+        "t_total_us": 2832261,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "32_image207",
+      "timing_us": {
+        "t_pre_us": 123,
+        "t_inf_us": 2132111,
+        "t_post_us": 6,
+        "t_total_us": 2132241,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "33_image225",
+      "timing_us": {
+        "t_pre_us": 115,
+        "t_inf_us": 2287605,
+        "t_post_us": 6,
+        "t_total_us": 2287727,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "34_image231",
+      "timing_us": {
+        "t_pre_us": 166,
+        "t_inf_us": 1964707,
+        "t_post_us": 15,
+        "t_total_us": 1964889,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            39.0,
+            20.44,
+            284.52,
+            423.48
+          ],
+          "score": 0.4322,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "35_image241",
+      "timing_us": {
+        "t_pre_us": 215,
+        "t_inf_us": 1970415,
+        "t_post_us": 21,
+        "t_total_us": 1970653,
+        "n_det": 8
+      },
+      "num_detections": 8,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            97.74,
+            96.17,
+            231.07,
+            237.05
+          ],
+          "score": 0.7476,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            158.91,
+            53.39,
+            222.01,
+            72.7
+          ],
+          "score": 0.6377,
+          "cls": 4
+        },
+        {
+          "bbox_xyxy": [
+            141.73,
+            303.82,
+            245.8,
+            354.68
+          ],
+          "score": 0.5944,
+          "cls": 3
+        },
+        {
+          "bbox_xyxy": [
+            124.06,
+            28.39,
+            225.3,
+            62.04
+          ],
+          "score": 0.5937,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            133.76,
+            333.53,
+            208.55,
+            376.64
+          ],
+          "score": 0.5095,
+          "cls": 3
+        },
+        {
+          "bbox_xyxy": [
+            81.53,
+            101.34,
+            158.03,
+            168.01
+          ],
+          "score": 0.3548,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            115.9,
+            301.53,
+            209.11,
+            378.4
+          ],
+          "score": 0.3071,
+          "cls": 3
+        },
+        {
+          "bbox_xyxy": [
+            80.5,
+            27.85,
+            319.36,
+            379.06
+          ],
+          "score": 0.2586,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "36_image257",
+      "timing_us": {
+        "t_pre_us": 117,
+        "t_inf_us": 2076820,
+        "t_post_us": 11,
+        "t_total_us": 2076948,
+        "n_det": 4
+      },
+      "num_detections": 4,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            170.51,
+            129.85,
+            274.57,
+            225.67
+          ],
+          "score": 0.6111,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            133.03,
+            95.67,
+            286.77,
+            341.2
+          ],
+          "score": 0.5937,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            211.17,
+            87.58,
+            269.27,
+            126.01
+          ],
+          "score": 0.5277,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            146.03,
+            194.97,
+            176.03,
+            229.4
+          ],
+          "score": 0.3685,
+          "cls": 1
+        }
+      ]
+    },
+    {
+      "image_id": "37_image271",
+      "timing_us": {
+        "t_pre_us": 110,
+        "t_inf_us": 2050931,
+        "t_post_us": 14,
+        "t_total_us": 2051056,
+        "n_det": 5
+      },
+      "num_detections": 5,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            78.15,
+            12.73,
+            330.53,
+            394.18
+          ],
+          "score": 0.8189,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            113.65,
+            24.34,
+            214.89,
+            79.59
+          ],
+          "score": 0.5823,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            123.17,
+            47.59,
+            221.2,
+            88.2
+          ],
+          "score": 0.4837,
+          "cls": 4
+        },
+        {
+          "bbox_xyxy": [
+            134.1,
+            49.6,
+            204.54,
+            89.11
+          ],
+          "score": 0.3821,
+          "cls": 1
+        },
+        {
+          "bbox_xyxy": [
+            118.64,
+            82.53,
+            275.93,
+            263.03
+          ],
+          "score": 0.3639,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "38_image287",
+      "timing_us": {
+        "t_pre_us": 121,
+        "t_inf_us": 2654152,
+        "t_post_us": 8,
+        "t_total_us": 2654282,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            139.42,
+            16.86,
+            297.45,
+            398.3
+          ],
+          "score": 0.5944,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "39_image296",
+      "timing_us": {
+        "t_pre_us": 144,
+        "t_inf_us": 2146503,
+        "t_post_us": 17,
+        "t_total_us": 2146665,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "40_image324",
+      "timing_us": {
+        "t_pre_us": 271,
+        "t_inf_us": 3622251,
+        "t_post_us": 38,
+        "t_total_us": 3622561,
+        "n_det": 6
+      },
+      "num_detections": 6,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            158.03,
+            174.25,
+            194.41,
+            224.87
+          ],
+          "score": 0.8758,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            15.53,
+            92.27,
+            57.28,
+            157.12
+          ],
+          "score": 0.8507,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            264.45,
+            283.11,
+            321.24,
+            378.92
+          ],
+          "score": 0.5937,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            219.08,
+            206.97,
+            245.22,
+            242.35
+          ],
+          "score": 0.3821,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            46.5,
+            25.18,
+            97.36,
+            61.73
+          ],
+          "score": 0.3685,
+          "cls": 0
+        },
+        {
+          "bbox_xyxy": [
+            217.37,
+            200.74,
+            296.39,
+            288.96
+          ],
+          "score": 0.3397,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "41_image345",
+      "timing_us": {
+        "t_pre_us": 266,
+        "t_inf_us": 3436657,
+        "t_post_us": 9,
+        "t_total_us": 3436933,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "42_image350",
+      "timing_us": {
+        "t_pre_us": 129,
+        "t_inf_us": 1976619,
+        "t_post_us": 8,
+        "t_total_us": 1976757,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            109.4,
+            39.13,
+            301.03,
+            362.49
+          ],
+          "score": 0.4246,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            250.88,
+            146.61,
+            287.25,
+            198.64
+          ],
+          "score": 0.3276,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            146.62,
+            93.87,
+            279.95,
+            203.83
+          ],
+          "score": 0.2843,
+          "cls": 2
+        }
+      ]
+    },
+    {
+      "image_id": "43_image381",
+      "timing_us": {
+        "t_pre_us": 228,
+        "t_inf_us": 3363796,
+        "t_post_us": 25,
+        "t_total_us": 3364050,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            72.54,
+            56.41,
+            354.31,
+            398.08
+          ],
+          "score": 0.4094,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            121.56,
+            109.1,
+            292.4,
+            346.83
+          ],
+          "score": 0.2859,
+          "cls": 5
+        }
+      ]
+    },
+    {
+      "image_id": "44_image389",
+      "timing_us": {
+        "t_pre_us": 252,
+        "t_inf_us": 3434008,
+        "t_post_us": 13,
+        "t_total_us": 3434274,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            155.83,
+            118.41,
+            259.89,
+            204.23
+          ],
+          "score": 0.7734,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            139.13,
+            90.85,
+            280.68,
+            310.77
+          ],
+          "score": 0.7506,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            176.71,
+            92.64,
+            219.62,
+            121.83
+          ],
+          "score": 0.4458,
+          "cls": 0
+        }
+      ]
+    },
+    {
+      "image_id": "45_image393",
+      "timing_us": {
+        "t_pre_us": 247,
+        "t_inf_us": 2695318,
+        "t_post_us": 7,
+        "t_total_us": 2695573,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "46_image40",
+      "timing_us": {
+        "t_pre_us": 139,
+        "t_inf_us": 2021378,
+        "t_post_us": 11,
+        "t_total_us": 2021529,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            135.59,
+            50.27,
+            226.7,
+            411.27
+          ],
+          "score": 0.6581,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            148.35,
+            110.28,
+            231.84,
+            306.32
+          ],
+          "score": 0.3609,
+          "cls": 5
+        }
+      ]
+    },
+    {
+      "image_id": "47_image401",
+      "timing_us": {
+        "t_pre_us": 221,
+        "t_inf_us": 3569646,
+        "t_post_us": 14,
+        "t_total_us": 3569882,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "48_image423",
+      "timing_us": {
+        "t_pre_us": 254,
+        "t_inf_us": 3636466,
+        "t_post_us": 24,
+        "t_total_us": 3636744,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            270.28,
+            183.62,
+            304.7,
+            223.13
+          ],
+          "score": 0.414,
+          "cls": 5
+        }
+      ]
+    },
+    {
+      "image_id": "49_image431",
+      "timing_us": {
+        "t_pre_us": 266,
+        "t_inf_us": 2650031,
+        "t_post_us": 9,
+        "t_total_us": 2650308,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            123.73,
+            18.79,
+            343.65,
+            389.88
+          ],
+          "score": 0.7992,
+          "cls": 6
+        }
+      ]
+    },
+    {
+      "image_id": "50_image441",
+      "timing_us": {
+        "t_pre_us": 122,
+        "t_inf_us": 1995617,
+        "t_post_us": 9,
+        "t_total_us": 1995749,
+        "n_det": 5
+      },
+      "num_detections": 5,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            129.31,
+            58.72,
+            295.5,
+            207.58
+          ],
+          "score": 0.6816,
+          "cls": 2
+        },
+        {
+          "bbox_xyxy": [
+            100.77,
+            14.14,
+            339.62,
+            375.15
+          ],
+          "score": 0.4322,
+          "cls": 6
+        },
+        {
+          "bbox_xyxy": [
+            144.23,
+            -1.01,
+            232.45,
+            40.94
+          ],
+          "score": 0.3222,
+          "cls": 1
+        },
+        {
+          "bbox_xyxy": [
+            148.16,
+            0.8,
+            229.39,
+            39.41
+          ],
+          "score": 0.279,
+          "cls": 5
+        },
+        {
+          "bbox_xyxy": [
+            132.68,
+            57.73,
+            308.28,
+            215.01
+          ],
+          "score": 0.2548,
+          "cls": 5
+        }
+      ]
+    }
+  ]
+}
