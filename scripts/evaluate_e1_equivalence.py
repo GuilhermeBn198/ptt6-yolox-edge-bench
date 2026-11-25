@@ -126,21 +126,19 @@ def compare_two_platforms(data_a: dict, data_b: dict, label_a: str, label_b: str
 
 def main() -> int:
     pc_path = Path("data/raw/pc_e1_50_predictions.json")
+    pc_tflm_path = Path("data/raw/pc_tflm_e1_50_predictions.json")
     sbc_path = Path("data/raw/sbc_e1_50_predictions.json")
     mcu_path = Path("data/raw/mcu_e1_50_predictions.json")
 
     loaded = {}
-    for label, p in [("PC", pc_path), ("SBC", sbc_path), ("MCU", mcu_path)]:
+    for label, p in [("PC", pc_path), ("PC_TFLM", pc_tflm_path), ("SBC", sbc_path), ("MCU", mcu_path)]:
         if p.exists():
             loaded[label] = json.loads(p.read_text(encoding="utf-8"))
 
     comparisons = []
-    if "PC" in loaded and "SBC" in loaded:
-        comparisons.append(compare_two_platforms(loaded["PC"], loaded["SBC"], "PC", "SBC"))
-    if "PC" in loaded and "MCU" in loaded:
-        comparisons.append(compare_two_platforms(loaded["PC"], loaded["MCU"], "PC", "MCU"))
-    if "SBC" in loaded and "MCU" in loaded:
-        comparisons.append(compare_two_platforms(loaded["SBC"], loaded["MCU"], "SBC", "MCU"))
+    for la, lb in [("PC", "SBC"), ("PC", "MCU"), ("SBC", "MCU"), ("PC_TFLM", "MCU"), ("PC_TFLM", "SBC")]:
+        if la in loaded and lb in loaded:
+            comparisons.append(compare_two_platforms(loaded[la], loaded[lb], la, lb))
 
     report = {
         "experiment": "E1 — Equivalência Funcional (main.tex §4.10)",

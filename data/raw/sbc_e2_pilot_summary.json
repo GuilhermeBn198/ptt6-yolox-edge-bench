@@ -1,0 +1,38 @@
+{
+  "platform": "SBC (Raspberry Pi Zero 2 W)",
+  "pilot_total_inferences": 100,
+  "window_size": 10,
+  "window_medians_t_total_ms": [
+    123.013,
+    123.687,
+    122.735,
+    122.035,
+    122.268,
+    122.745,
+    123.206,
+    122.68,
+    121.939,
+    122.108
+  ],
+  "window_rel_diffs_pct": [
+    0.548,
+    0.77,
+    0.571,
+    0.191,
+    0.391,
+    0.375,
+    0.427,
+    0.604,
+    0.139
+  ],
+  "warmup_W_empirical": 5,
+  "warmup_W_adopted_per_block": 10,
+  "post_warmup_t_total_median_ms": 122.682,
+  "post_warmup_t_total_mean_ms": 122.651,
+  "post_warmup_t_total_std_ms": 1.398,
+  "post_warmup_t_inf_median_ms": 109.412,
+  "cv_t_total": 0.011402,
+  "cv_t_total_percent": 1.14,
+  "n_formula_eq1_eps1pct": 5,
+  "n_final_adopted": 30
+}

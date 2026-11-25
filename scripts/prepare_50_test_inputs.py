@@ -48,14 +48,20 @@ def main() -> int:
     ap.add_argument("--m", type=int, default=50)
     a = ap.parse_args()
 
-    imgs = sorted(glob.glob(os.path.join(a.dataset, "images", "test", "*")))
+    dataset_root = a.dataset
+    if not os.path.exists(os.path.join(dataset_root, "images", "test")):
+        alt = "/mnt/ssd_dados/construction-ppe-dataset"
+        if os.path.exists(os.path.join(alt, "images", "test")):
+            dataset_root = alt
+
+    imgs = sorted(glob.glob(os.path.join(dataset_root, "images", "test", "*")))
     if not imgs:
-        raise FileNotFoundError(f"Nenhuma imagem encontrada em {a.dataset}/images/test")
+        raise FileNotFoundError(f"Nenhuma imagem encontrada em {dataset_root}/images/test")
 
     selected = []
     for p in imgs:
         stem = os.path.splitext(os.path.basename(p))[0]
-        lab = os.path.join(a.dataset, "labels", "test", f"{stem}.txt")
+        lab = os.path.join(dataset_root, "labels", "test", f"{stem}.txt")
         has_vest = False
         if os.path.exists(lab):
             with open(lab, "r", encoding="utf-8") as f:
