@@ -632,18 +632,19 @@ def plot_fig6_esp32_predictions_and_comparison(runs: dict, out_dir: str):
     (b) Comparação Direta por Fase (t_pre, t_inf, t_post, t_total) e Pegada de Memória (E5): SBC vs. ESP32-S3
     """
     pred_path = resolve_input_path("data/raw/esp32_e1_predictions.json")
-    img_path = resolve_input_path("raspberry/pi_zero_2w/test_image.jpg")
-    if not os.path.exists(pred_path) or not os.path.exists(img_path) or "mcu_int8_nominal" not in runs:
+    bin_path = "data/inputs_50_bgr_416/01_image1.bin"
+    if not os.path.exists(bin_path):
+        bin_path = "firmware/esp32/esp_idf/main/test_image.bin"
+    if not os.path.exists(pred_path) or not os.path.exists(bin_path) or "mcu_int8_nominal" not in runs:
         return
 
-    from PIL import Image
     import matplotlib.patches as mpatches
 
     with open(pred_path, "r", encoding="utf-8") as f:
         pred_data = json.load(f)
 
-    pil_img = Image.open(img_path).convert("RGB").resize((416, 416), Image.Resampling.BILINEAR)
-    img_arr = np.asarray(pil_img, dtype=np.uint8)
+    bgr_arr = np.fromfile(bin_path, dtype=np.uint8).reshape(416, 416, 3)
+    img_arr = bgr_arr[:, :, ::-1]  # BGR -> RGB para visualização
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13.6, 5.5))
     fig.subplots_adjust(wspace=0.30)
@@ -654,7 +655,7 @@ def plot_fig6_esp32_predictions_and_comparison(runs: dict, out_dir: str):
         x1, y1, x2, y2 = d["bbox_xyxy"]
         cname = d["class_name"]
         sc = d["score"]
-        color = "#2ecc71" if cname == "Person" else "#f39c12"
+        color = "#2ecc71" if cname in ("helmet", "vest", "Person") else "#f39c12"
         rect = mpatches.Rectangle(
             (x1, y1),
             x2 - x1,
@@ -665,11 +666,11 @@ def plot_fig6_esp32_predictions_and_comparison(runs: dict, out_dir: str):
         )
         ax1.add_patch(rect)
         ax1.text(
-            x1 + 3,
-            max(14, y1 - 6),
+            min(x1 + 2, 185),
+            max(16, y1 - 6),
             f"{cname}: {sc:.4f} [{x1:.0f},{y1:.0f},{x2:.0f},{y2:.0f}]",
             color="white",
-            fontsize=8.2,
+            fontsize=8.0,
             fontweight="bold",
             bbox=dict(boxstyle="round,pad=0.2", facecolor=color, edgecolor="black", alpha=0.90),
         )
@@ -736,8 +737,10 @@ def plot_fig6_esp32_predictions_and_comparison(runs: dict, out_dir: str):
             color="#5b2c6f",
         )
 
+    post_ratio = sbc_vals[2] / mcu_vals[2] if mcu_vals[2] > 0 else 1.0
+    inf_ratio = mcu_vals[1] / sbc_vals[1] if sbc_vals[1] > 0 else 1.0
     ax2.annotate(
-        "C++ -O3 na MCU é 3,78x mais rápido\nno pós-processamento (1,60 vs 6,05 ms),\nmas PSRAM Octal limita $t_{\\mathrm{inf}}$ (45,2x maior)",
+        f"C++ -O3 na MCU é {post_ratio:.2f}x mais rápido\nno pós-processamento ({mcu_vals[2]:.2f} vs {sbc_vals[2]:.2f} ms),\nmas PSRAM Octal limita $t_{{\\mathrm{{inf}}}}$ ({inf_ratio:.1f}x maior)",
         xy=(2 + w / 2, mcu_vals[2] * 1.8),
         xytext=(1.35, 320),
         arrowprops=dict(arrowstyle="->", color="#5b2c6f", lw=1.2),

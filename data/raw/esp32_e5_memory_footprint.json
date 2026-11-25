@@ -6,8 +6,9 @@
   "tflm_arena_used_bytes": 2224564,
   "tflm_arena_used_kb": 2172.43,
   "tflm_arena_used_mb": 2.122,
-  "free_internal_sram_bytes": 362075,
-  "free_internal_sram_kb": 353.59,
-  "free_octal_psram_bytes": 4191848,
-  "free_octal_psram_kb": 4093.6
+  "free_internal_sram_bytes": 353623,
+  "free_internal_sram_kb": 345.33,
+  "free_octal_psram_bytes": 3600772,
+  "free_octal_psram_kb": 3516.38,
+  "model_sha256": "7205d9dd41fb532c54eec2283a0f78e8aa491ed3f8c42b6b46c4e24df1778f54"
 }

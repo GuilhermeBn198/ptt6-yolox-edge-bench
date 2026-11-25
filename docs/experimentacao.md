@@ -102,28 +102,23 @@ descritiva).
 | E5 *(extra)* | Câmera ao vivo (tempo real) — opcional, fora de H1 | — | MCU, SBC | FPS sustentado, latência c/ captura |
 | **E6** | Energia derivada + sensibilidade | F4 | — (software) | `data/processed/energy_*.csv` |
 
-### 4.1 E0 — Acurácia (v1.5, D36) — **resultado medido**
+### 4.1 E0 — Acurácia e Retenção $\rho$ com Bootstrap (v1.5, D36) — **resultado medido**
 
-Medido com [`scripts/eval_map_tflite.py`](../scripts/eval_map_tflite.py) sobre os artefatos de `models/`
-(protocolo COCO; conf 0,001; NMS 0,65; letterbox 416; resultados em
+Medido com [`scripts/eval_map_tflite.py`](../scripts/eval_map_tflite.py) e [`scripts/run_e0_bootstrap_and_pc_e1.py`](../scripts/run_e0_bootstrap_and_pc_e1.py) sobre os artefatos de `models/`
+(protocolo COCO; conf 0,001; NMS 0,65; letterbox $416\times 416$ **BGR**; $B = 1.000$ reamostras bootstrap por imagem; resultados em
 [`data/processed/e0_map_test.json`](../data/processed/e0_map_test.json) e `e0_map_val.json`):
 
-| Artefato | Canais | Split | mAP@50 | mAP@50:95 | AP@50 colete |
+| Artefato | Canais | Split | mAP@50 (IC 95%) | mAP@50:95 (IC 95%) | AP@50 colete `vest` (IC 95%) |
 |---|---|---|---:|---:|---:|
-| fp32 | BGR | val | 60,3% | 29,1% | — |
-| fp32 | BGR | test | 55,0% | 27,2% | 88,8% |
-| fp32 | RGB | test | 48,6% | 23,3% | — |
-| int8 | BGR | test | 16,7% | 6,4% | 47,1% |
-| int8 | RGB (usado no RPi) | test | 4,7% | 1,5% | — |
+| fp32 | BGR | val (143 img) | 60,3% | 29,1% | — |
+| **fp32** | **BGR** | **test (141 img)** | **54,86% [50,50%, 61,57%]** | **27,10% [24,81%, 30,63%]** | **88,82% [81,75%, 95,23%]** |
+| fp32 | RGB | test (141 img) | 48,6% | 23,3% | — |
+| **int8** | **BGR** | **test (141 img)** | **15,97% [13,91%, 19,30%]** | **6,14% [5,28%, 7,57%]** | **47,78% [37,66%, 57,93%]** |
+| **Retenção $\rho = \text{int8}/\text{fp32}$** | **BGR** | **test (141 img)** | **0,2911 [0,2557, 0,3389]** | **0,2266 [0,1954, 0,2693]** | **0,5379 [0,4429, 0,6324]** |
+| int8 | RGB (rodada anterior) | test (141 img) | 4,7% | 1,5% | — |
 
-- Retenção int8/fp32 (BGR, test): 30% do mAP@50 — muito abaixo da referência de ≥ 99% (MLPerf) e da faixa de
-  PTQ bem executada em detectores (< 1 p.p.). **Artefato reprovado para a medição final.**
-- O colapso não vem da concatenação da saída (tensores internos antes dela: 17,1% de mAP@50); pesos já são
-  por canal. Causas a isolar: ativações SiLU por tensor e calibração com 100 imagens em RGB (§4.3).
-- A troca BGR→RGB custa 6,4 p.p. de mAP@50 mesmo no fp32 → BGR passa a ser variável controlada.
-
-Procedimento (para cada novo artefato): treinar (§4.2) → exportar → quantizar (§4.3) → E0 no teste (fp32 e
-int8, BGR, AP por classe, IC *bootstrap* B = 1000) → só então E1–E4.
+- Retenção $\rho_{\text{mAP@50}} = 0{,}2911$ ($29{,}11\%$) e $\rho_{\text{AP@50(vest)}} = 0{,}5379$ ($53{,}79\%$) em BGR no split de teste — abaixo da referência de $\ge 99\%$ (MLPerf), caracterizando quantitativamente o *trade-off* de `H2` (ganho de $2{,}03\times$ em latência e $2{,}10\times$ em energia de 3 fases vs. perda de precisão por ativação SiLU *per-tensor* no PTQ INT8).
+- A padronização de **BGR** em toda a cadeia (`E0`–`E6`, 50 `.bin` em `data/inputs_50_bgr_416/`) evita a perda adicional de $6{,}4\text{ p.p.}$ no FP32 e triplica o `mAP@50` do INT8 frente à rodada RGB anterior ($15{,}97\%$ vs. $4{,}7\%$).
 
 ### 4.2 Protocolo de treino (v1.5, D37)
 
@@ -146,12 +141,20 @@ As 80 épocas usadas não têm respaldo citável (ver `revisao/03-epocas-fine-tu
 4. Se o int8 corrigido continuar com acurácia inaceitável → Plano B da proposta: outra versão quantizada do
    YOLO, com o mesmo protocolo. Registrar hash; seguir para E1–E4.
 
-### 4.4 Situação dos resultados da primeira rodada
+### 4.4 Situação Consolidada dos Resultados (`E0` a `E6` em BGR)
 
-Ver [`protocolo.md` §19.2](protocolo.md): a caracterização do SBC (latência por fase, threads, térmica,
-memória) é válida; energia e throughput devem ser recalculados pela janela completa (292 mJ e 6,7 inf/s no
-int8, 589 mJ e 3,6 inf/s no fp32); a comparação int8 × fp32 e qualquer afirmação de detector dependem do E0
-com o artefato corrigido; o ESP32 ainda não foi medido.
+Todos os experimentos `E0`–`E6` foram executados integralmente com **entradas BGR (`data/inputs_50_bgr_416/`, 50 imagens do split de teste)** no PC, no Raspberry Pi Zero 2 W e no ESP32-S3:
+- **`E1` (Equivalência em 50 imagens BGR, [`data/processed/e1_equivalence_report.json`](../data/processed/e1_equivalence_report.json))**: PC (`x86_64 LiteRT`) vs. SBC (`ARM64 LiteRT`) atingiram **100% de concordância de contagem e classes** (`148` vs. `148` detecções, `50/50` imagens), $\text{IoU médio} = 0{,}9962$ ($97{,}30\%$ com $\text{IoU} \ge 0{,}95$) e $99{,}32\%$ dentro de $1$ passo de quantização (`0.027536`). No ESP32-S3 (`TFLM + ESP-NN SIMD`), registraram-se `153` detecções (`117` pareadas com mesma classe, $\text{IoU médio} = 0{,}7462$).
+- **`E2` (Piloto de 100 inferências)**: $W_{\text{emp}} = 5$ em ambas as plataformas; $\text{CV}_{\text{SBC}}(t_{\text{total}}) = 1{,}140\% \implies N = 5 \implies N_{\text{final}} = 30$; $\text{CV}_{\text{MCU}}(t_{\text{total}}) = 0{,}0064\% \implies N = 1 \implies N_{\text{final}} = 30$.
+- **`E3` / `E3b` (Latência em 3 fases, $n=30$, 3 blocos $\times$ 10 execuções)**:
+  - **SBC INT8 (4t)**: $\tilde{t}_{\text{pre}} = 8{,}18\,\text{ms}$, $\tilde{t}_{\text{inf}} = 109{,}44\,\text{ms}$, $\tilde{t}_{\text{post}} = 5{,}26\,\text{ms}$, $\tilde{t}_{\text{total}} = 122{,}91\,\text{ms}$ ($8{,}13\,\text{inf/s}$ total / $9{,}14\,\text{inf/s}$ $t_{\text{inf}}$).
+  - **SBC FP32 (4t)**: $\tilde{t}_{\text{inf}} = 236{,}47\,\text{ms}$, $\tilde{t}_{\text{total}} = 249{,}61\,\text{ms}$ ($4{,}01\,\text{inf/s}$ total).
+  - **SBC Escalabilidade (`E3b`)**: 1t ($270{,}73\,\text{ms}$ $t_{\text{inf}}$ / $284{,}18\,\text{ms}$ total), 2t ($162{,}71\,\text{ms}$ $t_{\text{inf}}$ / $176{,}41\,\text{ms}$ total, $S(2)=1{,}66\times$), 4t ($109{,}44\,\text{ms}$ $t_{\text{inf}}$ / $122{,}91\,\text{ms}$ total, $S(4)=2{,}47\times$, fração paralelizável de Amdahl $p = 79{,}4\%$).
+  - **MCU ESP32-S3 INT8**: $\tilde{t}_{\text{pre}} = 30{,}64\,\text{ms}$, $\tilde{t}_{\text{inf}} = 4948{,}82\,\text{ms}$, $\tilde{t}_{\text{post}} = 1{,}72\,\text{ms}$, $\tilde{t}_{\text{total}} = 4981{,}17\,\text{ms}$ ($0{,}201\,\text{inf/s}$ total / $0{,}202\,\text{inf/s}$ $t_{\text{inf}}$).
+- **`E4` (60 s em laço fechado)**: SBC completou **481 inferências em 60,0 s** ($8{,}02\,\text{inf/s}$ sustentado, $T_{\max} = 65{,}0\,^\circ\text{C}$, `throttled=0x0`); ESP32-S3 completou **13 inferências em 64,75 s** ($0{,}201\,\text{inf/s}$ sustentado).
+- **`E5`/`E6` (Energia na janela completa de 3 fases e ciclo periódico $E_{\text{ciclo}}(f)$)**:
+  - **Energia por inferência (`E_3phase`)**: SBC INT8 4t consome **$265{,}39\,\text{mJ}$** $[212{,}72\text{–}335{,}15\,\text{mJ}]$, SBC FP32 4t consome **$557{,}98\,\text{mJ}$** $[447{,}76\text{–}703{,}98\,\text{mJ}]$, e ESP32-S3 INT8 consome **$1115{,}79\,\text{mJ}$** $[493{,}14\text{–}2361{,}10\,\text{mJ}]$.
+  - **Ciclo periódico $E_{\text{ciclo}}(f)$**: Em **$f = 0{,}2\,\text{Hz}$** ($1/f = 5000\,\text{ms} > 4981{,}17\,\text{ms}$), ambas as plataformas cumprem $t_{\text{total}} < 1/f$ e o **ESP32-S3 consome $1117{,}03\,\text{mJ/ciclo}$ contra $3191{,}54\,\text{mJ/ciclo}$ do SBC** (**MCU $2{,}86\times$ mais econômica por ciclo de 5 s**, invertendo a vantagem por inferência isolada devido ao consumo ocioso de $0{,}60\,\text{W}$ do Linux no SBC!). Em $f = 0{,}5\,\text{Hz}$ e $f = 1{,}0\,\text{Hz}$, apenas o SBC atende à restrição de tempo real ($1420{,}45\,\text{mJ}$ e $817{,}65\,\text{mJ/ciclo}$).
 
 ### E0 — Acurácia offline (notebook) — procedimento original (v1.3)
 1. Treinar (D27) e exportar ONNX → TFLite int8 (`onnx2tf`), calibração com 750 imagens do *train*
@@ -314,6 +317,6 @@ Notas:
 ### Checklist do ESP32-S3 (Concluído)
 
 - [x] Confirmar módulo (**ESP32-S3 QFN56 rev v0.2**) e PSRAM (**8 MB Octal PSRAM `AP_3v3` @ 80 MHz**, 16 MB Flash); habilitar Octal PSRAM e clock fixo de 240 MHz em [`firmware/esp32/esp_idf/sdkconfig.defaults`](../firmware/esp32/esp_idf/sdkconfig.defaults).
-- [x] Compilar e gravar [`firmware/esp32/esp_idf/main/main.cpp`](../firmware/esp32/esp_idf/main/main.cpp) com `models/yolox_nano_ppe_int8.tflite` ($1{,}158\,\text{MiB}$) e `test_image.bin` ($416\times 416\times 3$ `uint8` letterbox RGB) embutidos em Flash.
-- [x] Coletar telemetria serial via [`telemetry/record_esp32_serial.py`](../telemetry/record_esp32_serial.py) (`/dev/ttyUSB0`), gerando [`data/raw/esp32_benchmark_raw.csv`](../data/raw/esp32_benchmark_raw.csv) ($n = 30$, 3 blocos $\times$ 10 execuções), [`data/raw/esp32_e1_predictions.json`](../data/raw/esp32_e1_predictions.json) e [`data/raw/esp32_e5_memory_footprint.json`](../data/raw/esp32_e5_memory_footprint.json).
-- [x] Executar [`telemetry/energy_and_stats_v13.py`](../telemetry/energy_and_stats_v13.py) e [`telemetry/plot_phase4_v13.py`](../telemetry/plot_phase4_v13.py) para consolidar `E6` e gerar as 6 figuras científicas em [`report/figures/`](../report/figures/).
+- [x] Compilar e gravar [`firmware/esp32/esp_idf/main/main.cpp`](../firmware/esp32/esp_idf/main/main.cpp) com `models/yolox_nano_ppe_int8.tflite` ($1{,}158\,\text{MiB}$) e `test_image.bin` ($416\times 416\times 3$ `uint8` letterbox BGR) embutidos em Flash e protocolo serial D33 (`"IMG"`, `"E4S"`, `"RUN"`).
+- [x] Coletar telemetria serial completa via [`telemetry/record_esp32_serial.py`](../telemetry/record_esp32_serial.py) (`/dev/ttyACM0`), gerando [`data/raw/mcu_e1_50_predictions.json`](../data/raw/mcu_e1_50_predictions.json) (50 imagens BGR), [`data/raw/esp32_e2_pilot_100.csv`](../data/raw/esp32_e2_pilot_100.csv) (100 inferências piloto), [`data/raw/esp32_benchmark_raw.csv`](../data/raw/esp32_benchmark_raw.csv) ($n = 30$, 3 blocos $\times$ 10 execuções + 5 warmups/bloco), [`data/raw/esp32_e4_continuous_60s.csv`](../data/raw/esp32_e4_continuous_60s.csv) (60 s em laço fechado) e [`data/raw/esp32_e5_memory_footprint.json`](../data/raw/esp32_e5_memory_footprint.json).
+- [x] Executar [`scripts/evaluate_e1_equivalence.py`](../scripts/evaluate_e1_equivalence.py), [`scripts/energy_model.py`](../scripts/energy_model.py), [`telemetry/energy_and_stats_v13.py`](../telemetry/energy_and_stats_v13.py) e [`telemetry/plot_phase4_v13.py`](../telemetry/plot_phase4_v13.py) para consolidar `E1`, `E6` (`H1` e `H2`) e gerar as 6 figuras científicas em [`report/figures/`](../report/figures/).

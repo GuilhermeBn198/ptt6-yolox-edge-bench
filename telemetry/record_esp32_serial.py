@@ -79,12 +79,13 @@ def read_serial_line(ser, log_lines: list[str], timeout_s: float = 30.0) -> str:
 def send_and_collect_single(ser, frame_bytes: bytes, expected_id: int, log_lines: list[str], is_img: bool = True):
     """Envia quadro IMG ou RUN (fora da janela), aguarda ACK e coleta RES + DET + END."""
     if is_img:
-        # Envia cabeçalho + payload em blocos de 16 KB para evitar overflow do buffer USB-UART
+        # Envia cabeçalho + payload em blocos de 4 KB para evitar overflow do buffer RX
         mv = memoryview(frame_bytes)
-        chunk_sz = 16384
+        chunk_sz = 4096
         for offset in range(0, len(mv), chunk_sz):
             ser.write(mv[offset:offset + chunk_sz])
-        ser.flush()
+            ser.flush()
+            time.sleep(0.002)
     else:
         ser.write(frame_bytes)
         ser.flush()
@@ -171,8 +172,9 @@ def compute_e2_pilot_summary(pilot_runs: list[dict]) -> dict:
 
 
 def main():
+    default_port = "/dev/ttyACM0" if os.path.exists("/dev/ttyACM0") else "/dev/ttyUSB0"
     parser = argparse.ArgumentParser(description="Coletor e Alimentador Serial ESP32-S3 (Protocolo v1.5 / main.tex)")
-    parser.add_argument("--port", default="/dev/ttyUSB0", help="Porta serial do ESP32-S3")
+    parser.add_argument("--port", default=default_port, help="Porta serial do ESP32-S3")
     parser.add_argument("--baud", type=int, default=115200, help="Baud rate (padrão ESP-IDF console: 115200)")
     parser.add_argument("--inputs-dir", default="data/inputs_50_bgr_416", help="Diretório com os M=50 arquivos .bin BGR")
     parser.add_argument("--out-csv", default="data/raw/esp32_benchmark_raw.csv")

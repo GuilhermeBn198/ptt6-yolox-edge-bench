@@ -1,0 +1,2339 @@
+{
+  "platform": "MCU ESP32-S3 (esp-tflite-micro + ESP-NN SIMD)",
+  "model": "models/yolox_nano_ppe_int8.tflite",
+  "model_sha256": "7205d9dd41fb532c54eec2283a0f78e8aa491ed3f8c42b6b46c4e24df1778f54",
+  "channel_order": "BGR",
+  "input_res": 416,
+  "out_scale": 0.027536,
+  "out_zp": -34,
+  "conf_thr": 0.25,
+  "nms_thr": 0.45,
+  "num_images": 50,
+  "total_detections": 153,
+  "images": [
+    {
+      "image_id": "01_image1",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948795,
+        "t_post_us": 1617,
+        "t_total_us": 4981050,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            268.45,
+            138.98,
+            316.36,
+            183.09
+          ],
+          "score": 0.8492,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            299.67,
+            178.68,
+            368.53,
+            237.04
+          ],
+          "score": 0.2821,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "02_image10",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948912,
+        "t_post_us": 1857,
+        "t_total_us": 4981407,
+        "n_det": 5
+      },
+      "num_detections": 5,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            225.15,
+            173.91,
+            255.15,
+            220.52
+          ],
+          "score": 0.825,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            192.51,
+            180.51,
+            223.35,
+            214.94
+          ],
+          "score": 0.7052,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            99.76,
+            172.21,
+            159.76,
+            249.08
+          ],
+          "score": 0.5095,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            92.62,
+            156.76,
+            158.09,
+            264.24
+          ],
+          "score": 0.4003,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            116.1,
+            174.68,
+            149.59,
+            210.07
+          ],
+          "score": 0.3821,
+          "cls": 0,
+          "class_name": "helmet"
+        }
+      ]
+    },
+    {
+      "image_id": "03_image1003",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948737,
+        "t_post_us": 1725,
+        "t_total_us": 4981099,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            122.91,
+            95.69,
+            197.69,
+            162.67
+          ],
+          "score": 0.8189,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            107.0,
+            56.5,
+            205.96,
+            194.21
+          ],
+          "score": 0.7006,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            135.69,
+            66.88,
+            169.19,
+            88.44
+          ],
+          "score": 0.6369,
+          "cls": 0,
+          "class_name": "helmet"
+        }
+      ]
+    },
+    {
+      "image_id": "04_image1007",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948687,
+        "t_post_us": 1716,
+        "t_total_us": 4981041,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            160.2,
+            104.71,
+            241.42,
+            179.49
+          ],
+          "score": 0.7476,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            131.69,
+            67.66,
+            245.26,
+            287.58
+          ],
+          "score": 0.552,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            160.64,
+            108.07,
+            241.86,
+            182.85
+          ],
+          "score": 0.367,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "05_image1009",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948686,
+        "t_post_us": 1718,
+        "t_total_us": 4981042,
+        "n_det": 4
+      },
+      "num_detections": 4,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            180.13,
+            17.0,
+            388.26,
+            368.2
+          ],
+          "score": 0.5944,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            211.67,
+            67.14,
+            360.53,
+            257.87
+          ],
+          "score": 0.4618,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            138.58,
+            111.85,
+            234.85,
+            337.91
+          ],
+          "score": 0.3458,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            151.15,
+            148.89,
+            236.97,
+            310.57
+          ],
+          "score": 0.3071,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "06_image1014",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948775,
+        "t_post_us": 1879,
+        "t_total_us": 4981292,
+        "n_det": 6
+      },
+      "num_detections": 6,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            149.58,
+            113.65,
+            262.61,
+            214.89
+          ],
+          "score": 0.8227,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            111.01,
+            61.72,
+            292.37,
+            300.58
+          ],
+          "score": 0.5937,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            189.08,
+            63.63,
+            239.7,
+            94.47
+          ],
+          "score": 0.5277,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            130.88,
+            189.3,
+            168.27,
+            225.68
+          ],
+          "score": 0.389,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            134.6,
+            191.33,
+            165.44,
+            230.84
+          ],
+          "score": 0.3071,
+          "cls": 1,
+          "class_name": "gloves"
+        },
+        {
+          "bbox_xyxy": [
+            184.55,
+            90.21,
+            239.52,
+            101.65
+          ],
+          "score": 0.276,
+          "cls": 4,
+          "class_name": "goggles"
+        }
+      ]
+    },
+    {
+      "image_id": "07_image1019",
+      "timing_us": {
+        "t_pre_us": 30639,
+        "t_inf_us": 4948757,
+        "t_post_us": 1316,
+        "t_total_us": 4980712,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "08_image1023",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948686,
+        "t_post_us": 1724,
+        "t_total_us": 4981047,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            171.39,
+            81.35,
+            275.45,
+            211.06
+          ],
+          "score": 0.5914,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            153.73,
+            34.1,
+            320.71,
+            315.86
+          ],
+          "score": 0.5118,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "09_image1037",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948907,
+        "t_post_us": 2322,
+        "t_total_us": 4981866,
+        "n_det": 10
+      },
+      "num_detections": 10,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            220.8,
+            114.84,
+            261.41,
+            156.58
+          ],
+          "score": 0.9008,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            283.47,
+            92.71,
+            320.86,
+            121.9
+          ],
+          "score": 0.8758,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            40.44,
+            152.6,
+            60.84,
+            169.9
+          ],
+          "score": 0.8735,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            273.48,
+            133.23,
+            338.65,
+            216.73
+          ],
+          "score": 0.8227,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            35.86,
+            178.03,
+            65.86,
+            220.95
+          ],
+          "score": 0.7734,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            268.57,
+            95.38,
+            347.96,
+            229.35
+          ],
+          "score": 0.7218,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            18.05,
+            136.26,
+            81.75,
+            263.05
+          ],
+          "score": 0.6142,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            275.85,
+            144.57,
+            295.16,
+            170.0
+          ],
+          "score": 0.4299,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            36.11,
+            166.44,
+            80.43,
+            233.42
+          ],
+          "score": 0.3412,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            108.47,
+            136.26,
+            126.25,
+            159.67
+          ],
+          "score": 0.2502,
+          "cls": 1,
+          "class_name": "gloves"
+        }
+      ]
+    },
+    {
+      "image_id": "10_image1065",
+      "timing_us": {
+        "t_pre_us": 30639,
+        "t_inf_us": 4948817,
+        "t_post_us": 1723,
+        "t_total_us": 4981179,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            131.42,
+            96.91,
+            288.71,
+            226.62
+          ],
+          "score": 0.7992,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            90.43,
+            52.34,
+            316.48,
+            366.91
+          ],
+          "score": 0.7506,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "11_image1074",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948787,
+        "t_post_us": 1562,
+        "t_total_us": 4980987,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            107.34,
+            39.13,
+            321.28,
+            362.49
+          ],
+          "score": 0.5232,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "12_image1076",
+      "timing_us": {
+        "t_pre_us": 30639,
+        "t_inf_us": 4948739,
+        "t_post_us": 1626,
+        "t_total_us": 4981004,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            105.68,
+            32.58,
+            331.74,
+            364.96
+          ],
+          "score": 0.5914,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            161.2,
+            84.24,
+            280.63,
+            217.58
+          ],
+          "score": 0.3958,
+          "cls": 2,
+          "class_name": "vest"
+        }
+      ]
+    },
+    {
+      "image_id": "13_image1088",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948814,
+        "t_post_us": 1542,
+        "t_total_us": 4980994,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            120.43,
+            48.15,
+            394.54,
+            345.87
+          ],
+          "score": 0.3609,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "14_image1089",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948824,
+        "t_post_us": 1356,
+        "t_total_us": 4980818,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "15_image110",
+      "timing_us": {
+        "t_pre_us": 30636,
+        "t_inf_us": 4948812,
+        "t_post_us": 1913,
+        "t_total_us": 4981361,
+        "n_det": 6
+      },
+      "num_detections": 6,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            202.19,
+            142.06,
+            224.97,
+            161.36
+          ],
+          "score": 0.8227,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            113.76,
+            193.23,
+            139.9,
+            218.66
+          ],
+          "score": 0.6794,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            91.63,
+            181.86,
+            150.27,
+            259.09
+          ],
+          "score": 0.6581,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            178.66,
+            143.32,
+            242.35,
+            260.06
+          ],
+          "score": 0.6111,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            185.7,
+            192.96,
+            226.5,
+            261.81
+          ],
+          "score": 0.4398,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            189.29,
+            161.01,
+            208.07,
+            186.44
+          ],
+          "score": 0.273,
+          "cls": 0,
+          "class_name": "helmet"
+        }
+      ]
+    },
+    {
+      "image_id": "16_image1111",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948820,
+        "t_post_us": 1869,
+        "t_total_us": 4981327,
+        "n_det": 5
+      },
+      "num_detections": 5,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            172.65,
+            98.92,
+            309.71,
+            221.68
+          ],
+          "score": 0.8227,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            143.89,
+            29.7,
+            325.26,
+            371.36
+          ],
+          "score": 0.8227,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            196.63,
+            65.58,
+            265.16,
+            84.89
+          ],
+          "score": 0.6142,
+          "cls": 4,
+          "class_name": "goggles"
+        },
+        {
+          "bbox_xyxy": [
+            194.59,
+            36.38,
+            278.08,
+            76.08
+          ],
+          "score": 0.5717,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            283.69,
+            157.89,
+            324.31,
+            217.6
+          ],
+          "score": 0.3298,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "17_image1114",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948779,
+        "t_post_us": 1810,
+        "t_total_us": 4981226,
+        "n_det": 6
+      },
+      "num_detections": 6,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            166.9,
+            44.13,
+            343.34,
+            358.7
+          ],
+          "score": 0.7696,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            184.69,
+            92.75,
+            321.75,
+            226.09
+          ],
+          "score": 0.6794,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            289.49,
+            201.37,
+            326.88,
+            244.28
+          ],
+          "score": 0.3154,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            211.95,
+            49.71,
+            290.96,
+            73.89
+          ],
+          "score": 0.2821,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            191.66,
+            89.81,
+            336.48,
+            223.14
+          ],
+          "score": 0.273,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            204.21,
+            54.53,
+            299.58,
+            85.37
+          ],
+          "score": 0.2502,
+          "cls": 4,
+          "class_name": "goggles"
+        }
+      ]
+    },
+    {
+      "image_id": "18_image116",
+      "timing_us": {
+        "t_pre_us": 30642,
+        "t_inf_us": 4948882,
+        "t_post_us": 1943,
+        "t_total_us": 4981467,
+        "n_det": 8
+      },
+      "num_detections": 8,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            256.73,
+            142.81,
+            287.57,
+            168.24
+          ],
+          "score": 0.6816,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            278.51,
+            191.8,
+            359.73,
+            298.77
+          ],
+          "score": 0.5057,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            234.1,
+            172.03,
+            301.09,
+            224.31
+          ],
+          "score": 0.3821,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            224.21,
+            156.05,
+            395.85,
+            332.48
+          ],
+          "score": 0.3025,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            306.2,
+            180.67,
+            332.34,
+            209.06
+          ],
+          "score": 0.2563,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            11.05,
+            142.97,
+            131.05,
+            369.03
+          ],
+          "score": 0.2548,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            285.41,
+            244.94,
+            315.41,
+            303.03
+          ],
+          "score": 0.2502,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            229.43,
+            133.89,
+            328.39,
+            260.68
+          ],
+          "score": 0.2502,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "19_image122",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948964,
+        "t_post_us": 1673,
+        "t_total_us": 4981275,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            87.14,
+            46.99,
+            332.66,
+            418.08
+          ],
+          "score": 0.7992,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            152.05,
+            175.51,
+            285.38,
+            377.03
+          ],
+          "score": 0.4549,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "20_image1354",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948743,
+        "t_post_us": 2286,
+        "t_total_us": 4981667,
+        "n_det": 10
+      },
+      "num_detections": 10,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            217.71,
+            84.67,
+            414.69,
+            247.11
+          ],
+          "score": 0.8462,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            237.33,
+            113.41,
+            370.67,
+            209.23
+          ],
+          "score": 0.8189,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            138.47,
+            83.18,
+            305.45,
+            245.63
+          ],
+          "score": 0.6551,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            173.23,
+            109.38,
+            263.91,
+            210.62
+          ],
+          "score": 0.6369,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            255.94,
+            82.48,
+            302.76,
+            111.01
+          ],
+          "score": 0.5459,
+          "cls": 7,
+          "class_name": "no_helmet"
+        },
+        {
+          "bbox_xyxy": [
+            5.08,
+            57.7,
+            167.53,
+            244.12
+          ],
+          "score": 0.4367,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            192.26,
+            81.1,
+            243.12,
+            119.72
+          ],
+          "score": 0.4231,
+          "cls": 7,
+          "class_name": "no_helmet"
+        },
+        {
+          "bbox_xyxy": [
+            195.63,
+            94.35,
+            230.06,
+            110.72
+          ],
+          "score": 0.3503,
+          "cls": 8,
+          "class_name": "no_goggle"
+        },
+        {
+          "bbox_xyxy": [
+            264.8,
+            97.39,
+            298.29,
+            109.15
+          ],
+          "score": 0.3276,
+          "cls": 8,
+          "class_name": "no_goggle"
+        },
+        {
+          "bbox_xyxy": [
+            122.16,
+            143.51,
+            194.92,
+            227.0
+          ],
+          "score": 0.2502,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "21_image140",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948839,
+        "t_post_us": 1808,
+        "t_total_us": 4981285,
+        "n_det": 4
+      },
+      "num_detections": 4,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            141.19,
+            158.86,
+            212.3,
+            247.5
+          ],
+          "score": 0.7643,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            151.76,
+            188.95,
+            207.01,
+            247.32
+          ],
+          "score": 0.6506,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            223.53,
+            160.88,
+            248.27,
+            187.02
+          ],
+          "score": 0.4913,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            210.65,
+            153.28,
+            276.12,
+            249.55
+          ],
+          "score": 0.3943,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "22_image149",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948946,
+        "t_post_us": 1761,
+        "t_total_us": 4981345,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            106.51,
+            146.54,
+            197.63,
+            327.9
+          ],
+          "score": 0.4928,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            98.66,
+            177.74,
+            189.34,
+            311.07
+          ],
+          "score": 0.3761,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            291.86,
+            271.0,
+            366.64,
+            397.19
+          ],
+          "score": 0.3397,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "23_image150",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948783,
+        "t_post_us": 1891,
+        "t_total_us": 4981311,
+        "n_det": 7
+      },
+      "num_detections": 7,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            253.04,
+            144.01,
+            360.52,
+            340.99
+          ],
+          "score": 0.7696,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            267.56,
+            192.91,
+            353.38,
+            322.62
+          ],
+          "score": 0.7506,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            268.05,
+            190.86,
+            358.73,
+            327.91
+          ],
+          "score": 0.6157,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            167.96,
+            178.58,
+            242.75,
+            282.64
+          ],
+          "score": 0.5937,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            123.79,
+            133.04,
+            243.79,
+            314.4
+          ],
+          "score": 0.4549,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            111.44,
+            184.09,
+            202.12,
+            313.81
+          ],
+          "score": 0.2866,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            166.58,
+            135.17,
+            221.82,
+            174.86
+          ],
+          "score": 0.2669,
+          "cls": 0,
+          "class_name": "helmet"
+        }
+      ]
+    },
+    {
+      "image_id": "24_image160",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948716,
+        "t_post_us": 1554,
+        "t_total_us": 4980907,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            150.55,
+            40.57,
+            252.28,
+            401.58
+          ],
+          "score": 0.4709,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "25_image161",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948987,
+        "t_post_us": 1638,
+        "t_total_us": 4981262,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            113.57,
+            112.25,
+            326.5,
+            337.23
+          ],
+          "score": 0.7006,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            58.5,
+            7.5,
+            373.08,
+            410.54
+          ],
+          "score": 0.6369,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            55.88,
+            61.9,
+            379.23,
+            413.1
+          ],
+          "score": 0.3154,
+          "cls": 2,
+          "class_name": "vest"
+        }
+      ]
+    },
+    {
+      "image_id": "26_image167",
+      "timing_us": {
+        "t_pre_us": 30642,
+        "t_inf_us": 4948902,
+        "t_post_us": 2560,
+        "t_total_us": 4982104,
+        "n_det": 14
+      },
+      "num_detections": 14,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            311.32,
+            120.25,
+            378.3,
+            300.76
+          ],
+          "score": 0.7992,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            213.44,
+            65.26,
+            237.51,
+            110.6
+          ],
+          "score": 0.7961,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            317.53,
+            78.75,
+            359.48,
+            111.49
+          ],
+          "score": 0.7431,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            258.78,
+            80.12,
+            289.62,
+            133.61
+          ],
+          "score": 0.7431,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            232.71,
+            113.87,
+            313.93,
+            326.8
+          ],
+          "score": 0.6756,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            304.88,
+            54.24,
+            377.98,
+            360.27
+          ],
+          "score": 0.6597,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            115.82,
+            65.09,
+            209.47,
+            354.72
+          ],
+          "score": 0.6581,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            175.51,
+            104.7,
+            259.0,
+            335.97
+          ],
+          "score": 0.6142,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            128.17,
+            108.72,
+            205.04,
+            333.71
+          ],
+          "score": 0.5944,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            245.56,
+            81.67,
+            307.53,
+            341.1
+          ],
+          "score": 0.552,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            170.56,
+            80.04,
+            198.18,
+            114.47
+          ],
+          "score": 0.4777,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            163.27,
+            59.93,
+            247.16,
+            341.69
+          ],
+          "score": 0.4034,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            253.08,
+            322.61,
+            301.22,
+            368.17
+          ],
+          "score": 0.4003,
+          "cls": 3,
+          "class_name": "boots"
+        },
+        {
+          "bbox_xyxy": [
+            138.86,
+            332.45,
+            162.93,
+            360.84
+          ],
+          "score": 0.3821,
+          "cls": 3,
+          "class_name": "boots"
+        }
+      ]
+    },
+    {
+      "image_id": "27_image168",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948829,
+        "t_post_us": 1691,
+        "t_total_us": 4981158,
+        "n_det": 3
+      },
+      "num_detections": 3,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            96.83,
+            7.22,
+            363.5,
+            410.26
+          ],
+          "score": 0.825,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            131.75,
+            105.06,
+            333.27,
+            317.99
+          ],
+          "score": 0.6581,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            122.93,
+            93.14,
+            330.08,
+            312.01
+          ],
+          "score": 0.6066,
+          "cls": 2,
+          "class_name": "vest"
+        }
+      ]
+    },
+    {
+      "image_id": "28_image169",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948876,
+        "t_post_us": 1638,
+        "t_total_us": 4981152,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            30.0,
+            33.77,
+            391.01,
+            404.86
+          ],
+          "score": 0.5232,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "29_image180",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948866,
+        "t_post_us": 1640,
+        "t_total_us": 4981143,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            58.46,
+            8.98,
+            400.12,
+            412.02
+          ],
+          "score": 0.6142,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "30_image182",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948828,
+        "t_post_us": 1449,
+        "t_total_us": 4980914,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "31_image190",
+      "timing_us": {
+        "t_pre_us": 30636,
+        "t_inf_us": 4948441,
+        "t_post_us": 1307,
+        "t_total_us": 4980384,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "32_image207",
+      "timing_us": {
+        "t_pre_us": 30636,
+        "t_inf_us": 4948948,
+        "t_post_us": 1361,
+        "t_total_us": 4980945,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "33_image225",
+      "timing_us": {
+        "t_pre_us": 30636,
+        "t_inf_us": 4948579,
+        "t_post_us": 1324,
+        "t_total_us": 4980539,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "34_image231",
+      "timing_us": {
+        "t_pre_us": 30635,
+        "t_inf_us": 4948939,
+        "t_post_us": 1478,
+        "t_total_us": 4981052,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            45.17,
+            14.81,
+            290.69,
+            429.11
+          ],
+          "score": 0.2502,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "35_image241",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4949055,
+        "t_post_us": 1781,
+        "t_total_us": 4981474,
+        "n_det": 6
+      },
+      "num_detections": 6,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            107.43,
+            93.83,
+            230.19,
+            234.71
+          ],
+          "score": 0.6377,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            112.03,
+            310.89,
+            241.74,
+            372.56
+          ],
+          "score": 0.417,
+          "cls": 3,
+          "class_name": "boots"
+        },
+        {
+          "bbox_xyxy": [
+            109.38,
+            95.66,
+            235.57,
+            240.48
+          ],
+          "score": 0.4003,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            169.26,
+            55.64,
+            214.6,
+            87.34
+          ],
+          "score": 0.3685,
+          "cls": 4,
+          "class_name": "goggles"
+        },
+        {
+          "bbox_xyxy": [
+            109.75,
+            344.4,
+            205.57,
+            378.99
+          ],
+          "score": 0.3639,
+          "cls": 3,
+          "class_name": "boots"
+        },
+        {
+          "bbox_xyxy": [
+            77.08,
+            41.67,
+            285.21,
+            374.05
+          ],
+          "score": 0.276,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "36_image257",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4949136,
+        "t_post_us": 1763,
+        "t_total_us": 4981536,
+        "n_det": 4
+      },
+      "num_detections": 4,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            170.58,
+            133.52,
+            268.61,
+            223.77
+          ],
+          "score": 0.8507,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            138.09,
+            93.12,
+            300.54,
+            295.6
+          ],
+          "score": 0.7279,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            214.71,
+            89.61,
+            274.71,
+            117.37
+          ],
+          "score": 0.3222,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            151.13,
+            150.18,
+            187.51,
+            200.8
+          ],
+          "score": 0.2502,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "37_image271",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4949101,
+        "t_post_us": 1803,
+        "t_total_us": 4981542,
+        "n_det": 4
+      },
+      "num_detections": 4,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            114.3,
+            21.23,
+            210.11,
+            78.01
+          ],
+          "score": 0.7696,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            132.93,
+            49.42,
+            211.58,
+            86.81
+          ],
+          "score": 0.7506,
+          "cls": 4,
+          "class_name": "goggles"
+        },
+        {
+          "bbox_xyxy": [
+            66.12,
+            21.69,
+            340.23,
+            372.89
+          ],
+          "score": 0.6824,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            198.29,
+            335.33,
+            277.31,
+            384.81
+          ],
+          "score": 0.4731,
+          "cls": 3,
+          "class_name": "boots"
+        }
+      ]
+    },
+    {
+      "image_id": "38_image287",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948992,
+        "t_post_us": 1586,
+        "t_total_us": 4981215,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            124.84,
+            7.69,
+            363.69,
+            399.78
+          ],
+          "score": 0.4094,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "39_image296",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948579,
+        "t_post_us": 1340,
+        "t_total_us": 4980556,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "40_image324",
+      "timing_us": {
+        "t_pre_us": 30636,
+        "t_inf_us": 4949098,
+        "t_post_us": 2041,
+        "t_total_us": 4981775,
+        "n_det": 6
+      },
+      "num_detections": 6,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            156.07,
+            174.93,
+            190.5,
+            229.91
+          ],
+          "score": 0.9008,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            47.0,
+            23.23,
+            87.61,
+            57.65
+          ],
+          "score": 0.8492,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            223.25,
+            208.4,
+            246.03,
+            252.51
+          ],
+          "score": 0.4936,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            234.27,
+            177.47,
+            261.15,
+            201.54
+          ],
+          "score": 0.461,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            7.65,
+            32.81,
+            137.98,
+            322.44
+          ],
+          "score": 0.348,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            49.17,
+            261.95,
+            142.83,
+            407.45
+          ],
+          "score": 0.3276,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "41_image345",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948971,
+        "t_post_us": 1505,
+        "t_total_us": 4981113,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            265.53,
+            108.6,
+            305.04,
+            150.35
+          ],
+          "score": 0.2502,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "42_image350",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948834,
+        "t_post_us": 1602,
+        "t_total_us": 4981074,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            145.21,
+            95.36,
+            274.92,
+            202.33
+          ],
+          "score": 0.7506,
+          "cls": 2,
+          "class_name": "vest"
+        }
+      ]
+    },
+    {
+      "image_id": "43_image381",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948618,
+        "t_post_us": 1559,
+        "t_total_us": 4980814,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            91.36,
+            57.92,
+            343.74,
+            381.27
+          ],
+          "score": 0.4322,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            175.48,
+            98.19,
+            249.91,
+            164.86
+          ],
+          "score": 0.2563,
+          "cls": 0,
+          "class_name": "helmet"
+        }
+      ]
+    },
+    {
+      "image_id": "44_image389",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948942,
+        "t_post_us": 1736,
+        "t_total_us": 4981316,
+        "n_det": 5
+      },
+      "num_detections": 5,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            162.23,
+            117.07,
+            263.47,
+            205.29
+          ],
+          "score": 0.7961,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            139.89,
+            82.99,
+            277.6,
+            296.93
+          ],
+          "score": 0.7218,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            164.65,
+            135.08,
+            271.62,
+            292.37
+          ],
+          "score": 0.3867,
+          "cls": 5,
+          "class_name": "none"
+        },
+        {
+          "bbox_xyxy": [
+            160.94,
+            87.31,
+            227.61,
+            133.91
+          ],
+          "score": 0.3685,
+          "cls": 0,
+          "class_name": "helmet"
+        },
+        {
+          "bbox_xyxy": [
+            173.01,
+            88.99,
+            210.41,
+            133.1
+          ],
+          "score": 0.273,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "45_image393",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948564,
+        "t_post_us": 1326,
+        "t_total_us": 4980528,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "46_image40",
+      "timing_us": {
+        "t_pre_us": 30641,
+        "t_inf_us": 4948670,
+        "t_post_us": 1649,
+        "t_total_us": 4980960,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            133.55,
+            45.86,
+            238.11,
+            406.87
+          ],
+          "score": 0.6308,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            148.92,
+            106.82,
+            242.13,
+            319.75
+          ],
+          "score": 0.3518,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "47_image401",
+      "timing_us": {
+        "t_pre_us": 30638,
+        "t_inf_us": 4948552,
+        "t_post_us": 1287,
+        "t_total_us": 4980477,
+        "n_det": 0
+      },
+      "num_detections": 0,
+      "detections": []
+    },
+    {
+      "image_id": "48_image423",
+      "timing_us": {
+        "t_pre_us": 30635,
+        "t_inf_us": 4948629,
+        "t_post_us": 1519,
+        "t_total_us": 4980783,
+        "n_det": 1
+      },
+      "num_detections": 1,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            149.33,
+            49.71,
+            340.96,
+            373.06
+          ],
+          "score": 0.276,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    },
+    {
+      "image_id": "49_image431",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948865,
+        "t_post_us": 1623,
+        "t_total_us": 4981125,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            118.79,
+            30.88,
+            332.73,
+            391.89
+          ],
+          "score": 0.7506,
+          "cls": 6,
+          "class_name": "Person"
+        },
+        {
+          "bbox_xyxy": [
+            154.7,
+            80.77,
+            320.89,
+            312.04
+          ],
+          "score": 0.276,
+          "cls": 5,
+          "class_name": "none"
+        }
+      ]
+    },
+    {
+      "image_id": "50_image441",
+      "timing_us": {
+        "t_pre_us": 30637,
+        "t_inf_us": 4948739,
+        "t_post_us": 1646,
+        "t_total_us": 4981022,
+        "n_det": 2
+      },
+      "num_detections": 2,
+      "detections": [
+        {
+          "bbox_xyxy": [
+            137.66,
+            58.54,
+            282.47,
+            203.35
+          ],
+          "score": 0.5338,
+          "cls": 2,
+          "class_name": "vest"
+        },
+        {
+          "bbox_xyxy": [
+            107.54,
+            19.65,
+            339.91,
+            370.85
+          ],
+          "score": 0.5004,
+          "cls": 6,
+          "class_name": "Person"
+        }
+      ]
+    }
+  ]
+}

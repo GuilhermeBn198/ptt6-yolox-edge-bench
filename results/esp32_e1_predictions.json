@@ -1,39 +1,45 @@
 {
   "device": "ESP32-S3",
   "model": "models/yolox_nano_ppe_int8.tflite",
-  "image": "raspberry/pi_zero_2w/test_image.jpg (416x416x3 letterbox RGB)",
+  "model_sha256": "7205d9dd41fb532c54eec2283a0f78e8aa491ed3f8c42b6b46c4e24df1778f54",
+  "image": "01_image1.bin (416x416x3 letterbox BGR)",
   "first_run_timing_us": {
-    "t_pre": 49118,
-    "t_inf": 4953278,
-    "t_post": 1605,
-    "t_total": 5004001,
+    "t_pre": 30638,
+    "t_inf": 4948795,
+    "t_post": 1617,
+    "t_total": 4981050,
     "num_dets": 2
   },
   "num_detections": 2,
   "detections": [
     {
       "det_idx": 0,
-      "class_id": 5,
-      "class_name": "none",
-      "score": 0.3222,
+      "class_id": 0,
+      "class_name": "helmet",
+      "score": 0.8492,
       "bbox_xyxy": [
-        167.73,
-        103.97,
-        274.7,
-        265.65
+        268.45,
+        138.98,
+        316.36,
+        183.09
       ]
     },
     {
       "det_idx": 1,
-      "class_id": 6,
-      "class_name": "Person",
-      "score": 0.6111,
+      "class_id": 5,
+      "class_name": "none",
+      "score": 0.2821,
       "bbox_xyxy": [
-        155.0,
-        71.2,
-        278.35,
-        268.18
+        299.67,
+        178.68,
+        368.53,
+        237.04
       ]
     }
-  ]
+  ],
+  "all_50_images_summary": {
+    "num_images": 50,
+    "total_detections": 153,
+    "file": "data/raw/mcu_e1_50_predictions.json"
+  }
 }

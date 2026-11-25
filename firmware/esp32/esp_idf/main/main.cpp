@@ -13,6 +13,7 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "driver/uart.h"
+#include "driver/usb_serial_jtag.h"
 
 #include "model_data.h"
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
@@ -148,7 +149,15 @@ static void init_uart(void) {
     if (!uart_is_driver_installed(BENCH_UART_PORT)) {
         uart_driver_install(BENCH_UART_PORT, 32768, 0, 0, NULL, 0);
     }
+    if (!usb_serial_jtag_is_driver_installed()) {
+        usb_serial_jtag_driver_config_t usb_cfg = USB_SERIAL_JTAG_DRIVER_CONFIG_DEFAULT();
+        usb_cfg.rx_buffer_size = 32768;
+        usb_cfg.tx_buffer_size = 4096;
+        usb_serial_jtag_driver_install(&usb_cfg);
+    }
 }
+
+static int g_active_serial_backend = 0; // 0 = auto, 1 = usb_serial_jtag, 2 = uart0
 
 static bool uart_read_exact(uint8_t *dst, size_t n, uint32_t timeout_ms) {
     size_t got = 0;
@@ -156,10 +165,28 @@ static bool uart_read_exact(uint8_t *dst, size_t n, uint32_t timeout_ms) {
     while (got < n) {
         int64_t rem_us = deadline - esp_timer_get_time();
         if (rem_us <= 0) return false;
-        TickType_t ticks = pdMS_TO_TICKS(std::min<int64_t>(50, (rem_us / 1000) + 1));
-        int r = uart_read_bytes(BENCH_UART_PORT, dst + got, n - got, ticks);
-        if (r > 0) {
-            got += static_cast<size_t>(r);
+
+        if (g_active_serial_backend == 1) {
+            TickType_t ticks = pdMS_TO_TICKS(std::min<int64_t>(20, (rem_us / 1000) + 1));
+            int r = usb_serial_jtag_read_bytes(dst + got, n - got, ticks);
+            if (r > 0) got += static_cast<size_t>(r);
+        } else if (g_active_serial_backend == 2) {
+            TickType_t ticks = pdMS_TO_TICKS(std::min<int64_t>(20, (rem_us / 1000) + 1));
+            int r = uart_read_bytes(BENCH_UART_PORT, dst + got, n - got, ticks);
+            if (r > 0) got += static_cast<size_t>(r);
+        } else {
+            int r_usb = usb_serial_jtag_read_bytes(dst + got, n - got, pdMS_TO_TICKS(5));
+            if (r_usb > 0) {
+                g_active_serial_backend = 1;
+                got += static_cast<size_t>(r_usb);
+                continue;
+            }
+            int r_uart = uart_read_bytes(BENCH_UART_PORT, dst + got, n - got, pdMS_TO_TICKS(5));
+            if (r_uart > 0) {
+                g_active_serial_backend = 2;
+                got += static_cast<size_t>(r_uart);
+                continue;
+            }
         }
     }
     return true;

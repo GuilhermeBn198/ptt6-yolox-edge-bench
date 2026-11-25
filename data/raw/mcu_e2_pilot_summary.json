@@ -1,0 +1,38 @@
+{
+  "platform": "MCU (ESP32-S3 @ 240 MHz, 8 MB Octal PSRAM)",
+  "pilot_total_inferences": 100,
+  "window_size": 10,
+  "window_medians_t_total_ms": [
+    4981.042,
+    4980.997,
+    4981.251,
+    4981.287,
+    4981.097,
+    4981.164,
+    4980.961,
+    4980.957,
+    4980.986,
+    4980.998
+  ],
+  "window_rel_diffs_pct": [
+    0.0009,
+    0.0051,
+    0.0007,
+    0.0038,
+    0.0013,
+    0.0041,
+    0.0001,
+    0.0006,
+    0.0003
+  ],
+  "warmup_W_empirical": 5,
+  "warmup_W_adopted_per_block": 5,
+  "post_warmup_t_total_median_ms": 4981.007,
+  "post_warmup_t_total_mean_ms": 4981.076,
+  "post_warmup_t_total_std_ms": 0.268,
+  "post_warmup_t_inf_median_ms": 4948.74,
+  "cv_t_total": 5.4e-05,
+  "cv_t_total_percent": 0.0054,
+  "n_formula_eq1_eps1pct": 1,
+  "n_final_adopted": 30
+}
