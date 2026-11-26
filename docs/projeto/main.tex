@@ -112,30 +112,20 @@ resultados válidos isoladamente. O MLPerf Inference associa a cada tarefa uma a
 (tipicamente 99\% da acurácia de referência em ponto flutuante), que o sistema precisa atingir para que o
 desempenho conte \cite{reddi2020mlperf}; o MLPerf Tiny mede acurácia, latência e energia e exige uma acurácia
 mínima por modelo \cite{banbury2021mlperftiny}. Trabalhos de detecção voltados a energia reportam acurácia e
-energia como eixos de um trade-off, e não como um número composto \cite{tu2023femtodet,deputter2025poq}; o
-detector do tipo YOLO quantizado para MCU mais próximo deste estudo reporta mAP ao lado da energia por
-inferência \cite{moosmann2023tinyissimoyolo}. Surveys de TinyML e de quantização tratam a avaliação como
-multiobjetivo \cite{ray2022tinyml,gholami2021survey}. Para a janela de medição, seguimos a separação em
-pré-inferência, inferência e pós-inferência e o uso do EDP \cite{bartoli2025tinyml}.
+energia como eixos de um trade-off, e não como um número composto \cite{tu2023femtodet}; o detector do tipo YOLO
+quantizado para MCU mais próximo deste estudo reporta mAP ao lado da energia por inferência
+\cite{moosmann2023tinyissimoyolo}. Neste trabalho, a janela de medição separa pré-processamento, inferência e
+pós-processamento, e reporta-se também o produto energia--atraso (EDP).
 
 \paragraph{Quantização.} A quantização int8 com aritmética inteira \cite{jacob2018quantization} é o padrão
 para inferência embarcada, e o TensorFlow Lite Micro é o runtime de referência em MCUs
-\cite{david2020tflitemicro}. Quando bem executada, a quantização pós-treino mantém a queda de mAP de
-detectores abaixo de cerca de 1 ponto percentual \cite{wu2020integer}; a avaliação compara o mAP int8 e o
-fp32 no mesmo conjunto de teste \cite{nagel2021whitepaper}. Conjuntos de calibração da ordem de uma centena
-de amostras costumam bastar para estimar as faixas de ativação \cite{krishnamoorthi2018quantizing}, mas
-ativações não-ReLU (sigmoide/Swish) podem degradar a acurácia quantizada \cite{nagel2021whitepaper}. Em
-MCUs, a implantação de redes quantizadas e o custo do ponto flutuante foram caracterizados por
-\citet{novac2021quantization}.
+\cite{david2021tflitemicro}. Na quantização pós-treino, as faixas das ativações são estimadas por calibração com
+amostras representativas, e a escolha dessas faixas determina o erro de quantização \cite{gholami2022survey}; por
+isso, a acurácia do modelo int8 é comparada à do fp32 no mesmo conjunto de teste.
 
-\paragraph{Detector e treinamento.} O YOLOX é um detector \emph{anchor-free} com cabeça desacoplada; sua
-variante Nano tem cerca de 0,91\,M parâmetros e 1,08\,GFLOPs a $416\times416$ \cite{ge2021yolox}. As 300
-épocas do YOLOX referem-se a treino do zero no COCO \cite{ge2021yolox}; a partir de pesos pré-treinados, o
-ajuste fino requer bem menos iterações \cite{he2019rethinking}, e estudos de detecção de EPI com YOLO
-escolhem o número de épocas empiricamente, em geral com parada antecipada
-\cite{otgonbold2022shel5k,ali2022labsafety}. Seguimos as recomendações de relato e reprodutibilidade
-\cite{dodge2019showyourwork,pineau2021reproducibility,henderson2018deeprl}. O número de repetições é definido
-pela variabilidade observada \cite{maricq2018}.
+\paragraph{Detector e repetições.} O YOLOX é um detector \emph{anchor-free} com cabeça desacoplada; sua variante
+Nano tem cerca de 0,91\,M parâmetros e 1,08\,GFLOPs a $416\times416$ \cite{megvii_yolox}. O número de repetições
+das medições é definido pela variabilidade observada \cite{maricq2018}.
 
 \section{Materiais}
 
@@ -156,7 +146,7 @@ Alimentação & USB 5\,V; rádio desligado & fonte 5\,V/2,5\,A\\\bottomrule
 \subsection{Modelo}
 YOLOX-Nano (ativação SiLU) inicializado com os pesos COCO e ajustado uma única vez ao conjunto de EPIs, a
 $416\times416$, por 80 épocas, com lote de 16 e precisão mista em uma GPU, no cronograma padrão do YOLOX
-\cite{ge2021yolox}. O modelo foi exportado para ONNX e convertido para TFLite em fp32 e em int8
+\cite{megvii_yolox}. O modelo foi exportado para ONNX e convertido para TFLite em fp32 e em int8
 \emph{full-integer} (pesos por canal, ativações por tensor). O artefato int8 foi calibrado com 100 imagens do
 conjunto de treino. O mesmo arquivo int8, com hash SHA-256 registrado (\texttt{7205d9dd\ldots}, 1,16\,MiB), é
 executado nas duas plataformas; o fp32 (3,49\,MiB) serve de referência de acurácia e é executado no SBC.
@@ -546,7 +536,8 @@ ponto de equilíbrio a favor de quem pudesse usá-los.
 int8 retém 30\% do mAP@50. Avaliar os tensores antes da concatenação da saída não recupera a acurácia (17,1\% de
 mAP@50), o que exclui a quantização da saída como causa principal. A calibração usou 100 imagens em ordem RGB,
 enquanto o treino, a avaliação e os dispositivos usam BGR; a troca de canais custa 6,4 pontos de mAP@50 mesmo no
-fp32, e as ativações SiLU quantizadas por tensor são sensíveis à faixa de calibração \cite{nagel2021whitepaper}.
+fp32, e a faixa estimada na calibração determina o erro de quantização das ativações SiLU, quantizadas por tensor
+\cite{gholami2022survey}.
 Ambas são causas candidatas, não testadas. Em kernels int8 densos sem desvios dependentes de dados, espera-se que
 $t_{inf}$ dependa principalmente do grafo, das formas dos tensores e dos kernels, e não dos valores dos pesos; a
 medição confirma que $t_{inf}$ não depende da imagem (CV de 0,006\% no MCU), mas parâmetros de quantização
@@ -598,7 +589,7 @@ principal incerteza da comparação por ciclo.
 
 \section*{Disponibilidade de dados e código}
 Código, firmware, artefatos com hash, dados brutos em CSV, scripts de análise
-(\texttt{scripts/analise\_artigo.py}, \texttt{scripts/figuras\_artigo.py}) e figuras estão no repositório
+(\texttt{scripts/\allowbreak analise\_artigo.py} e \texttt{scripts/\allowbreak figuras\_artigo.py}) e figuras estão no repositório
 \url{https://github.com/GuilhermeBn198/ptt6-yolox-edge-bench}, sob licença MIT.
 
 \bibliographystyle{unsrtnat}
