@@ -60,7 +60,7 @@ descritiva).
 |---|---|---|
 | Artefato do modelo | um único `.tflite` int8 por bloco (A/B) | SHA-256 no CSV |
 | Resolução de entrada `r` | **comum às duas plataformas** (D31) | coluna `input_res` |
-| Quantização | PTQ int8 *full-integer*, calibração com 750 imagens do *train* (D17) | script + lista de imagens versionados |
+| Quantização | PTQ int8 *full-integer*; calibração planejada com 750 imagens BGR do *train* (D17); o artefato medido (`7205d9dd…`) foi calibrado com 100 imagens em RGB (D43) | script + lista de imagens versionados |
 | Limiares de pós-processamento | `conf ≥ 0,25`, `IoU_NMS = 0,45`, máx. 100 detecções | `meta.json` |
 | Entradas | mesmas `M = 50` imagens do *test*, pré-letterboxed em `r×r` BGR uint8 (D30), ingeridas direto no modelo (D33) | hash de cada `.bin` |
 | Clock / governor | MCU 240 MHz, sem DFS/light-sleep; SBC `performance` 1 GHz (D21) | `sdkconfig`, `config.txt`, `scaling_governor` |

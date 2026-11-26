@@ -73,41 +73,32 @@ docs/arquitetura/     # Diagramas de arquitetura (C4, DFD, casos de uso, sequên
 .opencode/skills/     # Skill do agente com a base de conhecimento do projeto
 ```
 
-## Resultados Experimentais Consolidados: SBC (Raspberry Pi Zero 2 W) vs. MCU (ESP32-S3) — Protocolo v1.5 (`docs/projeto/main.tex`)
+## Resultados consolidados (artigo em `docs/projeto/main.pdf`)
 
-Todos os experimentos previstos em [`docs/projeto/main.tex`](docs/projeto/main.tex) (`E0`, `E1`, `E2`, `E3`, `E3b`, `E4` e `E5`) foram executados fisicamente em ambas as plataformas na resolução comum de **$416\times 416$** sobre as **mesmas 50 entradas `.bin` do conjunto de teste em ordem de canais BGR** (pré-carregadas em RAM antes da janela cronometrada, com hash do modelo `.tflite` INT8 `SHA-256 = 7205d9dd41fb532c54eec2283a0f78e8aa491ed3f8c42b6b46c4e24df1778f54`):
-- **SBC**: Raspberry Pi Zero 2 W (ARM Cortex-A53 @ 1,0 GHz, governador `performance`, runtime `ai-edge-litert` v2.3.0, 3 blocos $\times$ 10 execuções válidas + 10 *warmups*/bloco).
-- **MCU**: ESP32-S3 (Xtensa LX7 dual-core @ 240 MHz, 8 MB Octal PSRAM `AP_3v3` @ 80 MHz, ESP-IDF v6.1 + `esp-tflite-micro` v1.4.2 + `esp-nn` v1.4.2 SIMD, ingestão serial `IMG` c/ CRC32, 3 blocos $\times$ 10 execuções válidas + 5 *warmups*/bloco).
+Todos os números abaixo saem de [`scripts/analise_artigo.py`](scripts/analise_artigo.py) (semente fixa, a partir de `data/raw/`),
+gravados em [`data/processed/artigo/resultados.json`](data/processed/artigo/resultados.json). Energia **estimada** na entrada de 5 V de
+cada placa pelo modelo de [`scripts/power_model.toml`](scripts/power_model.toml) (SBC: medições publicadas; MCU: datasheet do
+ESP32-S3 v2.2, Tab. 5-9); entre colchetes, os cenários mínimo e máximo.
 
-| Plataforma / Configuração ($416\times 416$, BGR) | Mediana $\tilde{t}_{\text{pre}}$ | Mediana $\tilde{t}_{\text{inf}}$ (IQR) | Mediana $\tilde{t}_{\text{post}}$ | Mediana $\tilde{t}_{\text{total}}$ (IQR) | Throughput ($\text{total/s}$ / $\text{inf/s}$) | Energia 3 Fases $E_{3\text{F}}$ [$P_{\min}\text{–}P_{\max}$] | Energia $E_{\text{inf}}$ | Eficiência $\eta_{3\text{F}}$ / $\eta_{\text{inf}}$ | $\text{EDP}_{3\text{F}}$ ($\text{mJ}\cdot\text{ms}$) |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **SBC INT8 — 4 Threads (`E3`/`E3b`)** | 8,18 ms | **109,44 ms** (0,19 ms) | 5,26 ms | **122,91 ms** (1,30 ms) | **8,13** / 9,14 inf/s | **265,39 mJ** $[212,72\text{–}335,15]$ | 251,78 mJ | **3,77** / 3,97 inf/J | **32.665** |
-| **SBC INT8 — 2 Threads (`E3b`)** | 8,40 ms | **162,71 ms** (0,07 ms) | 5,18 ms | **176,41 ms** (1,38 ms) | **5,67** / 6,15 inf/s | **282,28 mJ** $[221,88\text{–}359,65]$ | 268,48 mJ | **3,54** / 3,72 inf/J | **49.830** |
-| **SBC INT8 — 1 Thread (`E3b`)** | 8,36 ms | **270,73 ms** (0,27 ms) | 5,19 ms | **284,18 ms** (1,36 ms) | **3,52** / 3,69 inf/s | **284,45 mJ** $[213,34\text{–}369,79]$ | 270,84 mJ | **3,52** / 3,69 inf/J | **80.915** |
-| **SBC Float32 — 4 Threads (`E3` p/ `H2`)** | 6,34 ms | **236,47 ms** (1,24 ms) | 6,62 ms | **249,61 ms** (1,56 ms) | **4,00** / 4,22 inf/s | **557,98 mJ** $[448,10\text{–}704,05]$ | 544,95 mJ | **1,79** / 1,84 inf/J | **139.484** |
-| **MCU ESP32-S3 INT8 (`E3` p/ `H1`)** | 30,64 ms | **4948,82 ms** (0,11 ms) | **1,72 ms** | **4981,17 ms** (0,28 ms) | **0,201** / 0,202 inf/s | **1115,79 mJ** $[493,14\text{–}2361,10]$ | 1108,53 mJ | **0,90** / 0,90 inf/J | **5.558.000** |
+| Configuração (416×416, E3, n = 30) | t_pre (ms) | t_inf (ms) | t_post (ms) | t_total (ms) | inf/s | E nominal [mín–máx] (mJ) |
+|---|---:|---:|---:|---:|---:|---:|
+| SBC int8, 4 threads | 8,18 | 109,44 | 5,26 | 122,91 | 8,14 | 265 [213–335] |
+| SBC int8, 2 threads | 8,21 | 162,71 | 5,53 | 176,41 | 5,67 | 247 [192–316] |
+| SBC int8, 1 thread | 8,14 | 270,72 | 5,47 | 284,18 | 3,52 | 284 [213–369] |
+| SBC fp32, 4 threads | 6,14 | 236,47 | 7,12 | 249,61 | 4,01 | 557 [447–703] |
+| MCU int8 (ESP32-S3) | 30,64 | 4.948,82 | 1,72 | 4.981,17 | 0,20 | 2.192 [1.190–3.935] |
 
-- **Acurácia Offline e Retenção $\rho$ com *Bootstrap* (`E0`, [`data/processed/e0_map_test.json`](data/processed/e0_map_test.json), 141 imagens de teste, 1.251 anotações, BGR, 1.000 reamostras)**:
-  - **FP32 (`BGR`)**: $\mathrm{mAP@50} = 54{,}86\%$ ($\text{IC}_{95\%} [50{,}50\%;\,61{,}57\%]$) | $\mathrm{mAP@50:95} = 27{,}10\%$ ($\text{IC}_{95\%} [24{,}81\%;\,30{,}63\%]$) | $\mathrm{AP@50}(\text{vest}) = 88{,}82\%$ ($\text{IC}_{95\%} [81{,}75\%;\,95{,}23\%]$).
-  - **INT8 (`BGR`)**: $\mathrm{mAP@50} = 15{,}97\%$ ($\text{IC}_{95\%} [13{,}91\%;\,19{,}30\%]$) | $\mathrm{mAP@50:95} = 6{,}14\%$ ($\text{IC}_{95\%} [5{,}28\%;\,7{,}57\%]$) | $\mathrm{AP@50}(\text{vest}) = 47{,}78\%$ ($\text{IC}_{95\%} [37{,}66\%;\,57{,}93\%]$).
-  - **Retenção $\rho = \mathrm{mAP}_{\text{int8}} / \mathrm{mAP}_{\text{fp32}}$**: $\rho_{\mathrm{mAP@50}} = 0{,}2911$ ($\text{IC}_{95\%} [0{,}2557;\,0{,}3389]$) | $\rho_{\mathrm{mAP@50:95}} = 0{,}2266$ ($\text{IC}_{95\%} [0{,}1954;\,0{,}2693]$) | $\rho_{\mathrm{AP@50(vest)}} = 0{,}5379$ ($\text{IC}_{95\%} [0{,}4429;\,0{,}6324]$).
-- **Equivalência Funcional nas 50 Imagens BGR (`E1`, [`data/processed/e1_equivalence_report.json`](data/processed/e1_equivalence_report.json))**:
-  - **PC (`x86_64 LiteRT`) $\times$ SBC (`ARM64 LiteRT`)**: `148` vs. `148` detecções, $100\%$ de concordância no número de detecções (`50/50`) e nas classes (`50/50`), $\mathrm{IoU}$ médio de **$0{,}9962$** ($97{,}3\%$ com $\mathrm{IoU} \ge 0{,}95$) e $99{,}32\%$ com $|\Delta\text{score}| \le 1$ passo de quantização (`0,027536`).
-  - **SBC/PC $\times$ MCU (`ESP32-S3 TFLM + ESP-NN SIMD`)**: `148` vs. `153` detecções nas 50 imagens (`117` pareadas da mesma classe com $\mathrm{IoU}$ médio de $0{,}7462$), documentando o efeito de arredondamento de requantização inteira entre os kernels `XNNPACK` (ARM NEON) e `ESP-NN` (Xtensa LX7). Em `01_image1.bin`, ambos detectam o capacete `helmet` (`cls_id=0`, `score=0,8492` na MCU vs. `0,7992` no SBC, `bbox=[268, 139, 316, 183]`).
-- **Piloto de 100 Inferências (`E2`, [`data/raw/sbc_e2_pilot_summary.json`](data/raw/sbc_e2_pilot_summary.json) e [`data/raw/mcu_e2_pilot_summary.json`](data/raw/mcu_e2_pilot_summary.json))**:
-  - **SBC**: $W_{\text{emp}} = 5$ (adotado $W = 10$), $\mathrm{CV}(t_{\text{total}}) = 1{,}140\% \implies N = 5 \implies N_{\text{final}} = 30$.
-  - **MCU**: $W_{\text{emp}} = 5$ (adotado $W = 5$), $\mathrm{CV}(t_{\text{total}}) = 0{,}0064\% \implies N = 1 \implies N_{\text{final}} = 30$.
-- **Throughput Sustentado em 60 s de Laço Fechado (`E4`, [`data/raw/rpi_e4_continuous_60s.csv`](data/raw/rpi_e4_continuous_60s.csv) e [`data/raw/esp32_e4_continuous_60s.csv`](data/raw/esp32_e4_continuous_60s.csv))**:
-  - **SBC**: **481 inferências em $60{,}0\text{ s}$** (**$8{,}02\text{ inf/s}$** sustentado), $\tilde{t}_{\text{total}} = 123{,}38\text{ ms}$, temperatura máxima $65{,}0\,^\circ\text{C}$ e `throttled=0x0`.
-  - **MCU**: **13 inferências em $64{,}75\text{ s}$** (**$0{,}201\text{ inf/s}$** sustentado), $\tilde{t}_{\text{total}} = 4981{,}00\text{ ms}$, deriva temporal nula.
-- **Pegada de Memória (`E5`, [`data/raw/esp32_e5_memory_footprint.json`](data/raw/esp32_e5_memory_footprint.json))**: Mesmo modelo `.tflite` INT8 em Flash ($1{,}158\,\text{MiB}$ vs. $3{,}490\,\text{MiB}$ em FP32); na MCU, a *Tensor Arena* do TFLite Micro ocupa **$2{,}122\,\text{MiB}$ ($2172{,}43\,\text{KiB}$)** na Octal PSRAM ($28{,}6\times$ menor que o RSS do processo Linux no SBC).
-- **Energia por Ciclo Periódico $E_{\text{ciclo}}(f)$ para $f \in \{0{,}2;\,0{,}5;\,1\}\text{ Hz}$ (`E5`, Seção 4.11 de `main.tex`)**:
-  - Em **$f = 0{,}2\text{ Hz}$** (1 inspeção a cada $5\text{ s}$, onde $t_{\text{total,MCU}} = 4981{,}2\text{ ms} < 5000\text{ ms}$): devido ao consumo ocioso do SBC ($P_{\text{ocioso,SBC}} = 0{,}60\text{ W}$ durante $4{,}88\text{ s}$), o SBC consome **$E_{\text{ciclo,SBC}}(0{,}2\text{ Hz}) = 3191{,}54\text{ mJ/ciclo}$**, enquanto o ESP32-S3 consome apenas **$E_{\text{ciclo,MCU}}(0{,}2\text{ Hz}) = 1117{,}03\text{ mJ/ciclo}$** (**$2{,}86\times$ menor na MCU**)! Para $f \in \{0{,}5;\,1\}\text{ Hz}$, apenas o SBC atende à restrição de tempo real ($1391{,}54\text{ mJ}$ e $791{,}54\text{ mJ}$).
-- **Teste Formal das Hipóteses $H_1$ e $H_2$ (`E5`/`E6`, [`data/processed/phase4_e6_report.json`](data/processed/phase4_e6_report.json))**:
-  1. **Hipótese $H_1$ (Teste de Interseção-União — MCU vs. SBC em INT8)**:
-     - **Parte 1 ($\text{Throughput}_{\text{SBC}} > \text{Throughput}_{\text{MCU}}$)**: **Confirmada** ($8{,}13 > 0{,}201\,\text{inf/s}$ na janela completa de 3 fases, speedup de **$40{,}5262\times$**, $\text{IC}_{95\%\,\text{BCa}} [40{,}2366;\,40{,}7773]$, Mann-Whitney $U = 900$, $p = 1{,}51\times 10^{-11}$, $\delta = +1{,}00$; em $t_{\text{inf}}$: speedup de **$45{,}2187\times$**).
-     - **Parte 2 ($E_{\text{SBC}} \ge E_{\text{MCU}}$ por inferência isolada)**: **Refutada em $416\times 416$** ($E_{3\text{F,SBC}} = 265{,}39\,\text{mJ} < E_{3\text{F,MCU}} = 1115{,}79\,\text{mJ}$, robusta em todos os extremos da Tabela 5, incluindo $E_{\text{SBC,máx}} = 335{,}15\,\text{mJ} < E_{\text{MCU,mín}} = 493{,}14\,\text{mJ}$). Como $t_{\text{MCU}}/t_{\text{SBC}} = 40{,}53\times$ supera a razão crítica de potências ($9{,}64\times$ na janela de 3 fases ou $10{,}27\times$ em $t_{\text{inf}}$), o SBC consome menos energia por inferência ativa pelo princípio de **Race-to-Idle** (embora consuma $2{,}86\times$ mais energia por ciclo periódico em $f = 0{,}2\text{ Hz}$).
-  2. **Hipótese $H_2$ (Trade-off INT8 vs. FP32 no SBC)**: **Confirmada** — a quantização INT8 reduz a latência total em **$2{,}0308\times$** ($\text{IC}_{95\%} [2{,}0213;\,2{,}0395]$, de $249{,}61$ para $122{,}91\text{ ms}$, $p = 1{,}51\times 10^{-11}$) e a energia de 3 fases em **$2{,}0990\times$** ($\text{IC}_{95\%} [2{,}0946;\,2{,}1042]$, de $557{,}98$ para $265{,}39\text{ mJ}$, $\delta = -1{,}00$), ao custo de uma retenção de acurácia quantificada em $\rho_{\mathrm{mAP@50}} = 0{,}2911$ ($\text{IC}_{95\%} [0{,}2557;\,0{,}3389]$) e $\rho_{\mathrm{AP@50(vest)}} = 0{,}5379$ ($\text{IC}_{95\%} [0{,}4429;\,0{,}6324]$).
+- **E0 (teste, 141 imagens, BGR)**: fp32 mAP@50 55,0% (IC 95% 50,5–61,6), int8 16,7% (13,9–19,3); retenção ρ = 0,30 (0,26–0,34).
+  O artefato int8 não atinge a referência de 0,99 (ameaça à validade declarada no artigo).
+- **E1**: PC × SBC (LiteRT) equivalentes (97,3% das caixas com IoU ≥ 0,95); entre runtimes (LiteRT, TFLM de referência, ESP-NN)
+  as saídas divergem, mas a qualidade de detecção nas 50 entradas é a mesma (F1 = 0,32).
+- **H1**: throughput confirmado (SBC 40,5× mais rápido); parte energética não sustentada (MCU gasta 8,3× mais por inferência no
+  nominal, 3,6–18,5× nos extremos).
+- **Energia por ciclo**: o MCU gasta menos em todo período que consegue cumprir (≥ 4,98 s) no cenário nominal (SBC 1,45× mais a
+  0,2 Hz; 2,4× a uma inspeção por minuto); no pior caso, só a partir de 113 s.
+- **H2 (SBC)**: int8 × fp32: t_inf 2,16× menor e energia 2,10× menor.
+- **E3b**: S(2) = 1,66×, S(4) = 2,47×, fração paralelizável efetiva p = 79,5%. **E4**: SBC 481 inferências em 60 s
+  (8,02 inf/s, sem *throttling*); MCU 13 em 64,8 s.
 
 ## Reprodutibilidade
 
