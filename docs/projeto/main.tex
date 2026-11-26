@@ -268,10 +268,10 @@ N=\left\lceil\left(\frac{1{,}96\,\mathrm{CV}}{\varepsilon}\right)^{2}\right\rcei
 executa $W$ inferências de aquecimento, marcadas e excluídas, e 10 inferências cronometradas sobre 10 entradas
 distintas, de modo que os três blocos cobrem as mesmas 30 das 50 entradas, na mesma ordem, em todas as
 configurações. No SBC adotou-se $W=10$, acima do valor empírico, com as entradas 1 a 10 no aquecimento, e uma pausa
-térmica de 8\,s entre blocos. No MCU, $W=5$ repetições da primeira entrada do bloco; piloto e benchmark foram
-obtidos na mesma sessão de 100 inferências, e as 45 primeiras, organizadas em três blocos de 5 aquecimentos e 10
-inferências cronometradas, constituem o E3. Dada a variabilidade desprezível do MCU (CV de 0,005\%), essa
-sobreposição não afeta as estimativas. Os dispositivos não são religados entre blocos.
+térmica de 8\,s entre blocos. No MCU, o aquecimento usa $W=5$ repetições da primeira entrada do bloco, e piloto e benchmark vêm da mesma
+sessão de medição: as 45 inferências dos três blocos do E3 (5 de aquecimento e 10 cronometradas cada) e as inferências
+seguintes, sobre as entradas 31 a 50, compõem as 100 do piloto (E2). Como a variabilidade do MCU é desprezível
+(CV de 0,005\%), a definição de $W$ e $N$ não depende da ordem entre piloto e benchmark. Os dispositivos não são religados entre blocos.
 
 \subsection{Modelo de energia}
 A energia é estimada a partir dos tempos medidos por fase e da potência total do dispositivo em cada modo:
@@ -575,7 +575,7 @@ Regulador e acréscimo de placa do MCU não medidos & regulador linear no nomina
 Plataforma confundida com runtime e linguagem (XNNPACK $\times$ TFLM$+$ESP-NN; Python $\times$ C++) & resultados descrevem o par dispositivo $+$ software; versões declaradas; análise de $t_{inf}$ isolado\\
 Um exemplar de cada dispositivo & testes descrevem a repetibilidade da medição, não a variação entre exemplares\\
 Saídas int8 distintas entre runtimes & qualidade de detecção comparada contra as anotações (Tabela~\ref{tab:det50}); a repetir com artefato válido\\
-Blocos consecutivos, sem religar o dispositivo; no MCU, piloto e E3 na mesma sessão & efeito de bloco e autocorrelação verificados; variabilidade do MCU desprezível\\
+Blocos consecutivos, sem religar o dispositivo & efeito de bloco e autocorrelação verificados\\
 30 das 50 entradas em E3; bloco confundido com subconjunto de imagens & $t_{inf}$ não depende da imagem; $t_{post}$ é pequeno\\
 Aquisição e transferência da imagem fora da janela & declarado; viabilidade a 0,2\,Hz no MCU depende de aquisição quase instantânea\\
 Conjunto de teste pequeno (141 imagens) & intervalos por \emph{bootstrap}; AP por classe\\
@@ -592,8 +592,9 @@ todo período que consegue cumprir (a partir de 5\,s), com vantagem de 1,45$\tim
 modelo, só a partir de 113\,s. No SBC, o int8 reduziu latência e energia em cerca de 2$\times$ em relação ao fp32.
 O artefato int8 avaliado não atingiu o critério de acurácia. Os próximos passos são: recalibrar o mesmo grafo na
 ordem de canais do treino e verificar que os tempos se mantêm, ou, se a acurácia continuar inaceitável, adotar
-outra versão quantizada da família YOLO, o que exige nova medição; medir fisicamente a potência das duas placas; e
-perfilar a inferência por operador no MCU.
+outra versão quantizada da família YOLO, o que exige nova medição; e perfilar a inferência por operador no MCU.
+Com instrumentação de potência, a medição física das duas placas substituiria o modelo estimado e fecharia a
+principal incerteza da comparação por ciclo.
 
 \section*{Disponibilidade de dados e código}
 Código, firmware, artefatos com hash, dados brutos em CSV, scripts de análise
