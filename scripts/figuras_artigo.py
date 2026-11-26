@@ -11,6 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.ticker import FuncFormatter
 
 ROOT = Path(__file__).resolve().parents[1]
 A = ROOT / "data" / "processed" / "artigo"
@@ -26,7 +27,7 @@ plt.rcParams.update({
 C = {"SBC_int8_4t": "#1f5fa8", "SBC_int8_2t": "#5b8fd0", "SBC_int8_1t": "#9dbbe3",
      "SBC_fp32_4t": "#d07a1c", "MCU_int8": "#7b3fa0"}
 LBL = {"SBC_int8_4t": "SBC int8\n4 threads", "SBC_int8_2t": "SBC int8\n2 threads", "SBC_int8_1t": "SBC int8\n1 thread",
-       "SBC_fp32_4t": "SBC fp32\n4 threads", "MCU_int8": "MCU int8\n(ESP32-S3)"}
+       "SBC_fp32_4t": "SBC fp32\n4 threads", "MCU_int8": "MCU int8\nESP32-S3"}
 ORDER = ["SBC_int8_4t", "SBC_int8_2t", "SBC_int8_1t", "SBC_fp32_4t", "MCU_int8"]
 GREY = "#6b6b6b"
 
@@ -58,7 +59,7 @@ def main():
     a1.set_yscale("log")
     a1.set_ylim(70, 12000)
     a1.set_yticks([100, 300, 1000, 3000, 10000]); a1.set_yticklabels(["100", "300", "1.000", "3.000", "10.000"])
-    a1.set_xticks(range(len(ORDER))); a1.set_xticklabels([LBL[c] for c in ORDER])
+    a1.set_xticks(range(len(ORDER))); a1.set_xticklabels([LBL[c] for c in ORDER], fontsize=6)
     a1.set_xlim(-0.6, len(ORDER) - 0.4)
     a1.set_ylabel(r"Latência $t_{total}$ (ms, escala log.)")
     a1.set_title(f"MCU leva {br(R['H1']['throughput']['ratio_median_tMCU_over_tSBC'])}× mais que o SBC int8 (4 threads)")
@@ -97,6 +98,7 @@ def main():
     b1.set_xlim(-0.5, len(ORDER) - 0.3)
     b1.set_ylim(0, 4200)
     b1.set_ylabel("Energia por inferência $E$ (mJ)")
+    b1.yaxis.set_major_formatter(FuncFormatter(lambda v, _: br(v, 0)))
     b1.set_title("Ponto: nominal; barra: faixa de potência")
     letter(b1, "a")
 
@@ -118,6 +120,7 @@ def main():
                 textcoords="data", va="center", fontsize=6.5, arrowprops=dict(arrowstyle="-", lw=0.5))
     b2.set_xlim(0, 5600); b2.set_ylim(0, ymax2)
     b2.set_xlabel("Latência do MCU $t_{MCU}$ (ms)"); b2.set_ylabel("Energia por inferência (mJ)")
+    b2.xaxis.set_major_formatter(FuncFormatter(lambda v, _: br(v, 0))); b2.yaxis.set_major_formatter(FuncFormatter(lambda v, _: br(v, 0)))
     b2.set_title(f"MCU precisaria ser {br(R['H1']['breakeven']['nominal']['speedup_needed_MCU'])}× mais rápido")
     letter(b2, "b")
     fig.tight_layout(w_pad=2.0)
@@ -150,7 +153,7 @@ def main():
         c1.text(1 / f * 1.04, 0.13, f"{br(f, 1)} Hz", color=GREY, fontsize=6, rotation=90, va="bottom")
     tc = R["E_ciclo"]["T_min_MCU_le_SBC_s"]["desfavoravel_MCU"]
     c1.axvline(tc, color=C["MCU_int8"], lw=0.5, ls="--")
-    c1.text(tc * 1.05, 0.13, f"{br(tc, 1)} s", color=C["MCU_int8"], fontsize=6, rotation=90, va="bottom")
+    c1.text(tc * 1.05, 0.13, f"{br(tc, 0)} s", color=C["MCU_int8"], fontsize=6, rotation=90, va="bottom")
     c1.set_xscale("log"); c1.set_yscale("log")
     c1.set_xlim(0.1, 300); c1.set_ylim(0.1, 300)
     c1.set_xticks([0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 60, 120, 300]); c1.set_xticklabels(["0,1", "0,2", "0,5", "1", "2", "5", "10", "20", "60", "120", "300"])

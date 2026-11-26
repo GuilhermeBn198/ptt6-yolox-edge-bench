@@ -15,7 +15,7 @@ CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
 CONFIG_PARTITION_TABLE_CUSTOM=y
 CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
 
-# Performance Optimization (-O3)
+# Performance Optimization (-O2, CONFIG_COMPILER_OPTIMIZATION_PERF)
 CONFIG_COMPILER_OPTIMIZATION_PERF=y
 
 # FreeRTOS Main Task Stack & Watchdog (desativado durante inferência longa)
