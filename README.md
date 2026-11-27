@@ -102,29 +102,37 @@ ESP32-S3 v2.2, Tab. 5-9); entre colchetes, os cenários mínimo e máximo.
 
 ## Reprodutibilidade
 
-1. **Execução completa da bateria v1.3 no Raspberry Pi Zero 2 W**:
+1. **Preparação das 50 entradas BGR ($416\times 416\times 3$ `uint8`) e avaliação de acurácia `E0` (COCO + bootstrap)**:
+   ```bash
+   python3 scripts/prepare_50_test_inputs.py
+   python3 scripts/eval_map_tflite.py
+   ```
+2. **Execução completa da bateria no Raspberry Pi Zero 2 W (`E0` ocioso, `E1`, `E2`, `E3`, `E3b`, `E4`, `E5`)**:
    ```bash
    bash raspberry/pi_zero_2w/setup_rpi.sh
    python3 raspberry/pi_zero_2w/run_all_v13_experiments.py
    ```
-2. **Compilação, gravação e coleta serial no ESP32-S3 (ESP-IDF v6.1)**:
+3. **Compilação, gravação e coleta serial completa no ESP32-S3 (`E1`, `E2`, `E3`, `E4`, `E5` — ESP-IDF v6.1)**:
    ```bash
-   bash firmware/esp32/esp_idf/flash_and_benchmark.sh /dev/ttyUSB0
+   bash firmware/esp32/esp_idf/flash_and_benchmark.sh /dev/ttyACM0
+   python3 telemetry/record_esp32_serial.py --port /dev/ttyACM0
    ```
-3. **Análise energética, estatística robusta (`E6`) e geração das 6 figuras científicas**:
+4. **Reprodução determinística das tabelas e figuras do artigo (`docs/projeto/main.pdf`) e da apresentação (`docs/apresentacao/slides.pdf`)**:
    ```bash
+   python3 scripts/analise_artigo.py
+   python3 scripts/figuras_artigo.py
    python3 telemetry/energy_and_stats_v13.py
    python3 telemetry/plot_phase4_v13.py
    ```
 
 ## Entregáveis
 
-- [x] Repositório versionado com licença
+- [x] Repositório versionado com licença ([`LICENSE`](LICENSE)) e metadados de citação ([`CITATION.cff`](CITATION.cff))
 - [x] README de reprodutibilidade e roteiro operacional ([`docs/roteiro_implementacao.qmd`](docs/roteiro_implementacao.qmd))
-- [x] Dados brutos no SBC (`data/raw/rpi_*.csv` e `*.json`), na MCU (`data/raw/esp32_*`) e relatórios processados (`data/processed/phase4_*`)
-- [x] Figuras científicas em alta resolução (`report/figures/fig1..fig6` em `.png` e `.pdf`)
-- [x] Execução física final na MCU (ESP32-S3) com validação de previsão (`E1`), benchmark em 3 blocos (`E3`) e memória (`E5`)
-- [ ] Vídeo de demonstração (3–5 min) nas duas plataformas e submissão final do artigo PDF
+- [x] Dados brutos no SBC (`data/raw/SBC_*.csv`, `rpi_*.csv` e `*.json`), na MCU (`data/raw/MCU_E3_int8.csv`, `esp32_*`, `mcu_*`) e relatórios processados (`data/processed/artigo/*` e `data/processed/phase4_*`)
+- [x] Figuras científicas em alta resolução (`docs/projeto/figs/fig_*.pdf` e `report/figures/fig1..fig6` em `.png` e `.pdf`)
+- [x] Execução física final na MCU (ESP32-S3) e no SBC (Raspberry Pi Zero 2 W) com validação de previsão (`E1`), piloto (`E2`), benchmark em 3 blocos (`E3`/`E3b`), laço contínuo de 60 s (`E4`) e memória/energia (`E5`)
+- [x] Vídeo de demonstração (3–5 min) nas duas plataformas ([`video/README.md`](video/README.md) — [YouTube](https://youtu.be/qOvJVo9876Y)), slides ([`docs/apresentacao/slides.pdf`](docs/apresentacao/slides.pdf)) e artigo final em PDF ([`docs/projeto/main.pdf`](docs/projeto/main.pdf))
 - [ ] (pós-disciplina) Dataset com DOI no Zenodo + submissão a evento regional
 
 ## Plano de ação

@@ -185,6 +185,7 @@ def main():
     parser.add_argument("--out-e4-csv", default="data/raw/esp32_e4_continuous_60s.csv")
     parser.add_argument("--out-e5", default="data/raw/esp32_e5_memory_footprint.json")
     parser.add_argument("--out-log", default="data/raw/esp32_benchmark.log")
+    parser.add_argument("--demo", type=int, default=0, help="Modo demonstração rápida (N imagens BGR em ~5s/imagem, sem sobrescrever data/raw/)")
     args = parser.parse_args()
 
     bin_files = sorted(glob.glob(os.path.join(args.inputs_dir, "*.bin")))
@@ -237,6 +238,31 @@ def main():
     arena_kb = int(boot_info.get("arena", 2224564)) // 1024
     sram_kb = int(boot_info.get("sram_free", 362075)) // 1024
     psram_kb = int(boot_info.get("psram_free", 3672680)) // 1024
+
+    if args.demo > 0:
+        n_demo = min(args.demo, len(inputs_50))
+        print(f"\n--- [MODO DEMONSTRAÇÃO] Executando {n_demo} inferências on-device no ESP32-S3 (416x416 BGR) ---")
+        demo_results = []
+        for idx in range(n_demo):
+            img_id, payload = inputs_50[idx]
+            res = send_and_collect_single(ser, build_img_frame(idx + 1, payload), idx + 1, log_lines, is_img=True)
+            t_pre_ms = res["t_pre_us"] / 1000.0
+            t_inf_ms = res["t_inf_us"] / 1000.0
+            t_post_ms = res["t_post_us"] / 1000.0
+            t_tot_ms = res["t_total_us"] / 1000.0
+            print(
+                f"  [{idx+1}/{n_demo}] Imagem: {img_id}.bin | "
+                f"t_pre={t_pre_ms:.2f} ms | t_inf={t_inf_ms:.2f} ms | t_post={t_post_ms:.2f} ms | "
+                f"t_total={t_tot_ms:.2f} ms ({1000.0/t_tot_ms:.3f} inf/s) | detecções={res['n_det']}"
+            )
+            for d in res["detections"]:
+                print(f"       -> {d['class_name']:<10} (cls={d['cls']}) | score={d['score']:.4f} | bbox={d['bbox_xyxy']}")
+            demo_results.append({"image_id": img_id, **res})
+        ser.close()
+        with open("/tmp/esp32_demo.json", "w", encoding="utf-8") as f:
+            json.dump({"boot": boot_info, "memory": mem_footprint, "runs": demo_results}, f, indent=2, ensure_ascii=False)
+        print("\n[OK] Demonstração concluída com sucesso (salva em /tmp/esp32_demo.json sem alterar data/raw/).")
+        return
 
     all_pilot_runs = []  # Coleta 100 inferências para E2
     e1_50_entries = []   # Coleta as 50 imagens BGR para E1
